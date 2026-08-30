@@ -1,0 +1,887 @@
+@import "tailwindcss";
+
+/* ============================================================
+   ZOOYLUM v5.0 — "Consultancy. Strategy. Solution."
+   Editorial, eye-soothing, strategy-first design system.
+   Palette: Espresso / Sienna Amber / Muted Olive / Warm Ivory /
+   Deep Umber / Dusty Gold. Motif: the Signal Thread.
+   ============================================================ */
+
+@theme inline {
+  --font-display: var(--font-general-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-accent: var(--font-instrument-serif), ui-serif, Georgia, serif;
+}
+
+@theme {
+  /* ---- Palette ---- */
+  --color-espresso: #241f1b;
+  --color-umber: #3a2e26;
+  --color-sienna: #c9702e;
+  --color-sienna-bright: #ce7a34;
+  --color-olive: #7a7a5c;
+  --color-ivory: #f6f1e8;
+  --color-ivory-deep: #ede5d6;
+  --color-gold: #b99456;
+
+  /* ---- Type scale (56-96px display per spec) ---- */
+  --text-display-1: clamp(3.5rem, 6.2vw, 6rem);
+  --text-display-1--line-height: 1.08;
+  --text-display-1--letter-spacing: -0.02em;
+  --text-display-2: clamp(2.375rem, 4.4vw, 3.5rem);
+  --text-display-2--line-height: 1.12;
+  --text-display-2--letter-spacing: -0.015em;
+  --text-display-3: clamp(1.625rem, 2.6vw, 2.125rem);
+  --text-display-3--line-height: 1.18;
+  --text-display-3--letter-spacing: -0.01em;
+  --text-lead: clamp(1.0625rem, 1.3vw, 1.1875rem);
+  --text-lead--line-height: 1.65;
+
+  /* ---- Motion ---- */
+  --ease-read: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-horizon: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* ---- Ambient animations ---- */
+  --animate-drift: drift 44s ease-in-out infinite alternate;
+  --animate-drift-slow: drift 60s ease-in-out infinite alternate-reverse;
+  --animate-pulse-soft: pulse-soft 3s ease-in-out infinite;
+  --animate-ambient: ambient 32s ease-in-out infinite alternate;
+}
+
+/* ============================================================
+   BASE
+   ============================================================ */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-espresso);
+  color: var(--color-ivory);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--color-sienna-bright);
+  color: var(--color-espresso);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-espresso);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-umber);
+  border: 2px solid var(--color-espresso);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-sienna);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-sienna-bright);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ============================================================
+   TYPOGRAPHY UTILITIES
+   ============================================================ */
+
+/* Line-length discipline (Legibility System rule 5): body copy
+   never exceeds ~65 characters per line. */
+.body-copy {
+  max-width: 65ch;
+}
+
+.eyebrow {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(246, 241, 232, 0.55);
+}
+.eyebrow::before {
+  content: "";
+  display: inline-block;
+  width: 1.5rem;
+  height: 2px;
+  margin-right: 0.75rem;
+  vertical-align: middle;
+  background: linear-gradient(90deg, var(--color-sienna), var(--color-gold));
+}
+.eyebrow-dark {
+  color: rgba(36, 31, 27, 0.6);
+}
+.eyebrow-dark::before {
+  background: linear-gradient(90deg, var(--color-sienna), var(--color-gold));
+}
+
+/* Accent word: one or two per headline, thin underline, never a phrase */
+.accent-word {
+  color: var(--color-sienna);
+  position: relative;
+  white-space: nowrap;
+}
+.accent-word::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.08em;
+  height: 1px;
+  background: rgba(201, 112, 46, 0.65);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.6s var(--ease-read) 0.3s;
+}
+.in-view .accent-word::after,
+.accent-word.lit::after {
+  transform: scaleX(1);
+}
+
+/* ============================================================
+   THE SIGNAL THREAD — recurring amber-line motif
+   ============================================================ */
+
+.thread {
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--color-sienna) 0%,
+    var(--color-sienna-bright) 55%,
+    var(--color-gold) 100%
+  );
+}
+
+/* Terrain Gradient — reads as a horizon, not a hard color jump */
+.terrain-gradient {
+  background: linear-gradient(
+    100deg,
+    #241f1b 0%,
+    #3a2e26 55%,
+    #c9702e 100%
+  );
+}
+.terrain-gradient-lit {
+  background: linear-gradient(100deg, #ce7a34 0%, #d08a49 45%, #b99456 100%);
+}
+.terrain-gradient-soft {
+  background: linear-gradient(
+    100deg,
+    #241f1b 0%,
+    #3a2e26 60%,
+    #52402f 100%
+  );
+}
+.terrain-gradient-text {
+  background: linear-gradient(100deg, #c9702e, #d08038 50%, #b99456);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ============================================================
+   QUIET CANOPY TEXTURE (3-4% opacity, slow drift)
+   ============================================================ */
+
+.dappled {
+  position: absolute;
+  inset: -20%;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: radial-gradient(
+      ellipse 340px 240px at 20% 30%,
+      rgba(246, 241, 232, 0.8),
+      transparent 65%
+    ),
+    radial-gradient(
+      ellipse 300px 200px at 72% 60%,
+      rgba(246, 241, 232, 0.5),
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 260px 340px at 48% 82%,
+      rgba(201, 112, 46, 0.4),
+      transparent 65%
+    );
+  filter: blur(2px);
+  animation: var(--animate-drift);
+}
+.dappled--alt {
+  animation: var(--animate-drift-slow);
+  opacity: 0.03;
+}
+
+/* ============================================================
+   LEGIBILITY SYSTEM (spec section 07)
+   ============================================================ */
+
+/* Rule 1 — Scrim-on-demand: soft espresso gradient panel that
+   sits between text and any moving background element. */
+.scrim {
+  background: linear-gradient(
+    180deg,
+    rgba(36, 31, 27, 0.4) 0%,
+    rgba(36, 31, 27, 0.7) 50%,
+    rgba(36, 31, 27, 0.4) 100%
+  );
+}
+
+/* Rule 2 — Text-safe zones: background layers are masked so
+   nothing moves at full strength directly behind active text. */
+.text-safe-mask {
+  -webkit-mask-image: radial-gradient(
+    ellipse 54% 26% at 50% 50%,
+    transparent 0%,
+    transparent 52%,
+    black 82%
+  );
+  mask-image: radial-gradient(
+    ellipse 54% 26% at 50% 50%,
+    transparent 0%,
+    transparent 52%,
+    black 82%
+  );
+}
+
+/* Rule 4 — Motion pauses when the reader pauses: ambient layers
+   freeze while the user is dwelling (scroll idle). */
+.ambient-drift {
+  animation: var(--animate-ambient);
+}
+html[data-reading] .ambient-drift {
+  animation-play-state: paused;
+}
+
+/* ============================================================
+   BUTTON SYSTEM — considered hover states, 2px lift
+   ============================================================ */
+
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.9375rem 1.875rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  border-radius: 0.625rem;
+  overflow: hidden;
+  isolation: isolate;
+  transition:
+    transform 0.3s ease-out,
+    box-shadow 0.3s ease-out,
+    color 0.3s ease-out,
+    background-color 0.3s ease-out,
+    border-color 0.3s ease-out;
+  will-change: transform;
+}
+.btn:active {
+  transform: translateY(1px);
+}
+
+/* Primary — filled Sienna Amber (accessible tint), Terrain
+   Gradient sweep on hover */
+.btn-primary {
+  background: var(--color-sienna-bright);
+  color: var(--color-espresso);
+}
+.btn-primary::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(100deg, #ce7a34 0%, #d08a49 45%, #b99456 100%);
+  transform: translateX(-101%);
+  transition: transform 0.45s var(--ease-horizon);
+}
+.btn-primary:hover::before {
+  transform: translateX(0);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -12px rgba(201, 112, 46, 0.5);
+}
+
+/* Secondary — amber outline, fills on hover */
+.btn-secondary {
+  border: 1px solid rgba(206, 122, 52, 0.65);
+  color: var(--color-sienna-bright);
+  background: transparent;
+}
+.btn-secondary::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(100deg, #ce7a34, #b99456);
+  transform: translateX(-101%);
+  transition: transform 0.45s var(--ease-horizon);
+}
+.btn-secondary:hover::before {
+  transform: translateX(0);
+}
+.btn-secondary:hover {
+  color: var(--color-espresso);
+  border-color: transparent;
+  transform: translateY(-2px);
+}
+
+/* Ghost — thin underline sweep */
+.btn-ghost {
+  padding: 0.9375rem 0.25rem;
+  color: var(--color-ivory);
+  background: transparent;
+  border: none;
+}
+.btn-ghost::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.5rem;
+  height: 1px;
+  background: linear-gradient(90deg, var(--color-sienna), var(--color-gold));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s var(--ease-read);
+}
+.btn-ghost:hover::after {
+  transform: scaleX(1);
+}
+.btn-ghost:hover {
+  color: var(--color-sienna-bright);
+}
+
+/* ============================================================
+   CARD SYSTEM — hairline olive border, thin Signal Thread on
+   the top edge, soft 4px lift
+   ============================================================ */
+
+.card-surface {
+  position: relative;
+  background: var(--color-umber);
+  border: 1px solid rgba(122, 122, 92, 0.25);
+  border-radius: 0.875rem;
+  overflow: hidden;
+  transition:
+    border-color 0.25s ease-out,
+    box-shadow 0.25s ease-out,
+    transform 0.25s ease-out;
+}
+.card-surface::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-sienna), var(--color-gold));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s var(--ease-read);
+}
+.card-surface:hover {
+  transform: translateY(-4px);
+  border-color: rgba(201, 112, 46, 0.4);
+  box-shadow:
+    0 16px 40px -20px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(201, 112, 46, 0.14);
+}
+.card-surface:hover::before {
+  transform: scaleX(1);
+}
+
+/* Card variant for light (Warm Ivory) sections */
+.card-surface-light {
+  background: var(--color-ivory-deep);
+  border: 1px solid rgba(122, 122, 92, 0.35);
+  border-radius: 0.875rem;
+  position: relative;
+  overflow: hidden;
+  transition:
+    border-color 0.25s ease-out,
+    box-shadow 0.25s ease-out,
+    transform 0.25s ease-out;
+}
+.card-surface-light::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-sienna), var(--color-gold));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s var(--ease-read);
+}
+.card-surface-light:hover {
+  transform: translateY(-4px);
+  border-color: rgba(201, 112, 46, 0.45);
+  box-shadow: 0 16px 40px -22px rgba(58, 46, 38, 0.4);
+}
+.card-surface-light:hover::before {
+  transform: scaleX(1);
+}
+
+/* Light section helper — Warm Ivory ground, espresso text */
+.section-light {
+  background: var(--color-ivory);
+  color: var(--color-espresso);
+}
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+
+.section-shell {
+  position: relative;
+  max-width: 1360px;
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+}
+@media (min-width: 768px) {
+  .section-shell {
+    padding-inline: 2.5rem;
+  }
+}
+
+/* ============================================================
+   SCROLL REVEALS — gated behind .js
+   Reveal-on-Read: content lifts in as it enters the reading zone.
+   ============================================================ */
+
+.js .reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 0.6s ease-out,
+    transform 0.6s ease-out;
+  will-change: opacity, transform;
+}
+.js .reveal.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Horizon Wipe — soft horizontal wipe reveal (Terrain Gradient edge) */
+.js .wipe-in {
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 0.9s var(--ease-horizon);
+  will-change: clip-path;
+}
+.js .wipe-in.in-view {
+  clip-path: inset(0 0 0 0);
+}
+
+/* Horizon Rule — the section-divider thread that wipes in */
+.horizon-rule {
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--color-sienna) 0%,
+    var(--color-sienna-bright) 55%,
+    var(--color-gold) 100%
+  );
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.9s var(--ease-horizon);
+}
+.horizon-rule.in-view {
+  transform: scaleX(1);
+}
+
+/* ============================================================
+   CHAPTER 1 — The Noise (4-beat sequence)
+   ============================================================ */
+
+/* First-Read Moment: slower, deliberate hero reveal */
+.js .first-read {
+  opacity: 0;
+  animation: first-read-in 0.7s var(--ease-read) both;
+}
+.js .first-read-slow {
+  animation-duration: 900ms;
+}
+@keyframes first-read-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Beat 1a — the held-breath point of amber light */
+.pulse-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
+  background: var(--color-sienna);
+  box-shadow:
+    0 0 18px rgba(201, 112, 46, 0.85),
+    0 0 46px rgba(201, 112, 46, 0.4);
+  animation: var(--animate-pulse-soft);
+}
+@keyframes pulse-soft {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.3);
+  }
+}
+
+/* Beat 1d — the Signal Thread line */
+.signal-line {
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-sienna), #d08038 60%, var(--color-gold));
+  box-shadow: 0 0 14px rgba(201, 112, 46, 0.5);
+}
+
+/* Fog vignette for beat 1c */
+.vignette {
+  background: radial-gradient(
+    ellipse at 50% 50%,
+    transparent 42%,
+    rgba(14, 11, 9, 0.85) 100%
+  );
+}
+
+/* Drifting marketing-noise fragments */
+.ch1-fragment {
+  position: absolute;
+  font-family: var(--font-body);
+  font-weight: 500;
+  color: rgba(246, 241, 232, 0.85);
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+/* Generic brand-mark silhouettes (never real logos) */
+.ch1-silhouette {
+  position: absolute;
+  background: rgba(122, 122, 92, 0.16);
+  border: 1px solid rgba(246, 241, 232, 0.05);
+  filter: blur(2px);
+  animation: silhouette-breathe 5s ease-in-out infinite alternate;
+}
+@keyframes silhouette-breathe {
+  from {
+    opacity: 0.45;
+  }
+  to {
+    opacity: 0.9;
+  }
+}
+
+/* Headline crossfade stack (beats 1b-1d share one grid cell) */
+.ch1-headline {
+  grid-area: 1 / 1;
+}
+.ch1-headline[data-beat="c"],
+.ch1-headline[data-beat="d"] {
+  opacity: 0;
+}
+
+/* ============================================================
+   AMBIENT DRIFT (shared)
+   ============================================================ */
+
+@keyframes ambient {
+  from {
+    transform: translate3d(-1.5%, -1%, 0);
+  }
+  to {
+    transform: translate3d(1.5%, 1.2%, 0);
+  }
+}
+
+@keyframes drift {
+  0% {
+    transform: translate3d(-3%, -2%, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(2.5%, 1.8%, 0) scale(1.05);
+  }
+  100% {
+    transform: translate3d(-1.5%, 3%, 0) scale(1.02);
+  }
+}
+
+/* ============================================================
+   ACCESSIBILITY — every effect degrades to a plain crossfade
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .js .reveal {
+    opacity: 1;
+    transform: none;
+    transition: opacity 0.3s ease;
+  }
+  .js .wipe-in {
+    clip-path: inset(0 0 0 0);
+  }
+  .js .first-read {
+    opacity: 1;
+    animation: none;
+  }
+  .horizon-rule {
+    transform: scaleX(1);
+  }
+  .dappled,
+  .ambient-drift,
+  .ch1-silhouette {
+    animation: none !important;
+  }
+  .accent-word::after {
+    transform: scaleX(1) !important;
+    transition: none !important;
+  }
+  .btn-primary::before,
+  .btn-secondary::before {
+    display: none !important;
+  }
+  .btn-primary:hover {
+    background: var(--color-gold);
+  }
+  .btn-secondary:hover {
+    background: var(--color-sienna-bright);
+    color: var(--color-espresso);
+  }
+}
+/* ============================================================
+   v5.1 — AMBIENT MOTION & CINEMATIC LAYERS
+   ============================================================ */
+
+/* --- Film grain --- */
+.grain {
+  position: absolute;
+  inset: -60%;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain-jitter 0.9s steps(2) infinite;
+}
+@keyframes grain-jitter {
+  0% { transform: translate3d(0, 0, 0); }
+  25% { transform: translate3d(-2%, 1%, 0); }
+  50% { transform: translate3d(1%, -2%, 0); }
+  75% { transform: translate3d(-1%, -1%, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+/* --- Gradient mesh glow (hero) --- */
+.mesh-glow {
+  background:
+    radial-gradient(ellipse 60% 45% at 18% 12%, rgba(201, 112, 46, 0.17), transparent 62%),
+    radial-gradient(ellipse 50% 40% at 85% 78%, rgba(185, 148, 86, 0.11), transparent 60%),
+    radial-gradient(ellipse 75% 55% at 55% 110%, rgba(58, 46, 38, 0.9), transparent 72%);
+  animation: mesh-drift 18s ease-in-out infinite alternate;
+  will-change: transform;
+}
+@keyframes mesh-drift {
+  from { transform: translate3d(-2%, -1.5%, 0) scale(1.02); }
+  to { transform: translate3d(2%, 2%, 0) scale(1.06); }
+}
+
+/* --- Diagonal light rays --- */
+.rays {
+  background: repeating-linear-gradient(
+    105deg,
+    transparent 0px,
+    transparent 90px,
+    rgba(246, 241, 232, 0.032) 90px,
+    rgba(246, 241, 232, 0.032) 102px,
+    transparent 102px,
+    transparent 230px
+  );
+  animation: ray-breathe 9s ease-in-out infinite;
+}
+@keyframes ray-breathe {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 1; }
+}
+
+/* --- Blade sway --- */
+.blade-sway {
+  transform-origin: bottom center;
+  animation: blade-sway 8s ease-in-out infinite alternate;
+}
+.blade-sway-2 {
+  animation-duration: 11s;
+  animation-delay: -4s;
+}
+.blade-sway-3 {
+  animation-duration: 6.5s;
+  animation-delay: -2s;
+}
+@keyframes blade-sway {
+  from { transform: rotate(-1.5deg); }
+  to { transform: rotate(1.5deg); }
+}
+
+/* --- Floating motes (deterministic positions via inline style) --- */
+.mote {
+  position: absolute;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(246, 241, 232, 0.9), rgba(201, 112, 46, 0.45) 72%);
+  animation: mote-float var(--mote-duration, 11s) ease-in-out infinite alternate;
+  animation-delay: var(--mote-delay, 0s);
+  opacity: var(--mote-opacity, 0.5);
+  will-change: transform;
+}
+@keyframes mote-float {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(12px, -28px, 0); }
+}
+
+/* --- Ripple rings around the pulsing amber point --- */
+.pulse-wrap {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+}
+.ripple-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 1px solid rgba(201, 112, 46, 0.55);
+  animation: ripple-expand 3.2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+.ripple-ring:nth-child(2) {
+  animation-delay: 1.6s;
+}
+@keyframes ripple-expand {
+  from { transform: scale(1); opacity: 0.85; }
+  to { transform: scale(4.4); opacity: 0; }
+}
+
+/* --- Marquee (infinite, GPU-only) --- */
+.marquee-track {
+  display: flex;
+  width: max-content;
+}
+.animate-marquee-ltr {
+  animation: marquee-ltr var(--marquee-duration, 42s) linear infinite;
+  will-change: transform;
+}
+.animate-marquee-rtl {
+  animation: marquee-rtl var(--marquee-duration, 48s) linear infinite;
+  will-change: transform;
+}
+@keyframes marquee-ltr {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+@keyframes marquee-rtl {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.marquee-hover-pause:hover .animate-marquee-ltr,
+.marquee-hover-pause:hover .animate-marquee-rtl {
+  animation-play-state: paused;
+}
+.marquee-fade {
+  -webkit-mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+}
+
+/* --- Ch.1 fragments idle bob --- */
+.ch1-fragment {
+  animation: frag-bob 6s ease-in-out infinite alternate;
+}
+@keyframes frag-bob {
+  from { transform: translateY(0) rotate(-0.4deg); }
+  to { transform: translateY(-9px) rotate(0.4deg); }
+}
+
+/* --- Stat completion glow --- */
+.stat-glow {
+  text-shadow: 0 0 28px rgba(201, 112, 46, 0.8);
+}
+
+/* --- Signal flash easter egg --- */
+@keyframes signal-sweep {
+  0% { transform: translateX(-100%) scaleX(0.3); opacity: 0; }
+  14% { opacity: 1; }
+  55% { transform: translateX(0) scaleX(1); opacity: 1; }
+  100% { transform: translateX(70%) scaleX(0.5); opacity: 0; }
+}
+.signal-sweep-line {
+  animation: signal-sweep 0.9s var(--ease-horizon) forwards;
+}
+
+/* --- Beat indicator (Ch.1) --- */
+.beat-step {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.beat-step .beat-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: rgba(122, 122, 92, 0.5);
+  transition: all 0.5s ease;
+}
+.beat-step .beat-label {
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  color: rgba(246, 241, 232, 0.28);
+  transition: color 0.5s ease;
+}
+.beat-step[data-active="true"] .beat-dot {
+  background: var(--color-sienna);
+  box-shadow: 0 0 10px rgba(201, 112, 46, 0.8);
+  transform: scale(1.5);
+}
+.beat-step[data-active="true"] .beat-label {
+  color: rgba(246, 241, 232, 0.85);
+}
+
+/* --- Reduced motion: new layers --- */
+@media (prefers-reduced-motion: reduce) {
+  .grain,
+  .mesh-glow,
+  .rays,
+  .blade-sway,
+  .mote,
+  .ripple-ring,
+  .ch1-fragment,
+  .signal-sweep-line {
+    animation: none !important;
+  }
+  .animate-marquee-ltr,
+  .animate-marquee-rtl {
+    animation: none !important;
+  }
+}
