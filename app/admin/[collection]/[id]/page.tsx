@@ -52,7 +52,8 @@ export default async function EditorPage({
     for (const f of def.fields) initial[f.name] = serialize(f, row[f.name]);
     slugVal = String(row[def.slugField] ?? "");
   } else {
-    for (const f of def.fields) initial[f.name] = f.kind === "checkbox" ? "false" : "";
+    for (const f of def.fields)
+      initial[f.name] = f.kind === "checkbox" ? (f.name === "published" || f.name === "active" ? "true" : "false") : "";
   }
 
   const base = VIEW_BASE[key];

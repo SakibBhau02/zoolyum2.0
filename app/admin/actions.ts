@@ -113,6 +113,29 @@ export async function saveItem(
   }
 }
 
+export async function duplicateItem(collection: CollectionKey, id: number): Promise<ActionResult> {
+  if (!(await isAuthed())) return { ok: false, error: "Unauthorized." };
+  try {
+    const db = delegates()[collection];
+    const row = (await db.findUnique({ where: { id } })) as Record<string, unknown> | null;
+    if (!row) return { ok: false, error: "Not found." };
+    const slugField = COLLECTIONS[collection].slugField;
+    const tag = Date.now().toString(36);
+    const copy: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(row)) {
+      if (k === "id" || k === "createdAt" || k === "updatedAt") continue;
+      copy[k] = v;
+    }
+    if (typeof copy[slugField] === "string") copy[slugField] = `${copy[slugField]}-copy-${tag}`;
+    if (collection === "posts" || collection === "projects") copy.published = false;
+    await db.create({ data: copy });
+    revalidatePath(`/admin/${collection}`);
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: friendly(e) };
+  }
+}
+
 export async function deleteItem(collection: CollectionKey, id: number): Promise<ActionResult> {
   if (!(await isAuthed())) return { ok: false, error: "Unauthorized." };
   try {
@@ -163,8 +186,9 @@ export async function uploadMedia(_prev: ActionResult, form: FormData): Promise<
     validateUpload(file.type, file.size);
     const buf = Buffer.from(await file.arrayBuffer());
     const saved = await saveFile(buf, file.name, file.type || "application/octet-stream");
+    const alt = String(form.get("alt") ?? "").trim();
     await prisma.media.create({
-      data: { key: saved.key, url: saved.url, mime: saved.mime, size: saved.size },
+      data: { key: saved.key, url: saved.url, mime: saved.mime, size: saved.size, alt: alt || null },
     });
     revalidatePath("/admin/media");
     return { ok: true };

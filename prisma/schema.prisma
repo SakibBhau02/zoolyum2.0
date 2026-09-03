@@ -22,6 +22,7 @@ model Post {
   author    String
   authorRole String
   cover     String
+  published Boolean   @default(true)
   keywords  String[]
   takeaways String[]
   quote     String?
@@ -42,7 +43,8 @@ model Project {
   title     String
   result    String
   timeline  String
-  images    String[]
+  images    Json      @default("[]")
+  published Boolean   @default(true)
   challenge String
   strategy  String
   execution String[]
@@ -110,11 +112,13 @@ model Media {
   key       String   @unique
   url       String
   mime      String?
+  alt       String?
   size      Int?
   width     Int?
   height    Int?
   createdAt DateTime @default(now())
-}model Testimonial {
+}
+model Testimonial {
   id        Int      @id @default(autoincrement())
   quote     String
   author    String

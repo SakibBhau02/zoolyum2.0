@@ -43,7 +43,7 @@ export type ContentProject = {
   title: string;
   result: string;
   timeline: string;
-  images: string[];
+  images: { src: string; alt: string }[];
   challenge: string;
   strategy: string;
   execution: string[];
@@ -93,7 +93,7 @@ function normPost(p: {
 
 function normProject(p: {
   slug: string; client: string; industry: string; services: readonly string[];
-  title: string; result: string; timeline: string; images: readonly string[];
+  title: string; result: string; timeline: string; images: unknown;
   challenge: string; strategy: string; execution: readonly string[];
   stats: unknown; quote?: string;
   quoteAuthor?: string; gradient: string;
@@ -101,7 +101,8 @@ function normProject(p: {
 }): ContentProject {
   return {
     slug: p.slug, client: p.client, industry: p.industry, services: [...p.services],
-    title: p.title, result: p.result, timeline: p.timeline, images: [...p.images],
+    title: p.title, result: p.result, timeline: p.timeline,
+    images: arr(p.images, (g: { src: string; alt: string }) => ({ src: str(g.src), alt: str(g.alt || `${p.client} image`) })),
     challenge: p.challenge, strategy: p.strategy, execution: arr(p.execution, String),
     stats: arr(p.stats, (s: { value: string; label: string }) => ({ value: str(s.value), label: str(s.label) })),
     quote: p.quote, quoteAuthor: p.quoteAuthor, gradient: p.gradient,
@@ -124,7 +125,7 @@ function normProject(p: {
 
 export async function getPosts(): Promise<ContentPost[]> {
   return first(async () => {
-    const rows = await prisma.post.findMany({ orderBy: { date: "desc" } });
+    const rows = await prisma.post.findMany({ where: { published: true }, orderBy: { date: "desc" } });
     return rows.map((p) => normPost({
       ...p,
       keywords: [...p.keywords],
@@ -137,7 +138,7 @@ export async function getPosts(): Promise<ContentPost[]> {
 
 export async function getPostSlugs(): Promise<string[]> {
   return first(
-    async () => (await prisma.post.findMany({ select: { slug: true } })).map((p) => p.slug),
+    async () => (await prisma.post.findMany({ where: { published: true }, select: { slug: true } })).map((p) => p.slug),
     () => POSTS.map((p) => p.slug),
     "getPostSlugs",
   );
@@ -145,7 +146,7 @@ export async function getPostSlugs(): Promise<string[]> {
 
 export async function getPost(slug: string): Promise<ContentPost | null> {
   return first(async () => {
-    const p = await prisma.post.findUnique({ where: { slug } });
+    const p = await prisma.post.findFirst({ where: { slug, published: true } });
     if (!p) return null;
     return normPost({
       ...p,
@@ -162,7 +163,7 @@ export async function getPost(slug: string): Promise<ContentPost | null> {
 
 export async function getPostBody(slug: string): Promise<string[]> {
   return first(async () => {
-    const p = await prisma.post.findUnique({ where: { slug }, select: { body: true } });
+    const p = await prisma.post.findFirst({ where: { slug, published: true }, select: { body: true } });
     return p ? [...p.body] : [];
   }, () => [...(ARTICLE_BODIES[slug] ?? [])], `getPostBody:${slug}`);
 }
@@ -173,7 +174,7 @@ export async function getPostExtras(slug: string): Promise<{
   sections: { heading: string; paras: [number, number] }[];
 }> {
   return first(async () => {
-    const p = await prisma.post.findUnique({ where: { slug }, select: { faqs: true, updated: true } });
+    const p = await prisma.post.findFirst({ where: { slug, published: true }, select: { faqs: true, updated: true } });
     const faqs = arr(p?.faqs, (f: { q: string; a: string }) => ({ q: str(f.q), a: str(f.a) }));
     return { faqs, updated: p?.updated ?? null, sections: ARTICLE_SECTIONS[slug] ?? [] };
   }, () => ({
@@ -185,23 +186,23 @@ export async function getPostExtras(slug: string): Promise<{
 
 export async function getProjects(): Promise<ContentProject[]> {
   return first(async () => {
-    const rows = await prisma.project.findMany();
+    const rows = await prisma.project.findMany({ where: { published: true } });
     return rows.map((p) => normProject({
       ...p,
       services: [...p.services],
-      images: [...p.images],
+      images: p.images,
       execution: [...p.execution],
       stats: p.stats,
       quote: p.quote ?? undefined,
       quoteAuthor: p.quoteAuthor ?? undefined,
       meta: p.meta,
     }));
-  }, () => PROJECTS.map((p) => normProject({ ...p, meta: PROJECT_META[p.slug] })), "getProjects");
+  }, () => PROJECTS.map((p) => normProject({ ...p, images: p.images.map((src, i) => ({ src, alt: `${p.client} case image ${i + 1}` })), meta: PROJECT_META[p.slug] })), "getProjects");
 }
 
 export async function getProjectSlugs(): Promise<string[]> {
   return first(
-    async () => (await prisma.project.findMany({ select: { slug: true } })).map((p) => p.slug),
+    async () => (await prisma.project.findMany({ where: { published: true }, select: { slug: true } })).map((p) => p.slug),
     () => PROJECTS.map((p) => p.slug),
     "getProjectSlugs",
   );
@@ -209,12 +210,12 @@ export async function getProjectSlugs(): Promise<string[]> {
 
 export async function getProject(slug: string): Promise<ContentProject | null> {
   return first(async () => {
-    const p = await prisma.project.findUnique({ where: { slug } });
+    const p = await prisma.project.findFirst({ where: { slug, published: true } });
     if (!p) return null;
     return normProject({
       ...p,
       services: [...p.services],
-      images: [...p.images],
+      images: p.images,
       execution: [...p.execution],
       stats: p.stats,
       quote: p.quote ?? undefined,
@@ -223,7 +224,7 @@ export async function getProject(slug: string): Promise<ContentProject | null> {
     });
   }, () => {
     const p = PROJECTS.find((x) => x.slug === slug);
-    return p ? normProject({ ...p, meta: PROJECT_META[slug] }) : null;
+    return p ? normProject({ ...p, images: p.images.map((src, i) => ({ src, alt: `${p.client} case image ${i + 1}` })), meta: PROJECT_META[slug] }) : null;
   }, `getProject:${slug}`);
 }
 

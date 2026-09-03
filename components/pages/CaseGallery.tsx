@@ -20,7 +20,7 @@ export function CaseGallery({
   images,
   client,
 }: {
-  images: string[];
+  images: { src: string; alt: string }[];
   client: string;
 }) {
   const sectionRef = useRef<HTMLElement>(null);
@@ -98,9 +98,9 @@ export function CaseGallery({
 
   if (images.length === 0) return null;
 
-  const frame = (src: string, i: number, tall = false) => (
+  const frame = (img: { src: string; alt: string }, i: number, tall = false) => (
     <button
-      key={src}
+      key={img.src + i}
       type="button"
       onClick={() => setLightbox(i)}
       aria-label={`Open frame ${i + 1} of ${images.length} - ${client}`}
@@ -112,8 +112,8 @@ export function CaseGallery({
         className={`overflow-hidden ${tall ? "aspect-[3/3.4]" : "aspect-[3/2]"}`}
       >
         <Image
-          src={src}
-          alt={`${client} - frame ${i + 1}`}
+          src={img.src}
+          alt={img.alt || `${client} - frame ${i + 1}`}
           width={960}
           height={640}
           unoptimized
@@ -159,11 +159,11 @@ export function CaseGallery({
           ref={trackRef}
           className="mt-12 flex snap-x snap-mandatory gap-6 overflow-x-auto px-6 pb-4 [-ms-overflow-style:none] [scrollbar-width:none] md:px-10 [&::-webkit-scrollbar]:hidden lg:px-14"
         >
-          {images.map((src, i) => frame(src, i, (i + 1) % 4 === 0))}
+          {images.map((img, i) => frame(img, i, (i + 1) % 4 === 0))}
         </div>
       ) : (
         <div className="section-shell mt-12 grid gap-6 md:grid-cols-2">
-          {images.map((src, i) => frame(src, i))}
+          {images.map((img, i) => frame(img, i))}
         </div>
       )}
 
@@ -198,8 +198,8 @@ export function CaseGallery({
           </button>
           <figure onClick={(e) => e.stopPropagation()} className="max-h-full">
             <Image
-              src={images[lightbox]}
-              alt={`${client} - frame ${lightbox + 1}`}
+              src={images[lightbox].src}
+              alt={images[lightbox].alt || `${client} - frame ${lightbox + 1}`}
               width={1200}
               height={800}
               unoptimized

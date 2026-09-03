@@ -23,10 +23,11 @@ export default async function MediaPage() {
           <div key={f.id} className="card-surface overflow-hidden">
             {f.mime?.startsWith("image/") && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={f.url} alt={f.key} className="h-36 w-full object-cover" loading="lazy" />
+              <img src={f.url} alt={f.alt ?? f.key} className="h-36 w-full object-cover" loading="lazy" />
             )}
             <div className="space-y-2 p-4">
               <p className="truncate font-mono text-xs text-ivory/60" title={f.url}>{f.url}</p>
+              <p className="truncate font-body text-xs text-ivory/45" title={f.alt ?? ""}>{f.alt ? `Alt: ${f.alt}` : "No alt text"}</p>
               <p className="font-body text-xs text-ivory/40">{kb(f.size)}{f.width ? ` · ${f.width}x${f.height}` : ""}</p>
               <div className="flex gap-2">
                 <CopyButton text={f.url} />

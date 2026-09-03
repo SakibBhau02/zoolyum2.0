@@ -168,7 +168,7 @@ export function EditorForm({
           {state.error}
         </p>
       )}
-      <div className="flex flex-wrap items-center gap-3 border-t border-olive/20 pt-6">
+      <div className="sticky bottom-4 z-10 flex flex-wrap items-center gap-3 rounded-2xl border border-olive/25 bg-espresso/90 p-4 shadow-[0_16px_40px_-16px_rgba(0,0,0,0.7)] backdrop-blur-md">
         <button type="submit" disabled={pending} className="btn btn-primary disabled:opacity-50">
           {pending ? "Saving..." : id === "new" ? "Create" : "Save changes"}
         </button>
@@ -180,7 +180,28 @@ export function EditorForm({
       </div>
     </form>
   );
-}export function CopyButton({ text }: { text: string }) {
+}export function DuplicateButton({ collection, id }: { collection: CollectionKey; id: number }) {
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+  return (
+    <button
+      type="button"
+      disabled={busy}
+      onClick={async () => {
+        const { duplicateItem } = await import("./actions");
+        setBusy(true);
+        await duplicateItem(collection, id);
+        setBusy(false);
+        router.refresh();
+      }}
+      className="rounded-lg border border-olive/35 px-3.5 py-2 font-body text-xs font-semibold text-ivory/75 transition-colors hover:border-sienna-bright/60 hover:text-sienna-bright disabled:opacity-40"
+    >
+      {busy ? "Duplicating..." : "Duplicate"}
+    </button>
+  );
+}
+
+export function CopyButton({ text }: { text: string }) {
   const [done, setDone] = useState(false);
   return (
     <button
@@ -224,6 +245,18 @@ export function UploadForm() {
           accept="image/jpeg,image/png,image/webp,image/svg+xml"
           required
           className="w-full cursor-pointer rounded-lg border border-olive/35 bg-espresso px-4 py-2.5 font-body text-sm text-ivory/70 file:mr-4 file:rounded-md file:border-0 file:bg-sienna-bright file:px-4 file:py-1.5 file:font-display file:text-xs file:font-semibold file:text-espresso"
+        />
+      </div>
+      <div>
+        <label htmlFor="media-alt" className="mb-2 block font-body text-xs font-semibold uppercase tracking-[0.16em] text-ivory/50">
+          Alt text (for SEO)
+        </label>
+        <input
+          id="media-alt"
+          name="alt"
+          type="text"
+          placeholder="Describe the image"
+          className="w-full rounded-lg border border-olive/35 bg-espresso px-4 py-2.5 font-body text-sm text-ivory focus:border-sienna-bright/70 focus:outline-none"
         />
       </div>
       <button type="submit" disabled={pending} className="btn btn-primary disabled:opacity-50">

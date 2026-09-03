@@ -102,7 +102,7 @@ export default async function CaseStudyPage({
         dateModified: "2026-09-03",
         wordCount,
         url: `${SITE_URL}/work/${project.slug}`,
-        image: `${SITE_URL}${project.images[0]}`,
+        image: `${SITE_URL}${project.images[0]?.src ?? ""}`,
         author: { "@type": "Organization", name: "Zoolyum", url: SITE_URL },
         publisher: { "@type": "Organization", name: "Zoolyum", url: SITE_URL },
       },

@@ -29,6 +29,17 @@ const prisma = new PrismaClient({
   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
 });
 
+const PROJECT_IMAGE_ALTS: Record<string, string[]> = {
+  "apex-academy": ["Apex Academy rebuilt crest and identity", "Admission microsite enquiry flow", "Parent testimonial film still", "Social content engine for admission season", "Identity guidelines"],
+  "meridian-health": ["Meridian Health identity system", "Patient report redesign", "Branch signage and wayfinding", "Physician referral portal", "Appointment reminder lifecycle"],
+  "loom-lane": ["Loom and Lane premium packaging", "Weaver portrait film series", "Craft traceability storefront page", "Designer collaboration launch", "Packaging detail"],
+  "ledgerline": ["LedgerLine interactive product story", "Website hero section", "Onboarding first-value flow", "Demo-led campaign creative", "Messaging architecture"],
+  "ember-eats": ["Ember and Eats brand identity", "Launch film still", "Social cutdown frame", "Delivery packaging", "Creator seeding feature"],
+  "verandah": ["Verandah Resorts in monsoon season", "Rain-season film still", "Editorial story artwork", "Direct booking experience", "Slow food photography"],
+  "urban-prowl": ["Urban Prowl flagship project", "Cinematic listing film still", "Project photography", "Performance campaign creative", "Broker portal dashboard"],
+  "canopy-commerce": ["Canopy Commerce storefront redesign", "Homepage user experience", "Two-step checkout flow", "Retention email lifecycle", "Mobile shopping experience"],
+};
+
 async function main() {
   for (const p of POSTS) {
     const body = ARTICLE_BODIES[p.slug] ?? [];
@@ -68,7 +79,7 @@ async function main() {
         title: p.title,
         result: p.result,
         timeline: p.timeline,
-        images: [...p.images],
+        images: p.images.map((src: string, i: number) => ({ src, alt: ((PROJECT_IMAGE_ALTS as Record<string, string[]>)[p.slug] || [])[i] || (p.client + " case image " + (i + 1)) })),
         challenge: p.challenge,
         strategy: p.strategy,
         execution: [...p.execution],
