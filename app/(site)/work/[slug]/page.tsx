@@ -501,14 +501,16 @@ export default async function CaseStudyPage({
                 </div>
               </div>
               <div className="flex items-center gap-6">
-                <div className="text-right">
-                  <p className="font-display text-3xl font-semibold text-sienna tabular-nums">
-                    {nextProject.stats[0].value}
-                  </p>
-                  <p className="font-body text-xs text-ivory/45">
-                    {nextProject.stats[0].label.toLowerCase()}
-                  </p>
-                </div>
+                {nextProject.stats[0] && (
+                  <div className="text-right">
+                    <p className="font-display text-3xl font-semibold text-sienna tabular-nums">
+                      {nextProject.stats[0].value}
+                    </p>
+                    <p className="font-body text-xs text-ivory/45">
+                      {nextProject.stats[0].label.toLowerCase()}
+                    </p>
+                  </div>
+                )}
                 <svg viewBox="0 0 20 20" className="h-6 w-6 shrink-0 text-sienna-bright transition-transform duration-300 group-hover:translate-x-1.5" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
                   <path d="M4 10h12m0 0-5-5m5 5-5 5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>

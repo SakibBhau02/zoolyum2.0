@@ -60,6 +60,14 @@ export type ContentProject = {
   };
 };
 
+function arr<T, U>(v: unknown, map: (x: T) => U): U[] {
+  return Array.isArray(v) ? (v as T[]).map(map) : [];
+}
+
+function str(v: unknown, fb = ""): string {
+  return typeof v === "string" ? v : fb;
+}
+
 async function first<T>(fn: () => Promise<T>, fallback: () => T, label: string): Promise<T> {
   try {
     return await fn();
@@ -72,14 +80,14 @@ async function first<T>(fn: () => Promise<T>, fallback: () => T, label: string):
 function normPost(p: {
   slug: string; title: string; excerpt: string; category: string; date: string;
   readTime: string; author: string; authorRole: string; cover: string;
-  keywords: readonly string[]; takeaways: readonly string[];
-  quote?: string; images?: readonly { src: string; caption: string }[];
+  keywords: unknown; takeaways: unknown;
+  quote?: string; images?: unknown;
 }): ContentPost {
   return {
     slug: p.slug, title: p.title, excerpt: p.excerpt, category: p.category,
     date: p.date, readTime: p.readTime, author: p.author, authorRole: p.authorRole,
-    cover: p.cover, keywords: [...p.keywords], takeaways: [...p.takeaways],
-    quote: p.quote, images: p.images?.map((i) => ({ src: i.src, caption: i.caption })),
+    cover: p.cover, keywords: arr(p.keywords, String), takeaways: arr(p.takeaways, String),
+    quote: p.quote, images: arr(p.images, (i: { src: string; caption: string }) => ({ src: str(i.src), caption: str(i.caption) })),
   };
 }
 
@@ -87,26 +95,30 @@ function normProject(p: {
   slug: string; client: string; industry: string; services: readonly string[];
   title: string; result: string; timeline: string; images: readonly string[];
   challenge: string; strategy: string; execution: readonly string[];
-  stats: readonly { value: string; label: string }[]; quote?: string;
+  stats: unknown; quote?: string;
   quoteAuthor?: string; gradient: string;
-  meta?: {
-    overview: string; obstacles: readonly { title: string; how: string }[];
-    toolbox: readonly string[]; deliverables: readonly string[];
-    faqs: readonly { q: string; a: string }[];
-  };
+  meta?: unknown;
 }): ContentProject {
   return {
     slug: p.slug, client: p.client, industry: p.industry, services: [...p.services],
     title: p.title, result: p.result, timeline: p.timeline, images: [...p.images],
-    challenge: p.challenge, strategy: p.strategy, execution: [...p.execution],
-    stats: p.stats.map((s) => ({ value: s.value, label: s.label })),
+    challenge: p.challenge, strategy: p.strategy, execution: arr(p.execution, String),
+    stats: arr(p.stats, (s: { value: string; label: string }) => ({ value: str(s.value), label: str(s.label) })),
     quote: p.quote, quoteAuthor: p.quoteAuthor, gradient: p.gradient,
-    meta: p.meta ? {
-      overview: p.meta.overview,
-      obstacles: p.meta.obstacles.map((o) => ({ title: o.title, how: o.how })),
-      toolbox: [...p.meta.toolbox], deliverables: [...p.meta.deliverables],
-      faqs: p.meta.faqs.map((f) => ({ q: f.q, a: f.a })),
-    } : undefined,
+    meta: (() => {
+      const m = p.meta as {
+        overview?: unknown; obstacles?: unknown; toolbox?: unknown;
+        deliverables?: unknown; faqs?: unknown;
+      } | null | undefined;
+      if (!m || typeof m !== "object") return undefined;
+      return {
+        overview: str(m.overview),
+        obstacles: arr(m.obstacles, (o: { title: string; how: string }) => ({ title: str(o.title), how: str(o.how) })),
+        toolbox: arr(m.toolbox, String),
+        deliverables: arr(m.deliverables, String),
+        faqs: arr(m.faqs, (f: { q: string; a: string }) => ({ q: str(f.q), a: str(f.a) })),
+      };
+    })(),
   };
 }
 
@@ -118,7 +130,7 @@ export async function getPosts(): Promise<ContentPost[]> {
       keywords: [...p.keywords],
       takeaways: [...p.takeaways],
       quote: p.quote ?? undefined,
-      images: ((p.images as { src: string; caption: string }[] | null) ?? []).map((i) => ({ ...i })),
+      images: p.images,
     }));
   }, () => POSTS.map(normPost), "getPosts");
 }
@@ -140,7 +152,7 @@ export async function getPost(slug: string): Promise<ContentPost | null> {
       keywords: [...p.keywords],
       takeaways: [...p.takeaways],
       quote: p.quote ?? undefined,
-      images: ((p.images as { src: string; caption: string }[] | null) ?? []).map((i) => ({ ...i })),
+      images: p.images,
     });
   }, () => {
     const p = POSTS.find((x) => x.slug === slug);
@@ -162,7 +174,7 @@ export async function getPostExtras(slug: string): Promise<{
 }> {
   return first(async () => {
     const p = await prisma.post.findUnique({ where: { slug }, select: { faqs: true, updated: true } });
-    const faqs = ((p?.faqs as { q: string; a: string }[] | null) ?? []).map((f) => ({ ...f }));
+    const faqs = arr(p?.faqs, (f: { q: string; a: string }) => ({ q: str(f.q), a: str(f.a) }));
     return { faqs, updated: p?.updated ?? null, sections: ARTICLE_SECTIONS[slug] ?? [] };
   }, () => ({
     faqs: (POST_FAQS[slug] ?? []).map((f) => ({ ...f })),
@@ -179,10 +191,10 @@ export async function getProjects(): Promise<ContentProject[]> {
       services: [...p.services],
       images: [...p.images],
       execution: [...p.execution],
-      stats: (p.stats as { value: string; label: string }[]).map((s) => ({ ...s })),
+      stats: p.stats,
       quote: p.quote ?? undefined,
       quoteAuthor: p.quoteAuthor ?? undefined,
-      meta: (p.meta as ContentProject["meta"]) ?? undefined,
+      meta: p.meta,
     }));
   }, () => PROJECTS.map((p) => normProject({ ...p, meta: PROJECT_META[p.slug] })), "getProjects");
 }
@@ -204,10 +216,10 @@ export async function getProject(slug: string): Promise<ContentProject | null> {
       services: [...p.services],
       images: [...p.images],
       execution: [...p.execution],
-      stats: (p.stats as { value: string; label: string }[]).map((s) => ({ ...s })),
+      stats: p.stats,
       quote: p.quote ?? undefined,
       quoteAuthor: p.quoteAuthor ?? undefined,
-      meta: (p.meta as ContentProject["meta"]) ?? undefined,
+      meta: p.meta,
     });
   }, () => {
     const p = PROJECTS.find((x) => x.slug === slug);
@@ -221,21 +233,28 @@ function normService(s: {
   slug: string; name: string; tagline: string; heroCopy: string;
   oneParagraph: string; situation: string; noise: string; position: string;
   problem: string; solution: string;
-  proofStat: { value: string; label: string };
-  deliverables: readonly string[];
-  process: readonly { step: string; detail: string }[];
-  faqs: readonly { q: string; a: string }[];
-  story?: readonly { label: string; title: string; body: string }[] | null;
+  proofStat: unknown;
+  deliverables: unknown;
+  process: unknown;
+  faqs: unknown;
+  story?: unknown;
 }): ContentService {
   return {
     slug: s.slug, name: s.name, tagline: s.tagline, heroCopy: s.heroCopy,
     oneParagraph: s.oneParagraph, situation: s.situation, noise: s.noise,
     position: s.position, problem: s.problem, solution: s.solution,
-    proofStat: { ...s.proofStat },
-    deliverables: [...s.deliverables],
-    process: s.process.map((x) => ({ ...x })),
-    faqs: s.faqs.map((x) => ({ ...x })),
-    story: s.story?.map((x) => ({ ...x })),
+    proofStat: (() => {
+      const ps = s.proofStat as { value?: unknown; label?: unknown } | null;
+      return ps && typeof ps.value === "string"
+        ? { value: ps.value, label: str(ps.label) }
+        : { value: "", label: "" };
+    })(),
+    deliverables: arr(s.deliverables, String),
+    process: arr(s.process, (x: { step: string; detail: string }) => ({ step: str(x.step), detail: str(x.detail) })),
+    faqs: arr(s.faqs, (x: { q: string; a: string }) => ({ q: str(x.q), a: str(x.a) })),
+    story: arr(s.story ?? [], (x: { label: string; title: string; body: string }) => ({
+      label: str(x.label), title: str(x.title), body: str(x.body),
+    })),
   } as ContentService;
 }
 
@@ -246,10 +265,10 @@ export async function getServices(): Promise<ContentService[]> {
       normService({
         ...s,
         proofStat: s.proofStat as { value: string; label: string },
-        deliverables: [...s.deliverables],
-        process: (s.process as { step: string; detail: string }[]).map((x) => ({ ...x })),
-        faqs: (s.faqs as { q: string; a: string }[]).map((x) => ({ ...x })),
-        story: (s.story as { label: string; title: string; body: string }[] | null)?.map((x) => ({ ...x })) ?? null,
+        deliverables: arr(s.deliverables, String),
+        process: s.process,
+        faqs: s.faqs,
+        story: s.story,
       }),
     );
   }, () => SERVICES.map((s) => normService({ ...s })), "getServices");
@@ -270,7 +289,7 @@ export async function getService(slug: string): Promise<ContentService | null> {
     return normService({
       ...s,
       proofStat: s.proofStat as { value: string; label: string },
-      deliverables: [...s.deliverables],
+      deliverables: arr(s.deliverables, String),
       process: (s.process as { step: string; detail: string }[]).map((x) => ({ ...x })),
       faqs: (s.faqs as { q: string; a: string }[]).map((x) => ({ ...x })),
       story: (s.story as { label: string; title: string; body: string }[] | null)?.map((x) => ({ ...x })) ?? null,
@@ -295,10 +314,23 @@ export async function getTeam(): Promise<{ name: string; role: string; expertise
 export async function getJobs() {
   return first(
     async () =>
-      (await prisma.job.findMany({ where: { active: true } })).map((j) => ({
-        title: j.title, type: j.type, location: j.location, dept: j.dept,
-        detail: j.detail as { about: string; responsibilities: string[]; requirements: string[]; niceToHave: string[]; success90: string } | null,
-      })),
+      (await prisma.job.findMany({ where: { active: true } })).map((j) => {
+        const d = j.detail as {
+          about?: unknown; responsibilities?: unknown; requirements?: unknown;
+          niceToHave?: unknown; success90?: unknown;
+        } | null;
+        const detail =
+          d && typeof d === "object" && !Array.isArray(d) && typeof d.about === "string"
+            ? {
+                about: d.about,
+                responsibilities: arr(d.responsibilities, String),
+                requirements: arr(d.requirements, String),
+                niceToHave: arr(d.niceToHave, String),
+                success90: str(d.success90),
+              }
+            : null;
+        return { title: j.title, type: j.type, location: j.location, dept: j.dept, detail };
+      }), 
     () => JOBS.map((j) => ({ ...j, detail: JOB_DETAILS[j.title] })),
     "getJobs",
   );

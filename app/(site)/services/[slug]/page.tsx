@@ -59,9 +59,12 @@ export default async function ServiceDetailPage({
   if (!service) notFound();
 
   const allProjects = await getProjects();
-  const related = allProjects.filter((project) =>
-    project.services.some((s) => service.name.includes(s.split(" ")[0]))
-  ).slice(0, 2);
+  const related = allProjects
+    .filter((project) =>
+      project.services.some((s) => service.name.includes(s.split(" ")[0])),
+    )
+    .filter((project) => project.stats.length > 0)
+    .slice(0, 2);
   const allServices = await getServices();
   const serviceIndex = allServices.findIndex((s) => s.slug === slug);
   const next = allServices[(serviceIndex + 1) % allServices.length];
@@ -176,6 +179,34 @@ export default async function ServiceDetailPage({
           </div>
         </div>
       </section>
+
+      {/* ---- Story acts (only when the service defines them) ---- */}
+      {service.story && service.story.length > 0 && (
+        <section aria-label="Story acts" className="relative scroll-mt-32 overflow-hidden border-t border-olive/15 py-20 md:py-24">
+          <div className="section-shell">
+            <Reveal>
+              <p className="eyebrow">The acts</p>
+            </Reveal>
+            <div className="mt-10 grid gap-5 md:grid-cols-3">
+              {service.story.map((a, i) => (
+                <Reveal key={a.label} delay={i * 100}>
+                  <div className="card-surface h-full p-7">
+                    <p className="font-display text-sm font-semibold tracking-widest text-sienna">
+                      {a.label}
+                    </p>
+                    <h3 className="mt-3 font-display text-xl font-semibold text-ivory">
+                      {a.title}
+                    </h3>
+                    <p className="body-copy mt-3 font-body text-[15px] leading-relaxed text-ivory/60">
+                      {a.body}
+                    </p>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ---- What you hold: interactive deliverables ---- */}
       <section id="hold" aria-label="What is included" className="relative scroll-mt-32 overflow-hidden py-20 md:py-28">
