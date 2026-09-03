@@ -30,9 +30,9 @@ export function ResourceGate({
           {format}
         </span>
       </div>
-      <h3 className="mt-6 font-display text-xl font-semibold text-ivory transition-colors duration-300 group-hover:text-sienna-bright">
+      <h2 className="mt-6 font-display text-xl font-semibold text-ivory transition-colors duration-300 group-hover:text-sienna-bright">
         {title}
-      </h3>
+      </h2>
       <p className="body-copy mt-3 flex-1 font-body text-sm leading-relaxed text-ivory/55">
         {description}
       </p>
@@ -44,7 +44,7 @@ export function ResourceGate({
         </p>
       ) : (
         <div data-lead-inline className="mt-7">
-          <FormShell className="space-y-4" onSubmitted={() => setUnlocked(true)}>
+          <FormShell className="space-y-4" leadKind="resource" onSubmitted={() => setUnlocked(true)}>
             <Field label="Work email" name={`email-${slug}`} type="email" required />
             <SubmitButton label="Unlock" />
           </FormShell>

@@ -26,7 +26,7 @@
   --color-gold: #b99456;
 
   /* ---- Type scale (56-96px display per spec) ---- */
-  --text-display-1: clamp(3.5rem, 6.2vw, 6rem);
+  --text-display-1: clamp(2.75rem, 6.2vw, 6rem);
   --text-display-1--line-height: 1.08;
   --text-display-1--letter-spacing: -0.02em;
   --text-display-2: clamp(2.375rem, 4.4vw, 3.5rem);
@@ -147,6 +147,14 @@ body {
 .accent-word.lit::after {
   transform: scaleX(1);
 }
+/* Accent words may wrap on small screens - a cut headline is worse than a split underline. */
+@media (max-width: 640px) {
+  .accent-word {
+    white-space: normal;
+  }
+}
+
+
 
 /* ============================================================
    THE SIGNAL THREAD — recurring amber-line motif

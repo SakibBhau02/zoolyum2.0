@@ -1,0 +1,130 @@
+// Zoolyum content + leads schema.
+// Local dev runs on Docker Postgres (see docker-compose.yml).
+// Production target is Neon Postgres: swapping DATABASE_URL is enough
+// (Neon needs ?sslmode=require on the connection string).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  slug      String   @unique
+  title     String
+  excerpt   String
+  category  String
+  date      String
+  readTime  String
+  author    String
+  authorRole String
+  cover     String
+  keywords  String[]
+  takeaways String[]
+  quote     String?
+  images    Json?
+  body      String[]
+  updated   String?
+  faqs      Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Project {
+  id        Int      @id @default(autoincrement())
+  slug      String   @unique
+  client    String
+  industry  String
+  services  String[]
+  title     String
+  result    String
+  timeline  String
+  images    String[]
+  challenge String
+  strategy  String
+  execution String[]
+  stats     Json
+  quote     String?
+  quoteAuthor String?
+  gradient  String
+  meta      Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Service {
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique
+  name        String
+  tagline     String
+  heroCopy    String
+  oneParagraph String
+  situation   String
+  noise       String
+  position    String
+  problem     String
+  solution    String
+  proofStat   Json
+  deliverables String[]
+  process     Json
+  faqs        Json
+  story       Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model TeamMember {
+  id        Int      @id @default(autoincrement())
+  name      String
+  role      String
+  expertise String
+  initials  String
+  sort      Int      @default(0)
+}
+
+model Job {
+  id       Int     @id @default(autoincrement())
+  title    String  @unique
+  type     String
+  location String
+  dept     String
+  detail   Json?
+  active   Boolean @default(true)
+}
+
+model Lead {
+  id        Int      @id @default(autoincrement())
+  kind      String
+  name      String?
+  email     String
+  payload   Json?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Media {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  url       String
+  mime      String?
+  size      Int?
+  width     Int?
+  height    Int?
+  createdAt DateTime @default(now())
+}model Testimonial {
+  id        Int      @id @default(autoincrement())
+  quote     String
+  author    String
+  company   String   @unique
+  industry  String
+  sort      Int      @default(0)
+}
+
+model SiteSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}

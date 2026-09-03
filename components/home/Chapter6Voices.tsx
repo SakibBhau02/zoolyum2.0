@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TESTIMONIALS } from "@/lib/data";
+type TestimonialItem = { quote: string; author: string; company: string; industry: string };
 import { Reveal, HorizonRule } from "@/components/ui/Reveal";
 import { MarqueeRow } from "@/components/ui/MarqueeRow";
 
@@ -12,9 +12,9 @@ import { MarqueeRow } from "@/components/ui/MarqueeRow";
  * reduced-motion falls back to a static grid. The inline newsletter
  * capture stays — "One strategic insight a month. No noise."
  */
-export function Chapter6Voices() {
-  const rowA = TESTIMONIALS.filter((_, i) => i % 2 === 0);
-  const rowB = TESTIMONIALS.filter((_, i) => i % 2 === 1);
+export function Chapter6Voices({ testimonials }: { testimonials: TestimonialItem[] }) {
+  const rowA = testimonials.filter((_, i) => i % 2 === 0);
+  const rowB = testimonials.filter((_, i) => i % 2 === 1);
 
   return (
     <section

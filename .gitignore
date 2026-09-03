@@ -48,3 +48,5 @@ dev-server.log
 # audit screenshots & local dev logs
 v[0-9]*.jpeg
 dev-server.err.log
+
+/public/uploads/

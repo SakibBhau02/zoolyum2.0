@@ -9,7 +9,8 @@ import {
   type FormEvent,
 } from "react";
 import { useSound } from "@/components/layout/SoundProvider";
-import { CONTACT, SERVICES } from "@/lib/data";
+import { createLead } from "@/app/admin/actions";
+export type WizardService = { name: string; tagline: string; slug: string };
 
 /**
  * ContactWizard - the guided conversation form (v5.6).
@@ -17,10 +18,7 @@ import { CONTACT, SERVICES } from "@/lib/data";
  * you, the picture. Micro-commits instead of a wall of fields.
  */
 
-const SERVICE_OPTIONS = [
-  ...SERVICES.map((s) => ({ name: s.name, tagline: s.tagline, slug: s.slug })),
-  { name: "Not sure - advise me", tagline: "We diagnose it on the call.", slug: "not-sure" },
-];
+const FALLBACK_OPTION = { name: "Not sure - advise me", tagline: "We diagnose it on the call.", slug: "not-sure" };
 
 const BUDGETS: { label: string; hint: string }[] = [
   { label: "Under BDT 1,00,000", hint: "Focused audits and short sprints" },
@@ -278,7 +276,7 @@ function StepError({ message }: { message?: string }) {
   );
 }
 
-export function ContactWizard() {
+export function ContactWizard({ contactEmail, services }: { contactEmail: string; services: WizardService[] }) {
   const [step, setStep] = useState(0);
   const [dir, setDir] = useState<1 | -1>(1);
   const [data, setData] = useState<WizardData>(INITIAL);
@@ -289,6 +287,10 @@ export function ContactWizard() {
   const successRef = useRef<HTMLHeadingElement>(null);
   const navigatedRef = useRef(false);
   const { click } = useSound();
+  const serviceOptions = [
+    ...services.map((s) => ({ name: s.name, tagline: s.tagline, slug: s.slug })),
+    FALLBACK_OPTION,
+  ];
 
   useEffect(() => {
     if (done) {
@@ -325,6 +327,15 @@ export function ContactWizard() {
       setStep((s) => s + 1);
     } else {
       click();
+      createLead("contact", {
+        service: data.service,
+        budget: data.budget,
+        name: data.name,
+        company: data.company,
+        email: data.email,
+        phone: data.phone,
+        message: data.message,
+      }).catch(() => {});
       setDone(true);
     }
   };
@@ -382,8 +393,8 @@ export function ContactWizard() {
           </div>
           <p className="mt-8 text-center font-body text-sm text-ivory/45">
             Impatient? Write to us directly -{" "}
-            <a href={`mailto:${CONTACT.email}`} className="font-semibold text-sienna-bright hover:underline">
-              {CONTACT.email}
+            <a href={`mailto:${contactEmail}`} className="font-semibold text-sienna-bright hover:underline">
+              {contactEmail}
             </a>
           </p>
         </div>
@@ -427,7 +438,7 @@ export function ContactWizard() {
               <fieldset>
                 <legend className="sr-only">Which service do you need?</legend>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  {SERVICE_OPTIONS.map((opt) => {
+                  {serviceOptions.map((opt) => {
                     const selected = data.service === opt.name;
                     return (
                       <button

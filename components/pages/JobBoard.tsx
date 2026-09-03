@@ -2,7 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { Field } from "@/components/pages/Forms";
-import { JOBS, JOB_DETAILS } from "@/lib/data";
+export type BoardJob = {
+  title: string;
+  type: string;
+  location: string;
+  dept: string;
+  detail: {
+    about: string;
+    responsibilities: string[];
+    requirements: string[];
+    niceToHave: string[];
+    success90: string;
+  } | null;
+};
 import { useSound } from "@/components/layout/SoundProvider";
 
 export const APPLY_ROLE_EVENT = "zoolyum:apply-role";
@@ -12,14 +24,14 @@ export const APPLY_ROLE_EVENT = "zoolyum:apply-role";
  * full description; "Apply for this role" jumps to the form and
  * preselects the position via APPLY_ROLE_EVENT.
  */
-export function JobBoard() {
-  const [open, setOpen] = useState<string | null>(JOBS[0]?.title ?? null);
+export function JobBoard({ jobs }: { jobs: BoardJob[] }) {
+  const [open, setOpen] = useState<string | null>(jobs[0]?.title ?? null);
   const { click } = useSound();
 
   return (
     <div className="space-y-4">
-      {JOBS.map((job, i) => {
-        const detail = JOB_DETAILS[job.title];
+      {jobs.map((job, i) => {
+        const detail = job.detail;
         const isOpen = open === job.title;
         return (
           <div
@@ -138,7 +150,7 @@ export function JobBoard() {
  * ApplyPositionField - the application form's role select. Listens for
  * APPLY_ROLE_EVENT from the board and preselects the chosen role.
  */
-export function ApplyPositionField() {
+export function ApplyPositionField({ titles }: { titles: string[] }) {
   const [role, setRole] = useState("");
 
   useEffect(() => {
@@ -147,7 +159,7 @@ export function ApplyPositionField() {
     return () => window.removeEventListener(APPLY_ROLE_EVENT, onRole);
   }, []);
 
-  const options = [...JOBS.map((job) => job.title), "Speculative application"];
+  const options = [...titles, "Speculative application"];
 
   return (
     <Field

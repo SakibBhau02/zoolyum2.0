@@ -23,7 +23,7 @@ export function PageHero({
       <div className="section-shell relative z-10">
         <Reveal>
           <p className="eyebrow">{eyebrow}</p>
-          <h1 className="mt-5 max-w-4xl font-display text-display-1 font-semibold text-ivory">
+          <h1 className="mt-5 max-w-4xl text-balance font-display text-display-1 font-semibold text-ivory">
             {title}
           </h1>
           {lead && (

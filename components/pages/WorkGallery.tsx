@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
-import { PROJECTS } from "@/lib/data";
+import type { ContentProject } from "@/lib/content";
 import { Tilt } from "@/components/ui/Tilt";
 
 /**
@@ -30,21 +30,21 @@ function ChevronDown({ className = "" }: { className?: string }) {
   );
 }
 
-export function WorkGallery() {
+export function WorkGallery({ projects }: { projects: ContentProject[] }) {
   const [filter, setFilter] = useState("All");
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const industries = useMemo(
-    () => Array.from(new Set(PROJECTS.map((p) => p.industry))),
-    [],
+    () => Array.from(new Set(projects.map((p) => p.industry))),
+    [projects],
   );
   const services = useMemo(
-    () => Array.from(new Set(PROJECTS.flatMap((p) => p.services))),
-    [],
+    () => Array.from(new Set(projects.flatMap((p) => p.services))),
+    [projects],
   );
   const countFor = (name: string) =>
-    PROJECTS.filter((p) => p.industry === name || p.services.includes(name))
+    projects.filter((p) => p.industry === name || p.services.includes(name))
       .length;
 
   /* Close the menu on Escape or an outside pointer press. */
@@ -67,14 +67,14 @@ export function WorkGallery() {
   }, [open]);
 
   const visible = useMemo(() => {
-    if (filter === "All") return PROJECTS;
-    return PROJECTS.filter(
+    if (filter === "All") return projects;
+    return projects.filter(
       (p) => p.industry === filter || p.services.includes(filter),
     );
-  }, [filter]);
+  }, [filter, projects]);
 
-  const featured = filter === "All" ? PROJECTS[0] : null;
-  const rest = featured ? PROJECTS.slice(1) : visible;
+  const featured = filter === "All" ? projects[0] : null;
+  const rest = featured ? projects.slice(1) : visible;
 
   const menuItem = (label: string) => {
     const selected = filter === label;
@@ -104,7 +104,7 @@ export function WorkGallery() {
           <span className="truncate">{label === "All" ? "All work" : label}</span>
         </span>
         <span className="font-display text-[11px] font-semibold tabular-nums text-ivory/35">
-          {label === "All" ? PROJECTS.length : countFor(label)}
+          {label === "All" ? projects.length : countFor(label)}
         </span>
       </button>
     );
@@ -172,7 +172,7 @@ export function WorkGallery() {
           className="font-body text-xs uppercase tracking-[0.18em] text-ivory/40"
           aria-live="polite"
         >
-          Showing {visible.length} of {PROJECTS.length} case studies
+          Showing {visible.length} of {projects.length} case studies
         </p>
       </div>
 

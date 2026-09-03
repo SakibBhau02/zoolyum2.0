@@ -5,7 +5,7 @@ import Link from "next/link";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { PROJECTS } from "@/lib/data";
+import type { ContentProject } from "@/lib/content";
 import { Reveal } from "@/components/ui/Reveal";
 import { ConfidenceIndicator } from "@/components/ui/metrics";
 import { Tilt } from "@/components/ui/Tilt";
@@ -19,7 +19,7 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
  * positions in view at once, the Signal Thread measuring progress.
  * Mobile / reduced motion: native snap scrolling, no scroll-jacking.
  */
-export function Chapter5Work() {
+export function Chapter5Work({ projects }: { projects: ContentProject[] }) {
   const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLDivElement>(null);
@@ -117,7 +117,7 @@ export function Chapter5Work() {
             onScroll={onScroll}
             className="mt-14 flex snap-x snap-mandatory gap-6 overflow-x-auto pb-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
-            {PROJECTS.map((project) => (
+            {projects.map((project) => (
               <Tilt key={project.slug} className="w-[300px] shrink-0 snap-center md:w-[248px]">
                 <Link
                   href={`/work/${project.slug}`}

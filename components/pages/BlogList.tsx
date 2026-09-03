@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { AnimatePresence, motion } from "motion/react";
-import { POSTS } from "@/lib/data";
+import type { ContentPost } from "@/lib/content";
 import { useSound } from "@/components/layout/SoundProvider";
 
 function formatDate(date: string) {
@@ -154,24 +154,24 @@ function TopicMenu({
  * menu (a single quiet button) refilters the grid live. Built
  * for readers: generous excerpts, authors, and reading times.
  */
-export function BlogList() {
+export function BlogList({ posts }: { posts: ContentPost[] }) {
   const [filter, setFilter] = useState("All");
 
   const topics = useMemo(
     () => [
-      { name: "All", count: POSTS.length },
-      ...Array.from(new Set(POSTS.map((p) => p.category))).map((c) => ({
+      { name: "All", count: posts.length },
+      ...Array.from(new Set(posts.map((p) => p.category))).map((c) => ({
         name: c,
-        count: POSTS.filter((p) => p.category === c).length,
+        count: posts.filter((p) => p.category === c).length,
       })),
     ],
-    [],
+    [posts],
   );
 
   const visible = useMemo(
     () =>
-      filter === "All" ? POSTS : POSTS.filter((p) => p.category === filter),
-    [filter],
+      filter === "All" ? posts : posts.filter((p) => p.category === filter),
+    [filter, posts],
   );
 
   const featured = filter === "All" ? visible[0] : null;

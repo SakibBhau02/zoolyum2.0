@@ -2,20 +2,20 @@
 
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { TESTIMONIALS } from "@/lib/data";
+type TestimonialItem = { quote: string; author: string; company: string; industry: string };
 
 /**
  * TestimonialWall — magazine-style quotes, filterable by industry.
  */
-export function TestimonialWall() {
+export function TestimonialWall({ testimonials }: { testimonials: TestimonialItem[] }) {
   const [filter, setFilter] = useState("All");
 
   const industries = useMemo(
-    () => ["All", ...Array.from(new Set(TESTIMONIALS.map((t) => t.industry)))],
-    []
+    () => ["All", ...Array.from(new Set(testimonials.map((t) => t.industry)))],
+    [testimonials]
   );
 
-  const visible = TESTIMONIALS.filter(
+  const visible = testimonials.filter(
     (t) => filter === "All" || t.industry === filter
   );
 

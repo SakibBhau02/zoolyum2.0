@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useSound } from "@/components/layout/SoundProvider";
+import { createLead } from "@/app/admin/actions";
 
 /**
  * Field — floating-label form field with inline validation styling
@@ -150,10 +151,12 @@ export function FormShell({
   children,
   onSubmitted,
   className = "",
+  leadKind,
 }: {
   children: ReactNode;
   onSubmitted?: () => void;
   className?: string;
+  leadKind?: string;
 }) {
   const [submitted, setSubmitted] = useState(false);
 
@@ -161,6 +164,14 @@ export function FormShell({
     e.preventDefault();
     if (submitted) return;
     setSubmitted(true);
+    if (leadKind) {
+      const fd = new FormData(e.currentTarget);
+      const fields: Record<string, string> = {};
+      fd.forEach((v, k) => {
+        fields[k] = String(v);
+      });
+      createLead(leadKind, fields).catch(() => {});
+    }
     onSubmitted?.();
   };
 

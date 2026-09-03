@@ -1,0 +1,198 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { prisma } from "@/lib/prisma";
+import { isAuthed, passwordMatches, createSession, destroySession } from "@/lib/session";
+import { saveFile, removeFile, validateUpload } from "@/lib/storage";
+import { COLLECTIONS, type CollectionKey, type FieldDef } from "./config";
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+type ActionResult = { ok: boolean; error?: string };
+
+function delegates(): Record<CollectionKey, any> {
+  return {
+    posts: prisma.post,
+    projects: prisma.project,
+    services: prisma.service,
+    team: prisma.teamMember,
+    jobs: prisma.job,
+    testimonials: prisma.testimonial,
+  };
+}
+
+function sepOf(f: FieldDef) {
+  return f.sep === "DOUBLE_NEWLINE" ? "\n\n" : (f.sep ?? "\n");
+}
+
+function parseFields(fields: FieldDef[], form: FormData): Record<string, any> {
+  const out: Record<string, any> = {};
+  for (const f of fields) {
+    const raw = form.get(f.name);
+    if (f.kind === "checkbox") {
+      out[f.name] = raw === "on";
+      continue;
+    }
+    if (f.kind === "number") {
+      out[f.name] = raw === null || String(raw).trim() === "" ? 0 : Number(raw);
+      if (Number.isNaN(out[f.name])) throw new Error(`${f.label} must be a number`);
+      continue;
+    }
+    if (f.kind === "list") {
+      out[f.name] = String(raw ?? "")
+        .split(sepOf(f))
+        .map((s) => s.trim())
+        .filter(Boolean);
+      continue;
+    }
+    if (f.kind === "json") {
+      const s = String(raw ?? "").trim();
+      if (!s) {
+        out[f.name] = f.name === "images" || f.name === "faqs" ? [] : {};
+        continue;
+      }
+      try {
+        out[f.name] = JSON.parse(s);
+      } catch {
+        throw new Error(`${f.label} is not valid JSON`);
+      }
+      continue;
+    }
+    const s = String(raw ?? "").trim();
+    if (f.required && !s) throw new Error(`${f.label} is required`);
+    out[f.name] = s;
+  }
+  return out;
+}
+
+function friendly(e: unknown) {
+  const msg = e instanceof Error ? e.message : "Something went wrong";
+  if (msg.includes("Unique constraint")) return "That slug/title already exists - pick another.";
+  return msg;
+}
+
+export async function loginAction(
+  _prev: ActionResult,
+  form: FormData,
+): Promise<ActionResult> {
+  const password = String(form.get("password") ?? "");
+  const next = String(form.get("next") ?? "/admin");
+  if (!passwordMatches(password)) return { ok: false, error: "Wrong password." };
+  await createSession();
+  redirect(next.startsWith("/admin") ? next : "/admin");
+}
+
+export async function logoutAction() {
+  await destroySession();
+  redirect("/admin/login");
+}
+
+export async function saveItem(
+  collection: CollectionKey,
+  id: string,
+  _prev: ActionResult,
+  form: FormData,
+): Promise<ActionResult & { id?: number }> {
+  if (!(await isAuthed())) return { ok: false, error: "Unauthorized." };
+  const def = COLLECTIONS[collection];
+  try {
+    const data = parseFields(def.fields, form);
+    const db = delegates()[collection];
+    if (id === "new") {
+      const row = await db.create({ data });
+      for (const p of def.revalidate(String(data[def.slugField] ?? ""))) revalidatePath(p);
+      return { ok: true, id: row.id };
+    }
+    const row = await db.update({ where: { id: Number(id) }, data });
+    const slugVal = (row as Record<string, unknown>)[def.slugField];
+    for (const p of def.revalidate(String(slugVal ?? ""))) revalidatePath(p);
+    return { ok: true, id: row.id };
+  } catch (e) {
+    return { ok: false, error: friendly(e) };
+  }
+}
+
+export async function deleteItem(collection: CollectionKey, id: number): Promise<ActionResult> {
+  if (!(await isAuthed())) return { ok: false, error: "Unauthorized." };
+  try {
+    await delegates()[collection].delete({ where: { id } });
+    revalidatePath(COLLECTIONS[collection].revalidate("")[0]);
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: friendly(e) };
+  }
+}export async function saveSettings(_prev: ActionResult, form: FormData): Promise<ActionResult> {
+  if (!(await isAuthed())) return { ok: false, error: "Unauthorized." };
+  try {
+    const entries = [...form.entries()].filter(([k]) => k.startsWith("s:"));
+    for (const [k, v] of entries) {
+      const key = k.slice(2);
+      await prisma.siteSetting.upsert({
+        where: { key },
+        update: { value: String(v) },
+        create: { key, value: String(v) },
+      });
+    }
+    revalidatePath("/", "layout");
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: friendly(e) };
+  }
+}
+
+export async function setLeadRead(id: number, read: boolean): Promise<ActionResult> {
+  if (!(await isAuthed())) return { ok: false, error: "Unauthorized." };
+  await prisma.lead.update({ where: { id }, data: { read } });
+  revalidatePath("/admin/leads");
+  return { ok: true };
+}
+
+export async function deleteLead(id: number): Promise<ActionResult> {
+  if (!(await isAuthed())) return { ok: false, error: "Unauthorized." };
+  await prisma.lead.delete({ where: { id } });
+  revalidatePath("/admin/leads");
+  return { ok: true };
+}
+
+export async function uploadMedia(_prev: ActionResult, form: FormData): Promise<ActionResult> {
+  if (!(await isAuthed())) return { ok: false, error: "Unauthorized." };
+  try {
+    const file = form.get("file");
+    if (!(file instanceof File) || file.size === 0) return { ok: false, error: "Choose a file first." };
+    validateUpload(file.type, file.size);
+    const buf = Buffer.from(await file.arrayBuffer());
+    const saved = await saveFile(buf, file.name, file.type || "application/octet-stream");
+    await prisma.media.create({
+      data: { key: saved.key, url: saved.url, mime: saved.mime, size: saved.size },
+    });
+    revalidatePath("/admin/media");
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: friendly(e) };
+  }
+}
+
+export async function deleteMedia(id: number): Promise<ActionResult> {
+  if (!(await isAuthed())) return { ok: false, error: "Unauthorized." };
+  const row = await prisma.media.findUnique({ where: { id } });
+  if (row) await removeFile(row.key);
+  await prisma.media.delete({ where: { id } });
+  revalidatePath("/admin/media");
+  return { ok: true };
+}
+
+export async function createLead(kind: string, fields: Record<string, string>): Promise<ActionResult> {
+  try {
+    const email = Object.entries(fields).find(([k]) =>
+      k.toLowerCase().includes("email"),
+    )?.[1]?.trim();
+    if (!email || !email.includes("@")) return { ok: false, error: "A valid email is required." };
+    const name =
+      fields.name ?? fields.firstname ?? fields["full name"] ?? fields.fullname ?? null;
+    await prisma.lead.create({ data: { kind, name, email, payload: fields } });
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: friendly(e) };
+  }
+}
