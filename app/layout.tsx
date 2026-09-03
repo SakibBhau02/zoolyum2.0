@@ -10,8 +10,10 @@ import { ThreadCursor } from "@/components/ui/ThreadCursor";
 import { AmbientParticles } from "@/components/ui/AmbientParticles";
 import { SignalFlash } from "@/components/ui/SignalFlash";
 import { SoundProvider } from "@/components/layout/SoundProvider";
+import { FirstLoadSplash } from "@/components/layout/FirstLoadSplash";
 import { AuditTab } from "@/components/leadgen/AuditTab";
 import { ExitIntentModal } from "@/components/leadgen/ExitIntentModal";
+import { SITE_URL } from "@/lib/data";
 
 const generalSans = localFont({
   src: [
@@ -79,6 +81,39 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `document.documentElement.classList.add("js")`,
+          }}
+        />
+        <FirstLoadSplash />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": "Organization",
+                  name: "Zoolyum",
+                  url: SITE_URL,
+                  slogan: "Consultancy. Strategy. Solution.",
+                  description:
+                    "Strategy-first brand and digital consultancy in Dhaka, Bangladesh. We read the market's pattern, then build the position that holds.",
+                  email: "hello@zoolyum.com",
+                  address: {
+                    "@type": "PostalAddress",
+                    addressLocality: "Dhaka",
+                    addressCountry: "BD",
+                  },
+                  sameAs: [],
+                },
+                {
+                  "@type": "WebSite",
+                  name: "Zoolyum",
+                  url: SITE_URL,
+                  inLanguage: "en",
+                  publisher: { "@type": "Organization", name: "Zoolyum" },
+                },
+              ],
+            }),
           }}
         />
         <SoundProvider>

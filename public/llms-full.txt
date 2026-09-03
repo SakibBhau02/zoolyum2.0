@@ -1,0 +1,79 @@
+# Zoolyum - Consultancy. Strategy. Solution.
+
+> Zoolyum is a strategy-first brand and digital consultancy based in Dhaka, Bangladesh. Every engagement opens the same way: a two-week terrain audit of the market, competitors, and buyers. No opinions until the ground is read. Then we build the position, brand system, and growth engine that holds it - and prove it with measured outcomes.
+
+## Services
+
+### Brand Strategy - Position before promotion.
+URL: https://zoolyum.com/services/brand-strategy
+
+In one paragraph: Brand strategy is the discipline of claiming one defensible position in your market and arming every touchpoint with it. Zoolyum runs category audits, isolates the position only your brand can defend, then engineers identity, voice, and messaging as one system - so the market stops confusing you with your competitors.
+
+The problem: in a crowded category, most brands look like their competitors, sound like them, and get ignored like them.
+The outcome: identity, voice, messaging, and motion engineered as one system around a position only you can defend. Avg. +42% brand-recall lift after repositioning.
+Deliverables: brand positioning and competitive map, visual identity system, verbal identity and tone of voice, brand guidelines playbook, collateral and rollout kit.
+Timeline: 6-10 weeks for a full system; compressed First Position sprint for early-stage brands.
+
+### Digital Design & UI/UX - Interfaces with intent.
+URL: https://zoolyum.com/services/digital-design
+
+In one paragraph: Digital design and UI/UX at Zoolyum means research-driven interfaces that convert: websites and products designed around what the user needs to do next. Every engagement pairs UX research and editorial UI with production-grade Next.js engineering - beautiful gets ignored, intent-built wins.
+
+The problem: traffic arrives, browses, and leaves; the site looks fine but 'fine' does not close.
+The outcome: editorial surface, conversion engineering underneath. Avg. +96% conversion-rate lift after UX rebuild.
+Deliverables: UX research and user flows, wireframes and interactive prototypes, high-fidelity UI design system, Next.js development, motion and interaction design.
+
+### Growth Marketing - Every taka accountable.
+URL: https://zoolyum.com/services/growth-marketing
+
+In one paragraph: Growth marketing at Zoolyum is full-funnel campaigning where every taka is accountable to a metric: search, content, and PR aimed precisely where your buyers already are. We set the measurement dashboard up first, then scale only the channels that prove themselves.
+
+The problem: marketing spend continues, reports keep arriving, and growth stays flat - the dashboard cannot tell which channel works and which leaks.
+The outcome: measurement before spend; budget concentrated on the two or three channels your own data proves are working. Avg. 3.2x ROAS within two quarters.
+Deliverables: full-funnel campaign strategy, search and content programs, PR and outreach, measurement dashboard and attribution.
+
+### Content Strategy - Become the cited source.
+URL: https://zoolyum.com/services/content-strategy
+
+In one paragraph: Content strategy at Zoolyum builds the editorial system that makes your brand the source buyers cite: topic territories grounded in search demand, a publishing rhythm you can sustain, and pieces engineered to rank for the queries your market actually asks.
+
+The problem: you publish when there is time; some pieces land, most disappear.
+The outcome: an editorial system - territories, formats, rhythm - engineered for the team you actually have. Avg. 4.1x organic traffic growth in 12 months.
+Deliverables: topic territory research, editorial system and calendar, content production (articles, guides, lead magnets), newsletter program, measurement.
+
+### Video Production - Films people finish.
+URL: https://zoolyum.com/services/video-production
+
+In one paragraph: Video production at Zoolyum turns your positioning into films people finish watching: brand films, campaign assets, and product stories scripted from strategy - shot, edited, and delivered as a system your channels can actually use.
+
+The problem: a folder of event clips and a reel that felt dated a month after launch - nothing carries the brand's argument.
+The outcome: one hero film built around your position, cut down into a full asset system. Avg. 68% completion rate on hero brand films.
+Deliverables: strategy-scripted brand film, campaign asset system (hero, social edits, ads), product films, motion identity.
+
+## The Method (every engagement)
+
+1. Discover - category audit, competitor scan, audience research.
+2. Strategize - isolate the one position only your brand can defend.
+3. Design - identity, experience, and content engineered as one system.
+4. Launch - coordinated release across channels as one clear signal.
+5. Grow - measure, defend, expand; compound the position.
+
+Details: https://zoolyum.com/process
+
+## Selected case studies
+
+- Apex Academy (education): from one campus among many to the school parents talk about. +42% enrollment growth. https://zoolyum.com/work/apex-academy
+- Meridian Health (healthcare): the second opinion people trust. +67% appointment bookings. https://zoolyum.com/work/meridian-health
+- Loom & Lane (fashion retail): priced like a premium label, sold like one. +210% D2C revenue. https://zoolyum.com/work/loom-lane
+- LedgerLine (SaaS): stopped competing on features. +88% trial-to-paid conversion. https://zoolyum.com/work/ledgerline
+- Verandah Resorts (hospitality): filled its quiet season. 92% off-season occupancy. https://zoolyum.com/work/verandah
+
+All case studies: https://zoolyum.com/work
+
+## Facts
+
+- Based in Dhaka, Bangladesh; clients across education, healthcare, fashion retail, SaaS, F&B, hospitality, real estate, e-commerce
+- 120+ engagements
+- Fixed-price scopes for defined work; monthly retainers for growth work
+- Works in English and Bangla
+- Contact: hello@zoolyum.com

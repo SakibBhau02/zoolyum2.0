@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
+  <defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#241F1B"/>
+      <stop offset="0.7" stop-color="#3A2E26"/>
+      <stop offset="1" stop-color="#5A3B22"/>
+    </linearGradient>
+    <linearGradient id="t1" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#FF5001"/>
+      <stop offset="1" stop-color="#FF7A3D"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#g1)"/>
+  <g transform="rotate(20 600 400)" opacity="0.5">
+    <ellipse cx="490" cy="320" rx="140" ry="90" fill="none" stroke="#7A7A5C" stroke-opacity="0.16" stroke-width="1.5"/> <ellipse cx="490" cy="320" rx="202" ry="128" fill="none" stroke="#7A7A5C" stroke-opacity="0.142" stroke-width="1.5"/> <ellipse cx="490" cy="320" rx="264" ry="166" fill="none" stroke="#7A7A5C" stroke-opacity="0.124" stroke-width="1.5"/> <ellipse cx="490" cy="320" rx="326" ry="204" fill="none" stroke="#7A7A5C" stroke-opacity="0.106" stroke-width="1.5"/> <ellipse cx="490" cy="320" rx="388" ry="242" fill="none" stroke="#7A7A5C" stroke-opacity="0.088" stroke-width="1.5"/> <ellipse cx="490" cy="320" rx="450" ry="280" fill="none" stroke="#7A7A5C" stroke-opacity="0.07" stroke-width="1.5"/> <ellipse cx="490" cy="320" rx="512" ry="318" fill="none" stroke="#7A7A5C" stroke-opacity="0.052" stroke-width="1.5"/>
+  </g>
+  <ellipse cx="490" cy="320" rx="216" ry="142" fill="none" stroke="#FF5001" stroke-opacity="0.35" stroke-width="1.5" stroke-dasharray="4 8"/>
+  <circle cx="490" cy="320" r="5" fill="#FF5001" fill-opacity="0.8"/>
+  <rect x="96" y="96" width="120" height="4" fill="url(#t1)"/>
+  <text x="96" y="700" font-family="Georgia, serif" font-size="220" font-style="italic" fill="#F6F1E8" fill-opacity="0.14">LL</text>
+  <text x="96" y="180" font-family="Helvetica, Arial, sans-serif" font-size="20" letter-spacing="8" fill="#F6F1E8" fill-opacity="0.5">ZOOLYUM CASE FRAME</text>
+  <text x="1008" y="716" font-family="Helvetica, Arial, sans-serif" font-size="18" letter-spacing="4" fill="#F6F1E8" fill-opacity="0.4">01 / 05</text>
+</svg>

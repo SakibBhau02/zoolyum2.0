@@ -79,8 +79,8 @@ export function Header() {
       <header
         className={`fixed inset-x-0 top-0 z-50 transition-all duration-[250ms] ease-out ${
           scrolled
-            ? "bg-espresso/90 shadow-[0_2px_16px_rgba(0,0,0,0.35)] backdrop-blur-md"
-            : "bg-transparent"
+            ? "header-glass"
+            : "border-b border-transparent bg-transparent"
         }`}
       >
         <div className="section-shell flex h-[72px] items-center justify-between gap-4">
@@ -93,7 +93,8 @@ export function Header() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`relative font-body text-sm font-medium tracking-wide transition-colors duration-300 ${
+                  aria-current={active ? "page" : undefined}
+                  className={`nav-link relative font-body text-sm font-medium tracking-wide transition-colors duration-300 ${
                     active ? "text-sienna-bright" : "text-ivory/75 hover:text-ivory"
                   }`}
                 >

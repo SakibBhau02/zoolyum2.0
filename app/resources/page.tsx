@@ -8,6 +8,17 @@ export const metadata: Metadata = {
   title: "Resources",
   description:
     "Free tools from the Zoolyum toolkit — brand audit checklist, content calendar template, and campaign brief one-pager.",
+  alternates: { canonical: "/resources" },
+  openGraph: {
+    title: "Resources | Zoolyum",
+    description: "Free tools from the Zoolyum toolkit - brand audit checklist, content calendar template, and campaign brief one-pager.",
+    url: "/resources",
+  },
+  twitter: {
+    card: "summary",
+    title: "Resources | Zoolyum",
+    description: "Free tools from the Zoolyum toolkit - brand audit checklist, content calendar template, and campaign brief one-pager.",
+  },
 };
 
 export default function ResourcesPage() {

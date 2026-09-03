@@ -3,10 +3,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHero } from "@/components/pages/PageHero";
 import { Reveal } from "@/components/ui/Reveal";
-import { SectionHeading } from "@/components/ui/SectionHeading";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
 import { ConfidenceIndicator } from "@/components/ui/metrics";
-import { PROJECTS, SERVICES } from "@/lib/data";
+import { JourneyRail } from "@/components/pages/JourneyRail";
+import { PROJECTS, SERVICES, SITE_URL } from "@/lib/data";
 
 export function generateStaticParams() {
   return SERVICES.map((service) => ({ slug: service.slug }));
@@ -21,10 +21,30 @@ export async function generateMetadata({
   const service = SERVICES.find((s) => s.slug === slug);
   if (!service) return {};
   return {
-    title: service.name,
-    description: service.heroCopy,
+    title: `${service.name} - ${service.tagline}`,
+    description: service.oneParagraph,
+    alternates: { canonical: `/services/${service.slug}` },
+    openGraph: {
+      title: `${service.name} - Zoolyum`,
+      description: service.oneParagraph,
+      url: `/services/${service.slug}`,
+    },
+    twitter: {
+      card: "summary",
+      title: `${service.name} - Zoolyum`,
+      description: service.oneParagraph,
+    },
   };
 }
+
+const CHAPTERS = [
+  { id: "answer", label: "In one paragraph" },
+  { id: "story", label: "The story" },
+  { id: "hold", label: "What you hold" },
+  { id: "sequence", label: "The sequence" },
+  { id: "proof", label: "Proof" },
+  { id: "questions", label: "Questions" },
+];
 
 export default async function ServiceDetailPage({
   params,
@@ -39,11 +59,45 @@ export default async function ServiceDetailPage({
     project.services.some((s) => service.name.includes(s.split(" ")[0]))
   ).slice(0, 2);
   const serviceIndex = SERVICES.findIndex((s) => s.slug === slug);
+  const next = SERVICES[(serviceIndex + 1) % SERVICES.length];
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Service",
+        name: service.name,
+        description: service.oneParagraph,
+        url: `${SITE_URL}/services/${service.slug}`,
+        provider: {
+          "@type": "Organization",
+          name: "Zoolyum",
+          url: SITE_URL,
+        },
+        areaServed: "Bangladesh",
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Services", item: `${SITE_URL}/services` },
+          { "@type": "ListItem", position: 2, name: service.name, item: `${SITE_URL}/services/${service.slug}` },
+        ],
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: service.faqs.map((f) => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a },
+        })),
+      },
+    ],
+  };
 
   return (
     <>
       <PageHero
-        eyebrow={`Service — ${service.name}`}
+        eyebrow={`Service - ${service.name}`}
         title={service.heroCopy}
         lead={service.tagline}
       >
@@ -59,86 +113,57 @@ export default async function ServiceDetailPage({
         </Reveal>
       </PageHero>
 
-      <section className="relative overflow-hidden pb-20 md:pb-28" aria-label="Problem and solution">
-        <div className="section-shell grid gap-6 md:grid-cols-2">
-          <Reveal>
-            <div className="card-surface h-full p-9">
-              <h2 className="font-body text-[11px] font-semibold uppercase tracking-[0.2em] text-ivory/45">
-                The problem you are living with
-              </h2>
-              <p className="body-copy mt-5 font-display text-2xl font-semibold leading-snug text-ivory/85">
-                {service.problem}
-              </p>
-            </div>
-          </Reveal>
-          <Reveal delay={120}>
-            <div className="card-surface h-full border-sienna/25 p-9">
-              <h2 className="font-body text-[11px] font-semibold uppercase tracking-[0.2em] text-sienna-bright">
-                The position we build for you
-              </h2>
-              <p className="body-copy mt-5 font-display text-2xl font-semibold leading-snug text-ivory">
-                {service.solution}
-              </p>
-            </div>
-          </Reveal>
-        </div>
-      </section>
+      <JourneyRail chapters={CHAPTERS} rail={false} />
 
-      <section
-        className="relative overflow-hidden border-y border-olive/15 bg-umber/40 py-20 md:py-28"
-        aria-label="What is included"
-      >
-        <div className="section-shell grid gap-12 lg:grid-cols-12">
-          <div className="lg:col-span-5">
-            <SectionHeading
-              eyebrow="What's included"
-              title={
-                <>
-                  Everything you walk away <span className="accent-word">holding.</span>
-                </>
-              }
-              lead="No mystery line items. Every deliverable is named, scoped, and yours at handover."
-            />
-          </div>
-          <div className="lg:col-span-7">
-            <ul className="space-y-4">
-              {service.deliverables.map((item, i) => (
-                <Reveal as="li" key={item} delay={i * 60} className="list-none">
-                  <div className="card-surface group flex items-center gap-5 p-6">
-                    <span className="font-display text-lg font-semibold text-sienna/40 transition-colors duration-300 group-hover:text-sienna">
-                      0{i + 1}
-                    </span>
-                    <span className="font-display text-lg font-medium text-ivory">{item}</span>
-                  </div>
-                </Reveal>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      <section className="relative overflow-hidden py-20 md:py-28" aria-label={`Our process for ${service.name}`}>
+      {/* ---- AEO direct-answer block ---- */}
+      <section id="answer" aria-label="What is this service" className="relative scroll-mt-32 py-14 md:py-20">
         <div className="section-shell">
-          <SectionHeading
-            eyebrow="How we run it"
-            title={
-              <>
-                The sequence, <span className="text-ivory/55">step by step.</span>
-              </>
-            }
-          />
-          <div className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {service.process.map((step, i) => (
-              <Reveal key={step.step} delay={i * 80}>
-                <div className="card-surface group h-full p-7">
-                  <span className="font-display text-4xl font-semibold text-sienna/20 transition-colors duration-300 group-hover:text-sienna/50">
-                    0{i + 1}
-                  </span>
-                  <h3 className="mt-4 font-display text-xl font-semibold text-ivory">
-                    {step.step}
-                  </h3>
-                  <p className="body-copy mt-3 font-body text-sm leading-relaxed text-ivory/60">
-                    {step.detail}
+          <Reveal>
+            <div className="card-surface relative overflow-hidden p-8 md:p-10">
+              <span className="thread absolute left-0 top-0 h-full w-[3px]" aria-hidden="true" />
+              <p className="eyebrow">In one paragraph</p>
+              <p className="body-copy mt-5 max-w-4xl font-display text-xl font-medium leading-relaxed text-ivory/90 md:text-2xl">
+                {service.oneParagraph}
+              </p>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ---- The story: 3 acts ---- */}
+      <section
+        id="story"
+        aria-label={`The story of ${service.name}`}
+        className="relative scroll-mt-32 overflow-hidden border-y border-olive/15 bg-umber/40 py-20 md:py-28"
+      >
+        <div className="dappled dappled--alt" aria-hidden="true" />
+        <div className="section-shell relative z-10">
+          <Reveal>
+            <p className="eyebrow">The story</p>
+            <h2 className="mt-4 max-w-3xl font-display text-display-2 font-semibold text-ivory">
+              Every engagement starts here -{" "}
+              <span className="text-ivory/55">and ends somewhere better.</span>
+            </h2>
+          </Reveal>
+
+          <div className="mt-14 space-y-5">
+            {[
+              { act: "Act I", label: "The Situation", body: service.situation, dim: false },
+              { act: "Act II", label: "The Noise", body: service.noise, dim: false },
+              { act: "Act III", label: "The Position Held", body: service.position, dim: false },
+            ].map((a, i) => (
+              <Reveal key={a.act} delay={i * 120}>
+                <div className="card-surface grid gap-6 p-8 md:grid-cols-12 md:p-10">
+                  <div className="md:col-span-4">
+                    <p className="font-display text-sm font-semibold tracking-widest text-sienna">
+                      {a.act}
+                    </p>
+                    <h3 className="mt-3 font-display text-2xl font-semibold text-ivory">
+                      {a.label}
+                    </h3>
+                  </div>
+                  <p className="body-copy font-body text-lead leading-relaxed text-ivory/70 md:col-span-8">
+                    {a.body}
                   </p>
                 </div>
               </Reveal>
@@ -147,20 +172,108 @@ export default async function ServiceDetailPage({
         </div>
       </section>
 
+      {/* ---- What you hold: interactive deliverables ---- */}
+      <section id="hold" aria-label="What is included" className="relative scroll-mt-32 overflow-hidden py-20 md:py-28">
+        <div className="section-shell grid gap-12 lg:grid-cols-12">
+          <div className="lg:col-span-5">
+            <Reveal>
+              <p className="eyebrow">What you hold</p>
+              <h2 className="mt-4 font-display text-display-2 font-semibold text-ivory">
+                Everything you walk away <span className="accent-word">holding.</span>
+              </h2>
+              <p className="body-copy mt-5 font-body text-lead text-ivory/60">
+                No mystery line items. Every deliverable is named, scoped, and yours at handover.
+              </p>
+              <div className="mt-8 card-surface-light inline-flex items-baseline gap-x-3 p-5">
+                <span className="font-display text-3xl font-semibold text-espresso tabular-nums">
+                  {service.proofStat.value}
+                </span>
+                <span className="font-body text-sm text-espresso/70">{service.proofStat.label}</span>
+              </div>
+            </Reveal>
+          </div>
+          <div className="lg:col-span-7">
+            <ol className="space-y-4">
+              {service.deliverables.map((item, i) => (
+                <Reveal as="li" key={item} delay={i * 60} className="list-none">
+                  <div className="card-surface group flex items-center gap-5 p-6 transition-transform duration-300 hover:translate-x-2">
+                    <span className="font-display text-lg font-semibold text-sienna/40 transition-colors duration-300 group-hover:text-sienna">
+                      0{i + 1}
+                    </span>
+                    <span className="font-display text-lg font-medium text-ivory">{item}</span>
+                    <svg
+                      viewBox="0 0 20 20"
+                      className="ml-auto h-4 w-4 shrink-0 text-ivory/25 transition-all duration-300 group-hover:translate-x-1 group-hover:text-sienna-bright"
+                      fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"
+                    >
+                      <path d="M4 10h12m0 0-5-5m5 5-5 5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </div>
+                </Reveal>
+              ))}
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      {/* ---- The sequence: vertical thread ---- */}
+      <section
+        id="sequence"
+        aria-label={`Our process for ${service.name}`}
+        className="relative scroll-mt-32 overflow-hidden border-y border-olive/15 bg-umber/40 py-20 md:py-28"
+      >
+        <div className="section-shell">
+          <Reveal>
+            <p className="eyebrow">The sequence</p>
+            <h2 className="mt-4 font-display text-display-2 font-semibold text-ivory">
+              The sequence, <span className="text-ivory/55">step by step.</span>
+            </h2>
+          </Reveal>
+
+          <div className="relative mt-14">
+            <ProcessThread />
+            <ol className="space-y-6">
+              {service.process.map((step, i) => (
+                <Reveal as="li" key={step.step} className="list-none">
+                  <div className="relative flex gap-6 pl-1 md:pl-2">
+                    <span
+                      aria-hidden="true"
+                      className="relative z-10 mt-1 hidden h-[14px] w-[14px] shrink-0 rounded-full border-2 border-sienna bg-espresso md:block"
+                      style={{ marginLeft: "-31px" }}
+                    />
+                    <div className="card-surface flex-1 p-7">
+                      <div className="flex items-baseline gap-4">
+                        <span className="font-display text-3xl font-semibold text-sienna/25">
+                          0{i + 1}
+                        </span>
+                        <h3 className="font-display text-xl font-semibold text-ivory">{step.step}</h3>
+                      </div>
+                      <p className="body-copy mt-3 font-body text-[15px] leading-relaxed text-ivory/60">
+                        {step.detail}
+                      </p>
+                    </div>
+                  </div>
+                </Reveal>
+              ))}
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      {/* ---- Proof ---- */}
       {related.length > 0 && (
         <section
-          className="relative overflow-hidden border-y border-olive/15 bg-umber/40 py-20 md:py-28"
+          id="proof"
           aria-label="Related case studies"
+          className="relative scroll-mt-32 overflow-hidden py-20 md:py-28"
         >
           <div className="section-shell">
-            <SectionHeading
-              eyebrow="Proof of position"
-              title={
-                <>
-                  This service <span className="accent-word">in the wild.</span>
-                </>
-              }
-            />
+            <Reveal>
+              <p className="eyebrow">Proof of position</p>
+              <h2 className="mt-4 font-display text-display-2 font-semibold text-ivory">
+                This service <span className="accent-word">in the wild.</span>
+              </h2>
+            </Reveal>
             <div className="mt-14 grid gap-6 md:grid-cols-2">
               {related.map((project, i) => (
                 <Reveal key={project.slug} delay={i * 100}>
@@ -192,17 +305,20 @@ export default async function ServiceDetailPage({
         </section>
       )}
 
-      <section className="relative overflow-hidden py-20 md:py-28" aria-label="Frequently asked questions">
+      {/* ---- Questions ---- */}
+      <section
+        id="questions"
+        aria-label="Frequently asked questions"
+        className="relative scroll-mt-32 overflow-hidden border-y border-olive/15 bg-umber/40 py-20 md:py-28"
+      >
         <div className="section-shell grid gap-12 lg:grid-cols-12">
           <div className="lg:col-span-4">
-            <SectionHeading
-              eyebrow="Questions"
-              title={
-                <>
-                  Asked before <span className="text-ivory/55">every engagement.</span>
-                </>
-              }
-            />
+            <Reveal>
+              <p className="eyebrow">Questions</p>
+              <h2 className="mt-4 font-display text-display-2 font-semibold text-ivory">
+                Asked before <span className="text-ivory/55">every engagement.</span>
+              </h2>
+            </Reveal>
           </div>
           <div className="lg:col-span-8">
             <FaqAccordion faqs={[...service.faqs]} />
@@ -210,29 +326,46 @@ export default async function ServiceDetailPage({
         </div>
       </section>
 
+      {/* ---- Next service ---- */}
       <section className="relative overflow-hidden border-t border-olive/15 py-14" aria-label="Next service">
         <div className="section-shell flex flex-wrap items-center justify-between gap-6">
-          {(() => {
-            const next = SERVICES[(serviceIndex + 1) % SERVICES.length];
-            return (
-              <>
-                <p className="font-body text-sm text-ivory/45">Next service</p>
-                <Link
-                  href={`/services/${next.slug}`}
-                  className="group flex items-center gap-4 text-right"
-                >
-                  <span className="font-display text-2xl font-semibold text-ivory transition-colors duration-300 group-hover:text-sienna-bright md:text-3xl">
-                    {next.name}
-                  </span>
-                  <svg viewBox="0 0 20 20" className="h-6 w-6 text-sienna-bright transition-transform duration-300 group-hover:translate-x-1.5" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-                    <path d="M4 10h12m0 0-5-5m5 5-5 5" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </Link>
-              </>
-            );
-          })()}
+          <p className="font-body text-sm text-ivory/45">Next service</p>
+          <Link href={`/services/${next.slug}`} className="group flex items-center gap-4 text-right">
+            <span className="font-display text-2xl font-semibold text-ivory transition-colors duration-300 group-hover:text-sienna-bright md:text-3xl">
+              {next.name}
+            </span>
+            <svg viewBox="0 0 20 20" className="h-6 w-6 text-sienna-bright transition-transform duration-300 group-hover:translate-x-1.5" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+              <path d="M4 10h12m0 0-5-5m5 5-5 5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </Link>
         </div>
       </section>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
     </>
+  );
+}
+
+/**
+ * ProcessThread - the vertical signal line that grows alongside
+ * the sequence steps as the section scrolls (CSS-only, scroll-
+ * driven via animation-timeline where supported).
+ */
+function ProcessThread() {
+  return (
+    <div
+      aria-hidden="true"
+      className="absolute left-[-17px] top-2 bottom-2 hidden w-[2px] bg-olive/25 md:block"
+      style={{
+        backgroundImage: "linear-gradient(180deg, #ff5001, #ff7a3d)",
+        backgroundSize: "100% var(--seq-fill, 0%)",
+        backgroundRepeat: "no-repeat",
+      }}
+      ref={undefined}
+      {...({ "data-seq-thread": "true" } as Record<string, string>)}
+    />
   );
 }

@@ -325,7 +325,7 @@ export function Chapter1Noise() {
                 />
               ))}
               {NODES.map((n, i) => (
-                <circle key={i} cx={n.x} cy={n.y} r="4" fill="rgba(201, 112, 46, 0.4)" />
+                <circle key={i} cx={n.x} cy={n.y} r="4" fill="rgba(255, 80, 1, 0.4)" />
               ))}
             </svg>
           </div>
@@ -338,10 +338,10 @@ export function Chapter1Noise() {
 
         {/* The Signal Thread + comet + trail (beat 1d) */}
         <div className="ch1-signal signal-line absolute left-0 right-0 top-1/2 z-30 origin-left opacity-0" aria-hidden="true" />
-        <span className="ch1-comet absolute left-0 top-1/2 z-30 -mt-[5px] h-2.5 w-2.5 rounded-full bg-gradient-to-r from-gold to-sienna shadow-[0_0_18px_4px_rgba(201,112,46,0.75)] opacity-0" aria-hidden="true" />
+        <span className="ch1-comet absolute left-0 top-1/2 z-30 -mt-[5px] h-2.5 w-2.5 rounded-full bg-sienna shadow-[0_0_18px_4px_rgba(255,80,1,0.75)] opacity-0" aria-hidden="true" />
         <span className="ch1-trail-1 absolute left-0 top-1/2 z-30 -mt-[3px] h-1.5 w-1.5 rounded-full bg-sienna opacity-0" aria-hidden="true" />
-        <span className="ch1-trail-2 absolute left-0 top-1/2 z-30 -mt-[2px] h-1 w-1 rounded-full bg-gold opacity-0" aria-hidden="true" />
-        <span className="ch1-trail-3 absolute left-0 top-1/2 z-30 -mt-px h-0.5 w-0.5 rounded-full bg-gold opacity-0" aria-hidden="true" />
+        <span className="ch1-trail-2 absolute left-0 top-1/2 z-30 -mt-[2px] h-1 w-1 rounded-full bg-sienna-bright opacity-0" aria-hidden="true" />
+        <span className="ch1-trail-3 absolute left-0 top-1/2 z-30 -mt-px h-0.5 w-0.5 rounded-full bg-sienna-bright opacity-0" aria-hidden="true" />
 
         {/* Headlines — one grid cell, crossfaded by scroll */}
         <div className="relative z-20 flex h-full items-center justify-center">
@@ -376,7 +376,7 @@ export function Chapter1Noise() {
           <div className="mt-2 h-[3px] overflow-hidden rounded-full bg-olive/25">
             <div
               ref={noiseFillRef}
-              className="h-full w-full origin-left rounded-full bg-gradient-to-r from-sienna to-gold"
+              className="h-full w-full origin-left rounded-full bg-sienna"
               style={{ transform: "scaleX(0)" }}
             />
           </div>

@@ -4,6 +4,17 @@ import { PageHero } from "@/components/pages/PageHero";
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description: "How Zoolyum collects, uses, and protects your information.",
+  alternates: { canonical: "/privacy-policy" },
+  openGraph: {
+    title: "Privacy Policy | Zoolyum",
+    description: "How Zoolyum collects, uses, and protects your information.",
+    url: "/privacy-policy",
+  },
+  twitter: {
+    card: "summary",
+    title: "Privacy Policy | Zoolyum",
+    description: "How Zoolyum collects, uses, and protects your information.",
+  },
 };
 
 const SECTIONS = [

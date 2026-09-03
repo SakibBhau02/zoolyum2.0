@@ -30,7 +30,7 @@ export function SignalFlash() {
       ) : (
         <>
           <div className="signal-sweep-line thread absolute top-1/2 w-full" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,112,46,0.12),transparent_65%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,80,1,0.12),transparent_65%)]" />
         </>
       )}
     </div>

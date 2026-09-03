@@ -47,3 +47,44 @@ export const ARTICLE_BODIES: Record<string, string[]> = {
     "The one-line summary we give every client: performance rents attention; branding owns it. Run both, in one voice, on one strategy — and the market starts learning your name whether or not you're paying for the introduction.",
   ],
 };
+
+/**
+ * Section structure for each article: heading + inclusive paragraph
+ * index range [start, end] into ARTICLE_BODIES. Gives every post a
+ * proper h2 hierarchy for SEO/AEO and drives the sticky TOC.
+ */
+export const ARTICLE_SECTIONS: Record<
+  string,
+  { heading: string; paras: [number, number] }[]
+> = {
+  "why-bangladeshi-brands-lose": [
+    { heading: "The camouflage trap", paras: [0, 1] },
+    { heading: "Why better loses to different", paras: [2, 2] },
+    { heading: "The way out", paras: [3, 4] },
+  ],
+  "positioning-is-a-territory": [
+    { heading: "A sentence is not a position", paras: [0, 0] },
+    { heading: "What defending ground looks like", paras: [1, 2] },
+    { heading: "Draw your map", paras: [3, 4] },
+  ],
+  "motion-is-advantage": [
+    { heading: "The eye is wired for motion", paras: [0, 1] },
+    { heading: "The feed made it non-negotiable", paras: [2, 2] },
+    { heading: "Rules, not a circus", paras: [3, 4] },
+  ],
+  "dhaka-market-trends-2026": [
+    { heading: "Consolidation is coming", paras: [0, 0] },
+    { heading: "Three trends to watch", paras: [1, 3] },
+    { heading: "Claim your position now", paras: [4, 4] },
+  ],
+  "first-position-startup": [
+    { heading: "The identity gap", paras: [0, 0] },
+    { heading: "Four weeks, one system", paras: [1, 2] },
+    { heading: "What you cannot skip", paras: [3, 4] },
+  ],
+  "performance-branding": [
+    { heading: "The war inside marketing teams", paras: [0, 1] },
+    { heading: "Three layers, one voice", paras: [2, 2] },
+    { heading: "How it compounds", paras: [3, 4] },
+  ],
+};

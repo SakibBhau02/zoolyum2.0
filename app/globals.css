@@ -17,9 +17,10 @@
   /* ---- Palette ---- */
   --color-espresso: #241f1b;
   --color-umber: #3a2e26;
-  --color-sienna: #c9702e;
-  --color-sienna-bright: #ce7a34;
+  --color-sienna: #ff5001;
+  --color-sienna-bright: #ff6a26;
   --color-olive: #7a7a5c;
+  --color-olive-hi: #909070;
   --color-ivory: #f6f1e8;
   --color-ivory-deep: #ede5d6;
   --color-gold: #b99456;
@@ -115,13 +116,13 @@ body {
   height: 2px;
   margin-right: 0.75rem;
   vertical-align: middle;
-  background: linear-gradient(90deg, var(--color-sienna), var(--color-gold));
+  background: #ff5001;
 }
 .eyebrow-dark {
   color: rgba(36, 31, 27, 0.6);
 }
 .eyebrow-dark::before {
-  background: linear-gradient(90deg, var(--color-sienna), var(--color-gold));
+  background: #ff5001;
 }
 
 /* Accent word: one or two per headline, thin underline, never a phrase */
@@ -137,7 +138,7 @@ body {
   right: 0;
   bottom: 0.08em;
   height: 1px;
-  background: rgba(201, 112, 46, 0.65);
+  background: rgba(255, 80, 1, 0.65);
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.6s var(--ease-read) 0.3s;
@@ -153,12 +154,7 @@ body {
 
 .thread {
   height: 2px;
-  background: linear-gradient(
-    90deg,
-    var(--color-sienna) 0%,
-    var(--color-sienna-bright) 55%,
-    var(--color-gold) 100%
-  );
+  background: #ff5001;
 }
 
 /* Terrain Gradient — reads as a horizon, not a hard color jump */
@@ -167,11 +163,11 @@ body {
     100deg,
     #241f1b 0%,
     #3a2e26 55%,
-    #c9702e 100%
+    #ff5001 100%
   );
 }
 .terrain-gradient-lit {
-  background: linear-gradient(100deg, #ce7a34 0%, #d08a49 45%, #b99456 100%);
+  background: linear-gradient(100deg, #ff5001 0%, #ff6a26 55%, #ff7a3d 100%);
 }
 .terrain-gradient-soft {
   background: linear-gradient(
@@ -182,7 +178,7 @@ body {
   );
 }
 .terrain-gradient-text {
-  background: linear-gradient(100deg, #c9702e, #d08038 50%, #b99456);
+  background: linear-gradient(100deg, #ff5001, #ff6a26 55%, #ff7a3d 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -209,7 +205,7 @@ body {
     ),
     radial-gradient(
       ellipse 260px 340px at 48% 82%,
-      rgba(201, 112, 46, 0.4),
+      rgba(255, 80, 1, 0.4),
       transparent 65%
     );
   filter: blur(2px);
@@ -293,7 +289,7 @@ html[data-reading] .ambient-drift {
 /* Primary — filled Sienna Amber (accessible tint), Terrain
    Gradient sweep on hover */
 .btn-primary {
-  background: var(--color-sienna-bright);
+  background: #ff5001;
   color: var(--color-espresso);
 }
 .btn-primary::before {
@@ -301,7 +297,7 @@ html[data-reading] .ambient-drift {
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(100deg, #ce7a34 0%, #d08a49 45%, #b99456 100%);
+  background: #ff6a26;
   transform: translateX(-101%);
   transition: transform 0.45s var(--ease-horizon);
 }
@@ -310,12 +306,12 @@ html[data-reading] .ambient-drift {
 }
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 28px -12px rgba(201, 112, 46, 0.5);
+  box-shadow: 0 12px 28px -12px rgba(255, 80, 1, 0.5);
 }
 
 /* Secondary — amber outline, fills on hover */
 .btn-secondary {
-  border: 1px solid rgba(206, 122, 52, 0.65);
+  border: 1px solid rgba(255, 106, 38, 0.65);
   color: var(--color-sienna-bright);
   background: transparent;
 }
@@ -324,7 +320,7 @@ html[data-reading] .ambient-drift {
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(100deg, #ce7a34, #b99456);
+  background: #ff5001;
   transform: translateX(-101%);
   transition: transform 0.45s var(--ease-horizon);
 }
@@ -351,7 +347,7 @@ html[data-reading] .ambient-drift {
   right: 0;
   bottom: 0.5rem;
   height: 1px;
-  background: linear-gradient(90deg, var(--color-sienna), var(--color-gold));
+  background: #ff5001;
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.4s var(--ease-read);
@@ -386,17 +382,17 @@ html[data-reading] .ambient-drift {
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, var(--color-sienna), var(--color-gold));
+  background: #ff5001;
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.5s var(--ease-read);
 }
 .card-surface:hover {
   transform: translateY(-4px);
-  border-color: rgba(201, 112, 46, 0.4);
+  border-color: rgba(255, 80, 1, 0.4);
   box-shadow:
     0 16px 40px -20px rgba(0, 0, 0, 0.55),
-    0 0 0 1px rgba(201, 112, 46, 0.14);
+    0 0 0 1px rgba(255, 80, 1, 0.14);
 }
 .card-surface:hover::before {
   transform: scaleX(1);
@@ -421,14 +417,14 @@ html[data-reading] .ambient-drift {
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, var(--color-sienna), var(--color-gold));
+  background: #ff5001;
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.5s var(--ease-read);
 }
 .card-surface-light:hover {
   transform: translateY(-4px);
-  border-color: rgba(201, 112, 46, 0.45);
+  border-color: rgba(255, 80, 1, 0.45);
   box-shadow: 0 16px 40px -22px rgba(58, 46, 38, 0.4);
 }
 .card-surface-light:hover::before {
@@ -488,12 +484,7 @@ html[data-reading] .ambient-drift {
 /* Horizon Rule — the section-divider thread that wipes in */
 .horizon-rule {
   height: 2px;
-  background: linear-gradient(
-    90deg,
-    var(--color-sienna) 0%,
-    var(--color-sienna-bright) 55%,
-    var(--color-gold) 100%
-  );
+  background: #ff5001;
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.9s var(--ease-horizon);
@@ -532,8 +523,8 @@ html[data-reading] .ambient-drift {
   border-radius: 9999px;
   background: var(--color-sienna);
   box-shadow:
-    0 0 18px rgba(201, 112, 46, 0.85),
-    0 0 46px rgba(201, 112, 46, 0.4);
+    0 0 18px rgba(255, 80, 1, 0.85),
+    0 0 46px rgba(255, 80, 1, 0.4);
   animation: var(--animate-pulse-soft);
 }
 @keyframes pulse-soft {
@@ -551,8 +542,8 @@ html[data-reading] .ambient-drift {
 /* Beat 1d — the Signal Thread line */
 .signal-line {
   height: 2px;
-  background: linear-gradient(90deg, var(--color-sienna), #d08038 60%, var(--color-gold));
-  box-shadow: 0 0 14px rgba(201, 112, 46, 0.5);
+  background: #ff5001;
+  box-shadow: 0 0 14px rgba(255, 80, 1, 0.5);
 }
 
 /* Fog vignette for beat 1c */
@@ -670,10 +661,10 @@ html[data-reading] .ambient-drift {
     display: none !important;
   }
   .btn-primary:hover {
-    background: var(--color-gold);
+    background: var(--color-sienna-bright);
   }
   .btn-secondary:hover {
-    background: var(--color-sienna-bright);
+    background: #ff6a26;
     color: var(--color-espresso);
   }
 }
@@ -701,8 +692,8 @@ html[data-reading] .ambient-drift {
 /* --- Gradient mesh glow (hero) --- */
 .mesh-glow {
   background:
-    radial-gradient(ellipse 60% 45% at 18% 12%, rgba(201, 112, 46, 0.17), transparent 62%),
-    radial-gradient(ellipse 50% 40% at 85% 78%, rgba(185, 148, 86, 0.11), transparent 60%),
+    radial-gradient(ellipse 60% 45% at 18% 12%, rgba(255, 80, 1, 0.17), transparent 62%),
+    radial-gradient(ellipse 50% 40% at 85% 78%, rgba(255, 106, 38, 0.10), transparent 60%),
     radial-gradient(ellipse 75% 55% at 55% 110%, rgba(58, 46, 38, 0.9), transparent 72%);
   animation: mesh-drift 18s ease-in-out infinite alternate;
   will-change: transform;
@@ -752,7 +743,7 @@ html[data-reading] .ambient-drift {
 .mote {
   position: absolute;
   border-radius: 9999px;
-  background: radial-gradient(circle, rgba(246, 241, 232, 0.9), rgba(201, 112, 46, 0.45) 72%);
+  background: radial-gradient(circle, rgba(246, 241, 232, 0.9), rgba(255, 80, 1, 0.45) 72%);
   animation: mote-float var(--mote-duration, 11s) ease-in-out infinite alternate;
   animation-delay: var(--mote-delay, 0s);
   opacity: var(--mote-opacity, 0.5);
@@ -773,7 +764,7 @@ html[data-reading] .ambient-drift {
   position: absolute;
   inset: 0;
   border-radius: 9999px;
-  border: 1px solid rgba(201, 112, 46, 0.55);
+  border: 1px solid rgba(255, 80, 1, 0.55);
   animation: ripple-expand 3.2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
 }
 .ripple-ring:nth-child(2) {
@@ -825,7 +816,7 @@ html[data-reading] .ambient-drift {
 
 /* --- Stat completion glow --- */
 .stat-glow {
-  text-shadow: 0 0 28px rgba(201, 112, 46, 0.8);
+  text-shadow: 0 0 28px rgba(255, 80, 1, 0.8);
 }
 
 /* --- Signal flash easter egg --- */
@@ -861,7 +852,7 @@ html[data-reading] .ambient-drift {
 }
 .beat-step[data-active="true"] .beat-dot {
   background: var(--color-sienna);
-  box-shadow: 0 0 10px rgba(201, 112, 46, 0.8);
+  box-shadow: 0 0 10px rgba(255, 80, 1, 0.8);
   transform: scale(1.5);
 }
 .beat-step[data-active="true"] .beat-label {
@@ -883,5 +874,862 @@ html[data-reading] .ambient-drift {
   .animate-marquee-ltr,
   .animate-marquee-rtl {
     animation: none !important;
+  }
+}
+
+/* ============================================================
+   HEADER NAV - Signal Thread underline on hover (v5.2)
+   ============================================================ */
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -6px;
+  height: 2px;
+  border-radius: 2px;
+  background: #ff5001;
+  box-shadow: 0 1px 10px rgba(255, 80, 1, 0.45);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.45s var(--ease-read);
+}
+.nav-link:hover::after,
+.nav-link:focus-visible::after {
+  transform: scaleX(1);
+}
+.nav-link[aria-current="page"]::after {
+  transform: scaleX(1);
+  opacity: 0.5;
+}
+/* ============================================================
+   v5.6 - CONTACT WIZARD (guided conversation form)
+   ============================================================ */
+
+/* Static form panel - the card-surface lift is wrong for a form
+   users dwell inside, so this variant stays put. */
+.wizard-card {
+  position: relative;
+  background: var(--color-umber);
+  border: 1px solid rgba(122, 122, 92, 0.25);
+  border-radius: 0.875rem;
+  overflow: hidden;
+}
+
+/* Directional step transitions */
+@keyframes step-in-r {
+  from {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes step-in-l {
+  from {
+    opacity: 0;
+    transform: translateX(-28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+.step-in-r {
+  animation: step-in-r 0.45s var(--ease-read) both;
+}
+.step-in-l {
+  animation: step-in-l 0.45s var(--ease-read) both;
+}
+
+/* Soft rejection shake on invalid advance */
+@keyframes shake-soft {
+  10%,
+  90% {
+    transform: translateX(-1px);
+  }
+  20%,
+  80% {
+    transform: translateX(2px);
+  }
+  30%,
+  50%,
+  70% {
+    transform: translateX(-3px);
+  }
+  40%,
+  60% {
+    transform: translateX(3px);
+  }
+}
+.shake-soft {
+  animation: shake-soft 0.4s ease;
+}
+
+/* Success check draw-on */
+@keyframes ring-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes tick-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.check-ring {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  animation: ring-draw 0.65s var(--ease-read) 0.05s forwards;
+}
+.check-tick {
+  stroke-dasharray: 40;
+  stroke-dashoffset: 40;
+  animation: tick-draw 0.3s var(--ease-read) 0.6s forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step-in-r,
+  .step-in-l,
+  .shake-soft {
+    animation: none !important;
+  }
+  .check-ring,
+  .check-tick {
+    animation: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+}
+
+
+/* ============================================================
+   v5.3 - HEADER GLASS (dark frosted glass on scroll)
+   ============================================================ */
+
+.header-glass {
+  background:
+    linear-gradient(180deg, rgba(246, 241, 232, 0.045), rgba(246, 241, 232, 0) 38%),
+    rgba(36, 31, 27, 0.55);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(160%);
+  border-bottom: 1px solid rgba(246, 241, 232, 0.08);
+  box-shadow:
+    0 2px 20px rgba(0, 0, 0, 0.32),
+    inset 0 1px 0 rgba(246, 241, 232, 0.05);
+}
+
+/* ============================================================
+   v5.7 - JUNGLE HERO, LOGO LOCKUP, CH.1 CLOSING BEAT
+   ============================================================ */
+
+/* --- Logo: the mark panel glows on hover --- */
+.logo-mark {
+  transition: filter 0.45s ease-out;
+}
+.group:hover .logo-mark {
+  filter: drop-shadow(0 0 14px rgba(255, 80, 1, 0.55));
+}
+
+/* --- Blade midribs: the faint stalk inside every leaf --- */
+.stalk {
+  stroke: rgba(255, 106, 38, 0.2);
+  stroke-width: 1;
+}
+
+/* --- Torch glow: blades light up in sienna near the cursor
+       (HeroBackdrop). Hidden until the pointer enters the grass;
+       JS eases the mask ellipse in. No-JS and reduced-motion
+       never show it. --- */
+.blade-glow {
+  visibility: hidden;
+  fill: #ff5001;
+  fill-opacity: 0.34;
+  stroke: #ff8a4d;
+  stroke-opacity: 0.9;
+  stroke-width: 1.4;
+  filter: drop-shadow(0 0 6px rgba(255, 80, 1, 0.55))
+    drop-shadow(0 0 16px rgba(255, 80, 1, 0.28));
+}
+
+/* --- The glow runner: an amber pulse that travels down the
+       stalk, tip to base, then rests before the next pass --- */
+.stalk-run {
+  stroke: #ff6a26;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-dasharray: 26 520;
+  filter: drop-shadow(0 0 5px rgba(255, 106, 38, 0.85));
+  animation: stalk-run 9s linear infinite;
+  will-change: stroke-dashoffset;
+}
+@keyframes stalk-run {
+  from {
+    stroke-dashoffset: 546;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+html[data-reading] .stalk-run {
+  animation-play-state: paused;
+}
+
+/* --- Fireflies: bright motes that blink as they drift --- */
+.firefly {
+  position: absolute;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(255, 138, 76, 0.95), rgba(255, 80, 1, 0.5) 70%);
+  box-shadow:
+    0 0 10px 2px rgba(255, 106, 38, 0.5),
+    0 0 26px 6px rgba(255, 80, 1, 0.18);
+  animation:
+    mote-float var(--mote-duration, 12s) ease-in-out infinite alternate,
+    firefly-glow var(--ff-duration, 5s) ease-in-out infinite;
+  will-change: transform, opacity;
+}
+@keyframes firefly-glow {
+  0%,
+  100% {
+    opacity: 0.18;
+  }
+  42% {
+    opacity: 0.95;
+  }
+  58% {
+    opacity: 0.5;
+  }
+  72% {
+    opacity: 0.85;
+  }
+}
+
+/* --- Ch.1 closing beat: the bobbing descent cue --- */
+.chevron-bob {
+  animation: chevron-bob 2.2s ease-in-out infinite;
+}
+@keyframes chevron-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(7px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stalk-run,
+  .firefly,
+  .chevron-bob {
+    animation: none !important;
+  }
+  .stalk-run {
+    opacity: 0.4;
+  }
+  .firefly {
+    opacity: 0.4;
+  }
+  .group:hover .logo-mark {
+    filter: none;
+  }
+}
+
+/* ============================================================
+   v5.8 - CHAPTER TWO: THE ARRIVAL + THE BRANCHING THREAD
+   ============================================================ */
+
+/* --- 2.0 The Arrival: quiet title-card sequence ---
+   Label slides in, the two headline clauses rise in turn, the
+   strike draws through "noise", subtext and chevron settle. All
+   time-based on first view; the chapter never scroll-jacks. */
+@keyframes ar-label-in {
+  from {
+    opacity: 0;
+    transform: translateX(-14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes ar-clause-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+@keyframes ar-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes ar-strike-draw {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.js .arrival-card .ar-label,
+.js .arrival-card .ar-sub,
+.js .arrival-card .ar-chevron {
+  opacity: 0;
+}
+.js .arrival-card .ar-clause {
+  opacity: 0;
+}
+.js .arrival-card .ar-strike {
+  transform: scaleX(0);
+  transform-origin: left;
+}
+.js .arrival-card.in-view .ar-label {
+  animation: ar-label-in 0.4s var(--ease-read) 0.05s both;
+}
+.js .arrival-card.in-view .ar-clause-white {
+  animation: ar-clause-in 0.6s var(--ease-read) 0.3s both;
+}
+.js .arrival-card.in-view .ar-clause-orange {
+  animation: ar-clause-in 0.6s var(--ease-read) 0.45s both;
+}
+.js .arrival-card.in-view .ar-strike {
+  animation: ar-strike-draw 0.35s ease-out 0.9s both;
+}
+.js .arrival-card.in-view .ar-sub {
+  animation: ar-fade-in 0.35s ease-out 1.3s both;
+}
+.js .arrival-card.in-view .ar-chevron {
+  animation: ar-fade-in 0.35s ease-out 1.6s both;
+}
+
+/* --- 2.1 The branching thread ---
+   One strategic line splits into three: pieces draw on entry
+   (b-y grows down, b-x draws left-to-right, b-x-c from center),
+   staggered so each card lands as its branch completes. Branch
+   pieces sit at reduced opacity at rest and brighten on the
+   card's hover/focus. */
+@keyframes branch-y-in {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+@keyframes branch-x-in {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes pillar-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.js .b-y {
+  transform: scaleY(0);
+  transform-origin: top;
+}
+.js .b-y-up {
+  transform: scaleY(0);
+  transform-origin: bottom;
+}
+.js .b-x {
+  transform: scaleX(0);
+  transform-origin: left;
+}
+.js .b-x-c {
+  transform: scaleX(0);
+  transform-origin: center;
+}
+.js .pillars-in .b-y,
+.js .pillars-in .b-y-up {
+  animation: branch-y-in 0.55s var(--ease-read) both;
+}
+.js .pillars-in .b-x,
+.js .pillars-in .b-x-c {
+  animation: branch-x-in 0.55s var(--ease-read) both;
+}
+.js .pillar-in {
+  opacity: 0;
+  transform: translateY(18px);
+}
+.js .pillars-in .pillar-in {
+  animation: pillar-card-in 0.6s var(--ease-read) both;
+}
+/* ============================================================
+   v5.9 - CHAPTER TWO: THE TAGLINE (story-based infographics)
+   Three words as three acts: the Read, the Map, the Build.
+   ============================================================ */
+
+/* --- diagram panel (quiet instrument card, no hover lift) --- */
+.diagram-card {
+  position: relative;
+  background: rgba(36, 31, 27, 0.55);
+  border: 1px solid rgba(122, 122, 92, 0.25);
+  border-radius: 0.875rem;
+  overflow: hidden;
+}
+.read-field {
+  cursor: crosshair;
+}
+
+/* --- svg text labels --- */
+.mod-label {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  fill: rgba(246, 241, 232, 0.55);
+}
+.map-label {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  fill: rgba(144, 144, 112, 0.95);
+}
+
+/* --- shared thread draw keyframe --- */
+@keyframes thread-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* --- Act 02: the map (crowd -> open ground) --- */
+.svg-ripple {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ripple-expand 3.2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+.js .act-02 .map-trail {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+}
+.js .act-02.act-in .map-trail {
+  animation: thread-draw 1.2s var(--ease-read) 0.35s both;
+}
+.js .act-02 .map-marker {
+  transform-box: view-box;
+  transform: translate(430px, 280px);
+  transition: transform 1.6s var(--ease-read) 0.45s;
+}
+.js .act-02.act-in .map-marker {
+  transform: translate(190px, 130px);
+}
+.map-marker .marker-ring {
+  transition: stroke 0.3s ease-out;
+}
+.map-marker:hover .marker-ring {
+  stroke: rgba(255, 106, 38, 0.85);
+}
+
+/* --- Act 03: the build (scatter -> assembled system) --- */
+.js .act-03 .build-module {
+  transform-box: view-box;
+  transition: transform 0.85s var(--ease-read);
+}
+.js .act-03 .build-m1 {
+  transform: translate(24px, 30px);
+  transition-delay: 0.12s;
+}
+.js .act-03.act-in .build-m1 {
+  transform: translate(380px, 40px);
+}
+.js .act-03 .build-m2 {
+  transform: translate(60px, 210px);
+  transition-delay: 0.27s;
+}
+.js .act-03.act-in .build-m2 {
+  transform: translate(476px, 40px);
+}
+.js .act-03 .build-m3 {
+  transform: translate(140px, 84px);
+  transition-delay: 0.42s;
+}
+.js .act-03.act-in .build-m3 {
+  transform: translate(380px, 116px);
+}
+.js .act-03 .build-m4 {
+  transform: translate(36px, 150px);
+  transition-delay: 0.57s;
+}
+.js .act-03.act-in .build-m4 {
+  transform: translate(476px, 116px);
+}
+.js .act-03 .build-m5 {
+  transform: translate(90px, 252px);
+  transition-delay: 0.72s;
+}
+.js .act-03.act-in .build-m5 {
+  transform: translate(380px, 192px);
+}
+.js .act-03 .sys-thread {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+}
+.js .act-03.act-in .sys-thread {
+  animation: thread-draw 0.8s var(--ease-read) 1.65s both;
+}
+.build-module .mod-frame {
+  transition: stroke 0.3s ease-out;
+}
+.build-module:hover .mod-frame {
+  stroke: rgba(255, 106, 38, 0.75);
+}
+.build-module .mod-label {
+  transition: fill 0.3s ease-out;
+}
+.build-module:hover .mod-label {
+  fill: rgba(246, 241, 232, 0.95);
+}
+
+/* --- The lockup finale: thread + nodes through the three words --- */
+.js .lock-seg {
+  transform: scaleX(0);
+  transform-origin: left;
+}
+.js .lockup-in .lock-seg {
+  animation: lock-seg-draw 0.5s var(--ease-read) both;
+}
+@keyframes lock-seg-draw {
+  to {
+    transform: scaleX(1);
+  }
+}
+.js .lock-dot {
+  opacity: 0;
+}
+.js .lockup-in .lock-dot {
+  animation: lock-dot-pop 0.45s var(--ease-read) both;
+}
+@keyframes lock-dot-pop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0);
+  }
+  60% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.4);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+/* ============================================================
+   v6.2 - CHAPTER TWO COMPARE SLIDERS (before / after)
+   One draggable divider per act. GPU-friendly; reduced motion
+   resolves to a static split.
+   ============================================================ */
+
+.compare-track {
+  background: rgba(36, 31, 27, 0.55);
+  border: 1px solid rgba(122, 122, 92, 0.25);
+}
+.compare-track:focus-visible {
+  outline: 2px solid var(--color-sienna-bright);
+  outline-offset: 3px;
+}
+.compare-before {
+  background: #241f1b;
+}
+.compare-after {
+  background:
+    radial-gradient(60% 70% at 50% 45%, rgba(255, 80, 1, 0.1), rgba(255, 80, 1, 0) 70%),
+    #2b2320;
+}
+.compare-divider {
+  width: 2px;
+  background: #ff5001;
+  box-shadow: 0 0 16px rgba(255, 80, 1, 0.6);
+  transform: translateX(-50%);
+}
+.compare-knob {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 9999px;
+  background: #ff5001;
+  color: #241f1b;
+  box-shadow: 0 0 24px rgba(255, 80, 1, 0.55);
+}
+.compare-chip {
+  position: absolute;
+  top: 0.75rem;
+  z-index: 3;
+  padding: 0.3rem 0.7rem;
+  border-radius: 9999px;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+.compare-chip-before {
+  left: 0.75rem;
+  border: 1px solid rgba(122, 122, 92, 0.5);
+  color: rgba(246, 241, 232, 0.55);
+  background: rgba(36, 31, 27, 0.6);
+}
+.compare-chip-after {
+  right: 0.75rem;
+  border: 1px solid rgba(255, 106, 38, 0.6);
+  color: #ff6a26;
+  background: rgba(255, 80, 1, 0.1);
+}
+.compare-scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.compare-scene-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+/* --- 2.1 noise -> signal --- */
+.noise-word {
+  position: absolute;
+  font-family: var(--font-body);
+  font-weight: 500;
+  color: rgba(246, 241, 232, 0.35);
+  filter: blur(2px);
+  white-space: nowrap;
+}
+.signal-core {
+  animation: compare-pulse 3s ease-in-out infinite;
+}
+@keyframes compare-pulse {
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(255, 80, 1, 0.25)); }
+  50% { filter: drop-shadow(0 0 14px rgba(255, 80, 1, 0.55)); }
+}
+
+/* --- 2.2 crowd -> open ground --- */
+.crowd-before-dot {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border-radius: 9999px;
+  background: rgba(246, 241, 232, 0.4);
+  transform: translate(-50%, -50%);
+}
+.crowd-after-dot {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 9999px;
+  background: rgba(246, 241, 232, 0.16);
+  transform: translate(-50%, -50%);
+}
+.map-flag-ring {
+  position: absolute;
+  width: 52px;
+  height: 52px;
+  border-radius: 9999px;
+  border: 1px dashed rgba(255, 80, 1, 0.55);
+  transform: translate(-50%, -50%);
+}
+.map-flag-pin {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 9999px;
+  background: #ff6a26;
+  box-shadow: 0 0 16px rgba(255, 80, 1, 0.8);
+  transform: translate(-50%, -50%);
+}
+.compare-scene-tag {
+  position: absolute;
+  transform: translate(-50%, 0);
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  color: rgba(144, 144, 112, 0.95);
+  white-space: nowrap;
+}
+.compare-scene-tag-hot {
+  color: rgba(255, 106, 38, 0.9);
+}
+
+/* --- 2.3 parts -> system --- */
+.build-before-card {
+  position: absolute;
+  padding: 0.45rem 0.8rem;
+  border-radius: 0.6rem;
+  border: 1px solid rgba(122, 122, 92, 0.4);
+  background: rgba(58, 46, 38, 0.92);
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  color: rgba(246, 241, 232, 0.6);
+  white-space: nowrap;
+}
+.build-after-chip {
+  position: relative;
+  z-index: 1;
+  margin: 3px 0;
+  padding: 0.4rem 1rem;
+  border-radius: 0.6rem;
+  border: 1px solid rgba(255, 106, 38, 0.55);
+  background: rgba(58, 46, 38, 0.95);
+  box-shadow: 0 0 12px rgba(255, 80, 1, 0.22);
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  color: rgba(246, 241, 232, 0.9);
+  white-space: nowrap;
+}
+.build-thread {
+  position: absolute;
+  top: 8%;
+  bottom: 8%;
+  left: 50%;
+  width: 2px;
+  background: linear-gradient(#ff5001, #ff6a26);
+  opacity: 0.55;
+  transform: translateX(-50%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .signal-core {
+    animation: none;
+  }
+}
+/* ============================================================
+   v6.0 - INSIGHTS EDITORIAL (article rhythm + FAQ)
+   Drop cap, FAQ accordions. Respects reduced motion.
+   ============================================================ */
+
+.dropcap::first-letter {
+  float: left;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 3.4em;
+  line-height: 0.86;
+  padding-right: 0.12em;
+  padding-top: 0.06em;
+  color: var(--color-sienna-bright);
+}
+
+.faq-item summary {
+  -webkit-tap-highlight-color: transparent;
+}
+.faq-item summary:focus-visible {
+  outline: 2px solid var(--color-sienna-bright);
+  outline-offset: 3px;
+  border-radius: 0.75rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faq-item summary span {
+    transition: none;
+  }
+}
+/* ============================================================
+   v7.0 - CASE DOSSIER (sticky mobile conversion bar)
+   ============================================================ */
+
+@media (max-width: 1023.98px) {
+  body:has(.case-cta-bar) {
+    padding-bottom: 84px;
+  }
+}
+/* ============================================================
+   v5.10 - ZIGZAG LOADER (the mark as a loading moment)
+   ============================================================ */
+
+@keyframes zig-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes zig-pulse {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+@keyframes zig-word-in {
+  from {
+    opacity: 0;
+    letter-spacing: 0.7em;
+  }
+  to {
+    opacity: 1;
+    letter-spacing: 0.42em;
+  }
+}
+
+/* The white signal zigzag draws itself once, then the underlay
+   breathes softly while the route loads. */
+.zig-stroke {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: zig-draw 0.85s var(--ease-read) 0.12s both;
+}
+.zig-glow {
+  opacity: 0.2;
+  filter: blur(5px);
+  animation: zig-pulse 2.4s ease-in-out 1.05s infinite;
+}
+.zig-word {
+  opacity: 0;
+  animation: zig-word-in 0.7s var(--ease-read) 0.55s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zig-stroke,
+  .zig-glow,
+  .zig-word {
+    animation: none !important;
+    opacity: 1;
+  }
+  .zig-stroke {
+    stroke-dashoffset: 0;
+  }
+  .zig-glow {
+    opacity: 0.3;
   }
 }

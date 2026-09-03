@@ -60,7 +60,7 @@ function NewsletterForm() {
           />
           <button
             type="submit"
-            className="shrink-0 bg-sienna-bright px-5 font-display text-sm font-semibold text-espresso transition-colors duration-300 hover:bg-gold"
+            className="shrink-0 bg-sienna-bright px-5 font-display text-sm font-semibold text-espresso transition-colors duration-300 hover:bg-sienna"
           >
             Subscribe
           </button>

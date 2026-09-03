@@ -9,6 +9,17 @@ export const metadata: Metadata = {
   title: "FAQ",
   description:
     "How Zoolyum works — engagements, pricing, industries, timelines, and how we measure success.",
+  alternates: { canonical: "/faq" },
+  openGraph: {
+    title: "FAQ | Zoolyum",
+    description: "How Zoolyum works - engagements, pricing, industries, timelines, and how we measure success.",
+    url: "/faq",
+  },
+  twitter: {
+    card: "summary",
+    title: "FAQ | Zoolyum",
+    description: "How Zoolyum works - engagements, pricing, industries, timelines, and how we measure success.",
+  },
 };
 
 export default function FaqPage() {
@@ -50,6 +61,20 @@ export default function FaqPage() {
           </div>
         </div>
       </section>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: GLOBAL_FAQS.map((f) => ({
+              "@type": "Question",
+              name: f.q,
+              acceptedAnswer: { "@type": "Answer", text: f.a },
+            })),
+          }),
+        }}
+      />
     </>
   );
 }

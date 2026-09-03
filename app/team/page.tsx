@@ -8,6 +8,17 @@ export const metadata: Metadata = {
   title: "Team",
   description:
     "The people behind the pattern-reading — strategists, designers, engineers, and filmmakers at Zoolyum.",
+  alternates: { canonical: "/team" },
+  openGraph: {
+    title: "Team | Zoolyum",
+    description: "The people behind the pattern-reading - strategists, designers, engineers, and filmmakers at Zoolyum.",
+    url: "/team",
+  },
+  twitter: {
+    card: "summary",
+    title: "Team | Zoolyum",
+    description: "The people behind the pattern-reading - strategists, designers, engineers, and filmmakers at Zoolyum.",
+  },
 };
 
 export default function TeamPage() {
@@ -32,7 +43,7 @@ export default function TeamPage() {
                   aria-hidden="true"
                   className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rotate-45 bg-gradient-to-b from-sienna/15 to-transparent opacity-0 transition-all duration-500 group-hover:-right-4 group-hover:opacity-100"
                 />
-                <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-espresso font-display text-2xl font-semibold text-ivory/50 ring-1 ring-olive/30 transition-all duration-500 group-hover:from-sienna group-hover:to-gold group-hover:bg-gradient-to-br group-hover:text-espresso group-hover:ring-sienna/50">
+                <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-espresso font-display text-2xl font-semibold text-ivory/50 ring-1 ring-olive/30 transition-all duration-500 group-hover:bg-sienna group-hover:text-espresso group-hover:ring-sienna/50">
                   {member.initials}
                 </div>
                 <h2 className="mt-6 font-display text-xl font-semibold text-ivory transition-colors duration-300 group-hover:text-sienna-bright">

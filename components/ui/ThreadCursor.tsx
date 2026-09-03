@@ -56,8 +56,8 @@ export function ThreadCursor() {
         x = tx;
         y = ty;
       } else {
-        x += (tx - x) * 0.22;
-        y += (ty - y) * 0.22;
+        x += (tx - x) * 0.13;
+        y += (ty - y) * 0.13;
         const dx = tx - x;
         const dy = ty - y;
         if (Math.abs(dx) + Math.abs(dy) > 1.5) {
@@ -65,7 +65,7 @@ export function ThreadCursor() {
           let delta = target - angle;
           while (delta > 180) delta -= 360;
           while (delta < -180) delta += 360;
-          angle += delta * 0.2;
+          angle += delta * 0.12;
         }
       }
       el.style.transform = `translate3d(${x}px, ${y}px, 0)`;
@@ -120,7 +120,7 @@ export function ThreadCursor() {
           height: 26px;
           margin: -13px 0 0 -1px;
           border-radius: 2px;
-          background: linear-gradient(180deg, #ce7a34, #b99456);
+          background: linear-gradient(180deg, #ff5001, #ff7a3d);
           transition: all 0.22s cubic-bezier(0.22, 1, 0.36, 1);
         }
         .cursor-bar:nth-child(1),

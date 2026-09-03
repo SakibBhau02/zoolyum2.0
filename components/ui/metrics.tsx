@@ -61,7 +61,7 @@ export function StatCounter({
     <div ref={ref} className="text-center sm:text-left">
       <p className={`font-display text-5xl font-semibold tracking-tight text-sienna tabular-nums md:text-6xl transition-all duration-500 ${flash ? "scale-105 text-sienna-bright stat-glow" : ""}`}>
         {display}
-        <span className="text-gold">{suffix}</span>
+        <span className="text-sienna-bright">{suffix}</span>
       </p>
       <p className="body-copy mt-2 font-body text-sm font-medium tracking-wide text-ivory/60">
         {label}

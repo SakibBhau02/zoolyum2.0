@@ -9,6 +9,17 @@ export const metadata: Metadata = {
   title: "About",
   description:
     "The story of Zoolyum — the strategic partner that turns market noise into clear competitive advantage.",
+  alternates: { canonical: "/about" },
+  openGraph: {
+    title: "About | Zoolyum",
+    description: "The story of Zoolyum - the strategic partner that turns market noise into clear competitive advantage.",
+    url: "/about",
+  },
+  twitter: {
+    card: "summary",
+    title: "About | Zoolyum",
+    description: "The story of Zoolyum - the strategic partner that turns market noise into clear competitive advantage.",
+  },
 };
 
 const AWARDS = [
@@ -92,7 +103,7 @@ export default function AboutPage() {
           <Reveal>
             <div className="card-surface grid gap-10 p-9 md:grid-cols-[200px_1fr] md:p-14">
               <div>
-                <div className="flex h-28 w-28 items-center justify-center rounded-full bg-gradient-to-br from-sienna to-gold font-display text-3xl font-semibold text-espresso">
+                <div className="flex h-28 w-28 items-center justify-center rounded-full bg-sienna font-display text-3xl font-semibold text-espresso">
                   SC
                 </div>
                 <p className="mt-5 font-display text-base font-semibold text-ivory">Sakib Chowdhury</p>
@@ -166,7 +177,7 @@ export default function AboutPage() {
             {AWARDS.map((award, i) => (
               <Reveal key={award.title} delay={i * 60}>
                 <div className="card-surface group flex h-full items-start gap-5 p-6">
-                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-espresso font-display text-sm font-semibold text-gold ring-1 ring-gold/40 transition-all duration-300 group-hover:bg-gold group-hover:text-espresso">
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-espresso font-display text-sm font-semibold text-sienna-bright ring-1 ring-sienna/40 transition-all duration-300 group-hover:bg-sienna group-hover:text-espresso">
                     {award.year}
                   </span>
                   <div>

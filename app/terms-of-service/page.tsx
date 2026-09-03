@@ -4,6 +4,17 @@ import { PageHero } from "@/components/pages/PageHero";
 export const metadata: Metadata = {
   title: "Terms of Service",
   description: "The terms that govern engagement with Zoolyum and use of this website.",
+  alternates: { canonical: "/terms-of-service" },
+  openGraph: {
+    title: "Terms of Service | Zoolyum",
+    description: "The terms that govern engagement with Zoolyum and use of this website.",
+    url: "/terms-of-service",
+  },
+  twitter: {
+    card: "summary",
+    title: "Terms of Service | Zoolyum",
+    description: "The terms that govern engagement with Zoolyum and use of this website.",
+  },
 };
 
 const SECTIONS = [

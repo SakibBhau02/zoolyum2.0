@@ -8,6 +8,17 @@ export const metadata: Metadata = {
   title: "Our Process",
   description:
     "The Zoolyum method, end to end — Discover, Strategize, Design, Launch, Grow. The same disciplined sequence on every engagement.",
+  alternates: { canonical: "/process" },
+  openGraph: {
+    title: "Our Process | Zoolyum",
+    description: "The Zoolyum method, end to end - Discover, Strategize, Design, Launch, Grow.",
+    url: "/process",
+  },
+  twitter: {
+    card: "summary",
+    title: "Our Process | Zoolyum",
+    description: "The Zoolyum method, end to end - Discover, Strategize, Design, Launch, Grow.",
+  },
 };
 
 export default function ProcessPage() {
@@ -30,7 +41,7 @@ export default function ProcessPage() {
             {/* The Signal Thread drawn down the timeline */}
             <span
               aria-hidden="true"
-              className="absolute left-[7px] top-2 h-[calc(100%-2rem)] w-[2px] bg-gradient-to-b from-sienna via-gold to-olive/40 md:left-[9px]"
+              className="absolute left-[7px] top-2 h-[calc(100%-2rem)] w-[2px] bg-sienna md:left-[9px]"
             />
             {PROCESS_STAGES.map((stage, i) => (
               <Reveal as="li" key={stage.num} delay={i * 60} className="list-none">

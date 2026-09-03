@@ -6,6 +6,17 @@ export const metadata: Metadata = {
   title: "Testimonials",
   description:
     "What clients say — words from education, real estate, e-commerce, and F&B brands we've worked with.",
+  alternates: { canonical: "/testimonials" },
+  openGraph: {
+    title: "Testimonials | Zoolyum",
+    description: "What clients say - words from education, real estate, e-commerce, and F&B brands we have worked with.",
+    url: "/testimonials",
+  },
+  twitter: {
+    card: "summary",
+    title: "Testimonials | Zoolyum",
+    description: "What clients say - words from education, real estate, e-commerce, and F&B brands we have worked with.",
+  },
 };
 
 export default function TestimonialsPage() {

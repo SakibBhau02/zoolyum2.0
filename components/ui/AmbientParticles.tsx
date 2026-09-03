@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useMediaQuery } from "@/lib/hooks";
 
-const COLORS = ["201, 112, 46", "185, 148, 86", "246, 241, 232"] as const;
+const COLORS = ["255, 80, 1", "255, 106, 38", "246, 241, 232"] as const;
 
 type Mote = {
   x: number;
