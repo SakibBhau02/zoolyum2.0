@@ -3,7 +3,7 @@ import { pageMeta } from "@/lib/content";
 import Link from "next/link";
 import { PageHero } from "@/components/pages/PageHero";
 import { Reveal } from "@/components/ui/Reveal";
-import { SITE_URL } from "@/lib/data";
+
 import { getTeam } from "@/lib/content";
 
 export async function generateMetadata(): Promise<Metadata> {

@@ -45,6 +45,7 @@ export default async function EditorPage({
       services: prisma.service,
       team: prisma.teamMember,
       jobs: prisma.job,
+      menulinks: prisma.menuLink,
       testimonials: prisma.testimonial,
     };
     const row = (await delegates[key].findUnique({ where: { id: Number(id) } })) as Record<string, unknown> | null;

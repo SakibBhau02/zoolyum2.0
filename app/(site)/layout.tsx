@@ -7,6 +7,7 @@ import { AmbientParticles } from "@/components/ui/AmbientParticles";
 import { SignalFlash } from "@/components/ui/SignalFlash";
 import { SoundProvider } from "@/components/layout/SoundProvider";
 import { AuditTab } from "@/components/leadgen/AuditTab";
+import { getMenuLinks, getServices, getContactInfo, getSocials, getSetting } from "@/lib/content";
 import { ExitIntentModal } from "@/components/leadgen/ExitIntentModal";
 
 /**
@@ -14,7 +15,17 @@ import { ExitIntentModal } from "@/components/leadgen/ExitIntentModal";
  * outside this group so the fixed header, cursor, and leadgen widgets
  * never cover the CMS.
  */
-export default function SiteLayout({ children }: { children: React.ReactNode }) {
+export default async function SiteLayout({ children }: { children: React.ReactNode }) {
+  const [headerLinks, exploreLinks, legalLinks, services, contact, socials, tagline, ctaLabel] = await Promise.all([
+    getMenuLinks("header"),
+    getMenuLinks("explore"),
+    getMenuLinks("legal"),
+    getServices(),
+    getContactInfo(),
+    getSocials(),
+    getSetting("brand.tagline", "Consultancy. Strategy. Solution."),
+    getSetting("header.cta.label", "Start a Conversation"),
+  ]);
   return (
     <SoundProvider>
       <a
@@ -27,9 +38,16 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       <AmbientParticles />
       <ThreadCursor />
       <TerrainScrollIndicator />
-      <Header />
+      <Header links={headerLinks} ctaLabel={ctaLabel} tagline={tagline} />
       <main id="main">{children}</main>
-      <Footer />
+      <Footer
+        explore={exploreLinks}
+        legal={legalLinks}
+        services={services.map((s) => ({ name: s.name, slug: s.slug }))}
+        contact={contact}
+        socials={socials}
+        tagline={tagline}
+      />
       <AuditTab />
       <ExitIntentModal />
       <SignalFlash />

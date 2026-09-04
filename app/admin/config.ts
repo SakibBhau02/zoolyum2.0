@@ -14,7 +14,7 @@ export type FieldDef = {
   help?: string;
 };
 
-export type CollectionKey = "posts" | "projects" | "services" | "team" | "jobs" | "testimonials";
+export type CollectionKey = "posts" | "projects" | "services" | "team" | "jobs" | "testimonials" | "menulinks";
 
 export type CollectionDef = {
   label: string;
@@ -142,6 +142,20 @@ export const COLLECTIONS: Record<CollectionKey, CollectionDef> = {
       { name: "company", label: "Company", kind: "text", required: true },
       { name: "industry", label: "Industry", kind: "text", required: true },
       { name: "sort", label: "Sort order", kind: "number" },
+    ],
+  },
+  menulinks: {
+    label: "Navigation Links",
+    singular: "Link",
+    slugField: "label",
+    columns: ["label", "href", "group"],
+    revalidate: () => [],
+    fields: [
+      { name: "label", label: "Label", kind: "text", required: true },
+      { name: "href", label: "URL (e.g. /about)", kind: "text", required: true },
+      { name: "group", label: "Group", kind: "select", options: ["header", "explore", "legal"], required: true },
+      { name: "sort", label: "Sort order", kind: "number" },
+      { name: "visible", label: "Visible on site", kind: "checkbox" },
     ],
   },
 };

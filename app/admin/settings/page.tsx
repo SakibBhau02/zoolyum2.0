@@ -4,6 +4,9 @@ import { SettingsForm } from "./form";
 const GROUPS: { title: string; prefix: string }[] = [
   { title: "SEO titles & descriptions", prefix: "seo." },
   { title: "Contact info", prefix: "contact." },
+  { title: "Social links & brand", prefix: "social." },
+  { title: "Brand & header", prefix: "brand." },
+  { title: "Header", prefix: "header." },
 ];
 
 export default async function SettingsPage() {

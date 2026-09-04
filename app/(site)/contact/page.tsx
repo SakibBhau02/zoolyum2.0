@@ -5,7 +5,7 @@ import { Reveal } from "@/components/ui/Reveal";
 import { ContactWizard } from "@/components/pages/ContactWizard";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
 import { CONTACT_FAQS as TS_CONTACT_FAQS, TESTIMONIALS as TS_TESTIMONIALS, SITE_URL } from "@/lib/data";
-import { getContactInfo, getJsonSetting, getServices, getTestimonials } from "@/lib/content";
+import { getContactInfo, getJsonSetting, getServices, getTestimonials, getSetting } from "@/lib/content";
 
 export async function generateMetadata(): Promise<Metadata> {
   return pageMeta("contact", {
@@ -76,11 +76,13 @@ function buildJsonLd(contact: { email: string; phone: string }, faqs: { q: strin
 }
 
 export default async function ContactPage() {
-  const [contact, faqs, services, quote] = await Promise.all([
+  const [contact, faqs, services, quote, heroLead, afterSend] = await Promise.all([
     getContactInfo(),
     getJsonSetting("contact.faqs", [...TS_CONTACT_FAQS]),
     getServices(),
     getQuote(),
+    getSetting("contact.hero.lead", "One conversation. Thirty minutes. A clear read on where your brand blends in - and what it takes to stand apart. We reply within one working day."),
+    getJsonSetting("contact.after_send", [...AFTER_SEND]),
   ]);
   const jsonLd = buildJsonLd(contact, faqs);
   return (
@@ -97,7 +99,7 @@ export default async function ContactPage() {
             Let&apos;s read your market <span className="accent-word">together.</span>
           </>
         }
-        lead="One conversation. Thirty minutes. A clear read on where your brand blends in - and what it takes to stand apart. We reply within one working day."
+        lead={heroLead}
       />
 
       <section className="relative overflow-hidden pb-24 pt-12 md:pb-32 md:pt-16" aria-label="Start a conversation">
@@ -112,7 +114,7 @@ export default async function ContactPage() {
               <div className="card-surface p-8">
                 <h2 className="eyebrow">After you press send</h2>
                 <ol className="mt-7">
-                  {AFTER_SEND.map((s, i) => (
+                  {afterSend.map((s, i) => (
                     <li
                       key={s.title}
                       className="grid grid-cols-[auto_1fr] items-start gap-x-4 pb-7 last:pb-0"
@@ -123,7 +125,7 @@ export default async function ContactPage() {
                         >
                           {i + 1}
                         </span>
-                        {i < AFTER_SEND.length - 1 && (
+                        {i < afterSend.length - 1 && (
                           <span className="mt-1 min-h-[20px] w-px flex-1 bg-sienna/20" />
                         )}
                       </span>

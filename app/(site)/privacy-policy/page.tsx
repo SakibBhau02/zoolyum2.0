@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { pageMeta } from "@/lib/content";
-import { SITE_URL } from "@/lib/data";
+
 import { PageHero } from "@/components/pages/PageHero";
 
 export async function generateMetadata(): Promise<Metadata> {

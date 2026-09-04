@@ -19,6 +19,7 @@ function delegates(): Record<CollectionKey, any> {
     team: prisma.teamMember,
     jobs: prisma.job,
     testimonials: prisma.testimonial,
+    menulinks: prisma.menuLink,
   };
 }
 
@@ -102,6 +103,7 @@ export async function saveItem(
     if (id === "new") {
       const row = await db.create({ data });
       for (const p of def.revalidate(String(data[def.slugField] ?? ""))) revalidatePath(p);
+      if (collection === "menulinks") revalidatePath("/", "layout");
       return { ok: true, id: row.id };
     }
     const row = await db.update({ where: { id: Number(id) }, data });
@@ -128,6 +130,7 @@ export async function duplicateItem(collection: CollectionKey, id: number): Prom
     }
     if (typeof copy[slugField] === "string") copy[slugField] = `${copy[slugField]}-copy-${tag}`;
     if (collection === "posts" || collection === "projects") copy.published = false;
+    if (collection === "menulinks") { copy.visible = false; revalidatePath("/", "layout"); }
     await db.create({ data: copy });
     revalidatePath(`/admin/${collection}`);
     return { ok: true };
@@ -140,7 +143,8 @@ export async function deleteItem(collection: CollectionKey, id: number): Promise
   if (!(await isAuthed())) return { ok: false, error: "Unauthorized." };
   try {
     await delegates()[collection].delete({ where: { id } });
-    revalidatePath(COLLECTIONS[collection].revalidate("")[0]);
+    if (collection === "menulinks") revalidatePath("/", "layout");
+    for (const rpath of COLLECTIONS[collection].revalidate("")) revalidatePath(rpath);
     return { ok: true };
   } catch (e) {
     return { ok: false, error: friendly(e) };

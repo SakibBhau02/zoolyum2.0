@@ -18,6 +18,8 @@ async function fetchRows(key: CollectionKey): Promise<Record<string, unknown>[]>
       return (await prisma.job.findMany()) as unknown as Record<string, unknown>[];
     case "testimonials":
       return (await prisma.testimonial.findMany({ orderBy: { sort: "asc" } })) as unknown as Record<string, unknown>[];
+    case "menulinks":
+      return (await prisma.menuLink.findMany({ orderBy: { sort: "asc" } })) as unknown as Record<string, unknown>[];
   }
 }
 

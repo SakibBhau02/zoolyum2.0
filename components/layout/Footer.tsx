@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { CONTACT, NAV_LINKS, SERVICES, TAGLINE } from "@/lib/data";
+import type { MenuLinkItem } from "@/lib/content";
+import { createLead } from "@/app/admin/actions";
 import { Logo } from "./Logo";
 
 const SOCIALS = [
@@ -37,7 +38,9 @@ function NewsletterForm() {
       className="mt-5"
       onSubmit={(e) => {
         e.preventDefault();
-        if (email.trim()) setDone(true);
+        if (!email.trim()) return;
+        setDone(true);
+        createLead("newsletter", { email: email.trim() }).catch(() => {});
       }}
     >
       {done ? (
@@ -70,7 +73,21 @@ function NewsletterForm() {
   );
 }
 
-export function Footer() {
+export function Footer({
+  explore,
+  legal,
+  services,
+  contact,
+  socials,
+  tagline,
+}: {
+  explore: MenuLinkItem[];
+  legal: MenuLinkItem[];
+  services: { name: string; slug: string }[];
+  contact: { email: string; phone: string; address: string };
+  socials: Record<string, string>;
+  tagline: string;
+}) {
   return (
     <footer className="relative overflow-hidden bg-umber/50">
       {/* Thin Signal Thread rule above the footer */}
@@ -86,20 +103,20 @@ export function Footer() {
             competitive advantage.
           </p>
           <address className="mt-6 space-y-1.5 font-body text-sm not-italic text-ivory/60">
-            <p>{CONTACT.address}</p>
+            <p>{contact.address}</p>
             <p>
-              <a href={`mailto:${CONTACT.email}`} className="text-sienna-bright transition-opacity hover:opacity-80">
-                {CONTACT.email}
+              <a href={`mailto:${contact.email}`} className="text-sienna-bright transition-opacity hover:opacity-80">
+                {contact.email}
               </a>
             </p>
-            <p>{CONTACT.phone}</p>
+            <p>{contact.phone}</p>
           </address>
         </div>
 
         <nav aria-label="Company">
           <h3 className="eyebrow">Company</h3>
           <ul className="mt-5 space-y-3">
-            {NAV_LINKS.map((link) => (
+            {explore.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
@@ -109,38 +126,13 @@ export function Footer() {
                 </Link>
               </li>
             ))}
-            <li>
-              <Link href="/careers" className="font-body text-sm text-ivory/65 transition-colors hover:text-sienna-bright">
-                Careers
-              </Link>
-            </li>
-            <li>
-              <Link href="/resources" className="font-body text-sm text-ivory/65 transition-colors hover:text-sienna-bright">
-                Resources
-              </Link>
-            </li>
-            <li>
-              <Link href="/process" className="font-body text-sm text-ivory/65 transition-colors hover:text-sienna-bright">
-                Our Process
-              </Link>
-            </li>
-            <li>
-              <Link href="/faq" className="font-body text-sm text-ivory/65 transition-colors hover:text-sienna-bright">
-                FAQ
-              </Link>
-            </li>
-            <li>
-              <Link href="/newsletter" className="font-body text-sm text-ivory/65 transition-colors hover:text-sienna-bright">
-                Newsletter
-              </Link>
-            </li>
           </ul>
         </nav>
 
         <nav aria-label="Services">
           <h3 className="eyebrow">Services</h3>
           <ul className="mt-5 space-y-3">
-            {SERVICES.map((service) => (
+            {services.map((service) => (
               <li key={service.slug}>
                 <Link
                   href={`/services/${service.slug}`}
@@ -164,7 +156,7 @@ export function Footer() {
             {SOCIALS.map((social) => (
               <a
                 key={social.label}
-                href={social.href}
+                href={socials[social.label.toLowerCase()] ?? social.href}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={social.label}
@@ -182,16 +174,15 @@ export function Footer() {
       <div className="relative z-10 border-t border-olive/20">
         <div className="section-shell flex flex-col items-center justify-between gap-4 py-6 sm:flex-row">
           <p className="font-display text-sm font-semibold tracking-wide text-ivory">
-            {TAGLINE}{" "}
+            {tagline}{" "}
             <span className="font-normal text-ivory/50">— Based in Dhaka.</span>
           </p>
           <div className="flex gap-6 font-body text-xs text-ivory/45">
-            <Link href="/privacy-policy" className="transition-colors hover:text-sienna-bright">
-              Privacy Policy
-            </Link>
-            <Link href="/terms-of-service" className="transition-colors hover:text-sienna-bright">
-              Terms of Service
-            </Link>
+            {legal.map((l) => (
+              <Link key={l.href} href={l.href} className="transition-colors hover:text-sienna-bright">
+                {l.label}
+              </Link>
+            ))}
           </div>
         </div>
       </div>

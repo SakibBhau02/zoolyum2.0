@@ -374,7 +374,7 @@ export async function getContactInfo() {
   ]);
   return { email, phone, address, mapUrl };
 }import type { Metadata } from "next";
-import { SITE_URL } from "./data";
+import { NAV_LINKS, SITE_URL } from "./data";
 
 /**
  * SEO metadata backed by SiteSetting overrides (seo.{route}.title and
@@ -415,4 +415,25 @@ export async function pageMeta(
       images: [ogImage],
     },
   };
+}
+export type MenuLinkItem = { id: number; label: string; href: string; group: string; sort: number; visible: boolean };
+
+export async function getMenuLinks(group?: string): Promise<MenuLinkItem[]> {
+  return first(async () => {
+    const rows = await prisma.menuLink.findMany({
+      where: { ...(group ? { group } : {}), visible: true },
+      orderBy: { sort: "asc" },
+    });
+    return rows.map((r) => ({ id: r.id, label: r.label, href: r.href, group: r.group, sort: r.sort, visible: r.visible }));
+  }, () => NAV_LINKS.filter(() => !group || group === "header" || group === "explore").map((l, i) => ({ id: i, label: l.label, href: l.href, group: group ?? "header", sort: i, visible: true })), `getMenuLinks:${group ?? "all"}`);
+}
+
+export async function getSocials(): Promise<Record<string, string>> {
+  const [linkedin, facebook, instagram, youtube] = await Promise.all([
+    getSetting("social.linkedin", "https://linkedin.com"),
+    getSetting("social.facebook", "https://facebook.com"),
+    getSetting("social.instagram", "https://instagram.com"),
+    getSetting("social.youtube", "https://youtube.com"),
+  ]);
+  return { linkedin, facebook, instagram, youtube };
 }

@@ -16,6 +16,8 @@ import {
   JOBS,
   JOB_DETAILS,
   TESTIMONIALS,
+  NAV_LINKS,
+  TAGLINE,
   CONTACT,
   CONTACT_FAQS,
   GLOBAL_FAQS,
@@ -187,7 +189,27 @@ async function main() {
     ["faqs.careers", JSON.stringify(CAREERS_FAQS)],
     ["hiring.steps", JSON.stringify(HIRING_STEPS)],
     ["newsletter.benefits", JSON.stringify(NEWSLETTER_BENEFITS)],
+    ["social.linkedin", "https://linkedin.com"],
+    ["social.facebook", "https://facebook.com"],
+    ["social.instagram", "https://instagram.com"],
+    ["social.youtube", "https://youtube.com"],
+    ["brand.tagline", TAGLINE],
+    ["header.cta.label", "Start a Conversation"],
+    ["contact.hero.lead", "One conversation. Thirty minutes. A clear read on where your brand blends in - and what it takes to stand apart. We reply within one working day."],
   ];
+  const AFTER_SEND_SEED = [
+    { title: "We reply within one working day", body: "A strategist - not a bot, not a form letter - reads your note and writes back." },
+    { title: "A 30-minute discovery call", body: "We ask sharp questions and map where you stand. No pitch deck, no obligation." },
+    { title: "A tailored proposal", body: "Scope, timeline, and investment in plain language - usually within days." },
+  ];
+  await prisma.siteSetting.upsert({ where: { key: "contact.after_send" }, update: {}, create: { key: "contact.after_send", value: JSON.stringify(AFTER_SEND_SEED) } });
+  const linkCount = await prisma.menuLink.count();
+  if (linkCount === 0) {
+    const headerLinks = NAV_LINKS.map((l, i) => ({ label: l.label, href: l.href, group: "header", sort: i, visible: true }));
+    const exploreLinks = [...NAV_LINKS.map((l) => ({ label: l.label, href: l.href })), { label: "Careers", href: "/careers" }, { label: "Resources", href: "/resources" }, { label: "Our Process", href: "/process" }, { label: "FAQ", href: "/faq" }, { label: "Newsletter", href: "/newsletter" }].map((l, i) => ({ ...l, group: "explore", sort: i, visible: true }));
+    const legalLinks = [{ label: "Privacy Policy", href: "/privacy-policy" }, { label: "Terms of Service", href: "/terms-of-service" }].map((l, i) => ({ ...l, group: "legal", sort: i, visible: true }));
+    await prisma.menuLink.createMany({ data: [...headerLinks, ...exploreLinks, ...legalLinks] });
+  }
   for (const [key, value] of SETTINGS) {
     await prisma.siteSetting.upsert({ where: { key }, update: {}, create: { key, value } });
   }

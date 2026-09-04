@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { NAV_LINKS } from "@/lib/data";
+import type { MenuLinkItem } from "@/lib/content";
 import { Logo } from "./Logo";
 import { useSound } from "./SoundProvider";
 
@@ -54,7 +54,7 @@ const linkVariants = {
   exit: { opacity: 0, transition: { duration: 0.12 } },
 };
 
-export function Header() {
+export function Header({ links, ctaLabel, tagline }: { links: MenuLinkItem[]; ctaLabel: string; tagline: string }) {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -87,7 +87,7 @@ export function Header() {
           <Logo withTagline />
 
           <nav aria-label="Primary" className="hidden items-center gap-7 lg:flex">
-            {NAV_LINKS.map((link) => {
+            {links.map((link) => {
               const active = pathname.startsWith(link.href);
               return (
                 <Link
@@ -110,7 +110,7 @@ export function Header() {
               href="/contact"
               className="btn btn-primary hidden !px-5 !py-2.5 !text-[13px] md:inline-flex"
             >
-              Start a Conversation
+              {ctaLabel}
             </Link>
             <button
               type="button"
@@ -145,7 +145,7 @@ export function Header() {
           >
             <div className="dappled" aria-hidden="true" />
             <nav aria-label="Mobile" className="flex flex-1 flex-col justify-center gap-1 px-8">
-              {NAV_LINKS.map((link, i) => (
+              {links.map((link, i) => (
                 <motion.div key={link.href} variants={linkVariants}>
                   <Link
                     href={link.href}
@@ -169,7 +169,7 @@ export function Header() {
                   onClick={() => setMenuOpen(false)}
                   className="btn btn-primary w-full"
                 >
-                  Start a Conversation
+                  {ctaLabel}
                 </Link>
               </motion.div>
             </nav>
