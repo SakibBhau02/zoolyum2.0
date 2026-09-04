@@ -18,24 +18,6 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-const LETTER_FAQS = [
-  {
-    q: "How often will you email me?",
-    a: "Once a month. The Letter ships on a monthly rhythm - one issue, four minutes of reading, and silence in between.",
-  },
-  {
-    q: "Is the Letter free?",
-    a: "Yes, completely. Every issue - patterns, teardowns, and frameworks - costs nothing and asks for nothing in return.",
-  },
-  {
-    q: "Will you spam me or share my email?",
-    a: "Never. One email a month, no promotions for hire, no list sharing. Your address stays between you and us.",
-  },
-  {
-    q: "How do I unsubscribe?",
-    a: "One click, from any issue, forever. No retention maze, no exit survey guilt - leaving is as easy as joining.",
-  },
-] as const;
 
 function formatDate(date: string) {
   return new Date(date).toLocaleDateString("en-US", {
@@ -46,9 +28,15 @@ function formatDate(date: string) {
 }
 
 export default async function NewsletterPage() {
-  const [allPosts, benefits] = await Promise.all([
+  const [allPosts, benefits, letterFaqs] = await Promise.all([
     getPosts(),
     getJsonSetting("newsletter.benefits", [...TS_BENEFITS]),
+    getJsonSetting("faqs.newsletter", [
+      { q: "How often will you email me?", a: "Once a month." },
+      { q: "Is the Letter free?", a: "Yes, completely." },
+      { q: "Will you spam me or share my email?", a: "Never." },
+      { q: "How do I unsubscribe?", a: "One click, from any issue, forever." },
+    ]),
   ]);
   const archive = allPosts.slice(0, 3);
 
@@ -244,7 +232,7 @@ export default async function NewsletterPage() {
               </h2>
             </Reveal>
             <div className="mt-8 space-y-3">
-              {LETTER_FAQS.map((f) => (
+              {letterFaqs.map((f: { q: string; a: string }) => (
                 <Reveal key={f.q} delay={30}>
                   <details className="faq-item group rounded-xl border border-olive/25 bg-espresso/60 transition-colors duration-200 open:border-sienna/40 open:bg-espresso">
                     <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 font-display text-[1.05rem] font-semibold leading-snug text-ivory [&::-webkit-details-marker]:hidden">
@@ -295,7 +283,7 @@ export default async function NewsletterPage() {
           __html: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "FAQPage",
-            mainEntity: LETTER_FAQS.map((f) => ({
+            mainEntity: letterFaqs.map((f: { q: string; a: string }) => ({
               "@type": "Question",
               name: f.q,
               acceptedAnswer: { "@type": "Answer", text: f.a },

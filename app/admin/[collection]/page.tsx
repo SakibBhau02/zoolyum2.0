@@ -37,6 +37,16 @@ export default async function CollectionListPage({
   const def = COLLECTIONS[key];
   const query = (q ?? "").trim().toLowerCase();
   const all = await fetchRows(key).catch(() => [] as Record<string, unknown>[]);
+  let applicantCounts: Record<string, number> = {};
+  if (key === "jobs") {
+    try {
+      const appLeads = await prisma.lead.findMany({ where: { kind: "careers" }, select: { payload: true } });
+      for (const l of appLeads) {
+        const pos = l.payload && typeof l.payload === "object" && !Array.isArray(l.payload) ? String((l.payload as Record<string, unknown>).position ?? "") : "";
+        if (pos) applicantCounts[pos] = (applicantCounts[pos] ?? 0) + 1;
+      }
+    } catch { applicantCounts = {}; }
+  }
   const rows = query
     ? all.filter((r) =>
         [def.slugField, ...def.columns].some((c) => String(r[c] ?? "").toLowerCase().includes(query)),
@@ -90,6 +100,11 @@ export default async function CollectionListPage({
                   <p className="truncate font-display text-base font-semibold text-ivory">
                     {String(r[def.columns[0]] ?? r[def.slugField] ?? `#${id}`)}
                   </p>
+                  {key === "jobs" && (
+                    <a href={`/admin/leads?kind=careers&job=${encodeURIComponent(String(r.title ?? ""))}`} className="mt-1 block font-body text-xs font-semibold text-sienna-bright hover:underline">
+                      {applicantCounts[String(r.title ?? "")] ?? 0} applicant{(applicantCounts[String(r.title ?? "")] ?? 0) === 1 ? "" : "s"} →
+                    </a>
+                  )}
                   <p className="mt-1 truncate font-body text-xs text-ivory/45">
                     {def.columns.slice(1).map((c) => String(r[c] ?? "")).filter(Boolean).join(" · ")}
                   </p>

@@ -33,11 +33,19 @@ async function removeLocal(key: string) {
 }
 
 const ALLOWED = new Set(["image/jpeg", "image/png", "image/webp", "image/svg+xml"]);
+const ALLOWED_DOCS = new Set([
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+]);
 const MAX_BYTES = 5 * 1024 * 1024;
+const MAX_DOC_BYTES = 10 * 1024 * 1024;
 
-export function validateUpload(mime: string, size: number) {
-  if (!ALLOWED.has(mime)) throw new Error(`Unsupported file type: ${mime}`);
-  if (size > MAX_BYTES) throw new Error("File is larger than 5 MB");
+export function validateUpload(mime: string, size: number, docs = false) {
+  const allowed = docs ? new Set([...ALLOWED, ...ALLOWED_DOCS]) : ALLOWED;
+  const max = docs ? MAX_DOC_BYTES : MAX_BYTES;
+  if (!allowed.has(mime)) throw new Error(`Unsupported file type: ${mime}`);
+  if (size > max) throw new Error(`File is larger than ${Math.round(max / 1024 / 1024)} MB`);
 }
 
 export async function saveFile(data: Buffer, filename: string, mime: string): Promise<SavedFile> {

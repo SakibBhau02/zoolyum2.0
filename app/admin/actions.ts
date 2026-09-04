@@ -210,15 +210,33 @@ export async function deleteMedia(id: number): Promise<ActionResult> {
   return { ok: true };
 }
 
-export async function createLead(kind: string, fields: Record<string, string>): Promise<ActionResult> {
+export async function createLead(
+  kind: string,
+  fields: Record<string, string | File>,
+): Promise<ActionResult> {
   try {
-    const email = Object.entries(fields).find(([k]) =>
+    const payload: Record<string, string> = {};
+    for (const [k, v] of Object.entries(fields)) {
+      if (typeof v !== "string" && v instanceof File) {
+        if (v.size === 0) continue;
+        validateUpload(v.type, v.size, kind === "careers");
+        const buf = Buffer.from(await v.arrayBuffer());
+        const saved = await saveFile(buf, v.name, v.type || "application/octet-stream");
+        await prisma.media.create({
+          data: { key: saved.key, url: saved.url, mime: saved.mime, size: saved.size, alt: `Attachment from ${kind} lead` },
+        });
+        payload[k] = saved.url;
+        continue;
+      }
+      payload[k] = String(v ?? "");
+    }
+    const email = Object.entries(payload).find(([k]) =>
       k.toLowerCase().includes("email"),
     )?.[1]?.trim();
     if (!email || !email.includes("@")) return { ok: false, error: "A valid email is required." };
     const name =
-      fields.name ?? fields.firstname ?? fields["full name"] ?? fields.fullname ?? null;
-    await prisma.lead.create({ data: { kind, name, email, payload: fields } });
+      payload.name ?? payload.firstname ?? payload["full name"] ?? payload.fullname ?? null;
+    await prisma.lead.create({ data: { kind, name, email, payload } });
     return { ok: true };
   } catch (e) {
     return { ok: false, error: friendly(e) };

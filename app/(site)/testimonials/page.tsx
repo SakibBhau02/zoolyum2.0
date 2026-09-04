@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { pageMeta } from "@/lib/content";
-import { SITE_URL } from "@/lib/data";
 import Link from "next/link";
 import { PageHero } from "@/components/pages/PageHero";
 import { TestimonialWall } from "@/components/pages/TestimonialWall";

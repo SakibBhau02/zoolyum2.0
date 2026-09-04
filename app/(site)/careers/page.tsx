@@ -21,11 +21,20 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-const VALUES = [
+const VALUES_FALLBACK = [
   { title: "Ship beats plan", detail: "Ten considered things shipped beats one safe thing planned. The market judges output, so do we." },
   { title: "Merit beats seniority", detail: "The best argument wins the room - interns have improved founder ideas here, on record." },
   { title: "Read before you move", detail: "Diagnosis before prescription, in client work and in hiring. Opinions arrive with evidence." },
   { title: "Blunt is kind", detail: "Direct feedback early beats polite silence that wastes months. We critique work, never people." },
+] as const;
+
+const BENEFITS_FALLBACK = [
+              { title: "Work that ships", detail: "Nothing here dies in a deck. Everything you make faces the market." },
+              { title: "Results bonus", detail: "Quarterly bonus tied to client outcomes - when the work lands, you land." },
+              { title: "Learning budget", detail: "Courses, conferences, and books on us. Sharp minds stay sharp." },
+              { title: "No ego policy", detail: "Ideas win on merit, not seniority. Interns have improved founder ideas here." },
+              { title: "Flexible studio", detail: "Hybrid work, flexible hours. We measure output, not chair time." },
+              { title: "Health cover", detail: "Full health insurance for you and your family. Peace of mind is a benefit." },
 ] as const;
 
 function employmentType(type: string) {
@@ -33,11 +42,13 @@ function employmentType(type: string) {
 }
 
 export default async function CareersPage() {
-  const [jobs, team, steps, faqs] = await Promise.all([
+  const [jobs, team, steps, faqs, values, benefits] = await Promise.all([
     getJobs(),
     getTeam(),
     getJsonSetting("hiring.steps", [...TS_STEPS]),
     getJsonSetting("faqs.careers", [...TS_FAQS]),
+    getJsonSetting("careers.values", [...VALUES_FALLBACK]),
+    getJsonSetting("careers.benefits", [...BENEFITS_FALLBACK]),
   ]);
   const jobPostingLd = {
     "@context": "https://schema.org",
@@ -101,7 +112,7 @@ export default async function CareersPage() {
             lead="Four rules run this studio. They are enforced in reviews, in critiques, and in who gets hired - starting with this page."
           />
           <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {VALUES.map((v, i) => (
+            {values.map((v: { title: string; detail: string }, i: number) => (
               <Reveal key={v.title} delay={(i % 4) * 80}>
                 <div className="card-surface group h-full p-7">
                   <span className="thread block w-10 transition-all duration-500 group-hover:w-16" aria-hidden="true" />
@@ -224,14 +235,8 @@ export default async function CareersPage() {
             }
           />
           <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {[
-              { title: "Work that ships", detail: "Nothing here dies in a deck. Everything you make faces the market." },
-              { title: "Results bonus", detail: "Quarterly bonus tied to client outcomes - when the work lands, you land." },
-              { title: "Learning budget", detail: "Courses, conferences, and books on us. Sharp minds stay sharp." },
-              { title: "No ego policy", detail: "Ideas win on merit, not seniority. Interns have improved founder ideas here." },
-              { title: "Flexible studio", detail: "Hybrid work, flexible hours. We measure output, not chair time." },
-              { title: "Health cover", detail: "Full health insurance for you and your family. Peace of mind is a benefit." },
-            ].map((benefit, i) => (
+
+            {benefits.map((benefit: { title: string; detail: string }, i: number) => (
               <Reveal key={benefit.title} delay={(i % 3) * 80}>
                 <div className="card-surface group h-full p-7">
                   <span className="thread block w-10 transition-all duration-500 group-hover:w-16" aria-hidden="true" />

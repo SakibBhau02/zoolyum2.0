@@ -166,9 +166,10 @@ export function FormShell({
     setSubmitted(true);
     if (leadKind) {
       const fd = new FormData(e.currentTarget);
-      const fields: Record<string, string> = {};
+      const fields: Record<string, string | File> = {};
       fd.forEach((v, k) => {
-        fields[k] = String(v);
+        if (v instanceof File && v.size === 0) return;
+        fields[k] = v instanceof File ? v : String(v);
       });
       createLead(leadKind, fields).catch(() => {});
     }
