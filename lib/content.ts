@@ -374,7 +374,7 @@ export async function getContactInfo() {
   ]);
   return { email, phone, address, mapUrl };
 }import type { Metadata } from "next";
-import { NAV_LINKS, SITE_URL } from "./data";
+import { NAV_LINKS, SITE_URL, PROCESS_STAGES, STATS, INDUSTRIES_TICKER } from "./data";
 
 /**
  * SEO metadata backed by SiteSetting overrides (seo.{route}.title and
@@ -436,4 +436,76 @@ export async function getSocials(): Promise<Record<string, string>> {
     getSetting("social.youtube", "https://youtube.com"),
   ]);
   return { linkedin, facebook, instagram, youtube };
+}
+
+
+const HOME_FALLBACK: Record<string, string> = {
+"home.hero.eyebrow": "Consultancy. Strategy. Solution.",
+"home.hero.titleA": "Every market looks",
+"home.hero.titleAccent": "crowded",
+"home.hero.titleB": "from the outside.",
+"home.hero.sub": "Every market has a pattern. Most brands react to it. We help you read it first - and act while others are still guessing.",
+"home.hero.ctaPrimary": "Start a Conversation",
+"home.hero.ctaSecondary": "See Our Work",
+"home.hero.hint": "THE NOISE BEGINS BELOW",
+"home.hero.meter": "MARKET NOISE",
+"home.hero.beatB": "Most brands respond to that by shouting|louder.",
+"home.hero.beatC": "In the fog, most brands start to|look the same.",
+"home.hero.beatD": "In that noise, only one|line|ever cuts through.",
+"home.tagline.openerA": "Three words.",
+"home.tagline.openerB": "The entire method.",
+"home.tagline.openerSub": "Not a slogan - a sequence. Every engagement runs through all three, in order.",
+"home.tagline.act1.sub": "The diagnosis comes before the prescription.",
+"home.tagline.act1.body": "We start as the outside eye. Before any deliverable exists, we read your market, competitors, and buyers - until the pattern under the noise is plain. The first deliverable is the advice itself: a read you could act on without us.",
+"home.tagline.act2.sub": "A position you can defend - chosen, not wished for.",
+"home.tagline.act2.body": "Reading is not enough. Strategy is choosing the one piece of ground your brand can hold and no competitor can copy - then aiming every touchpoint at it. The crowd clusters where it is loud. We position where it is defensible.",
+"home.tagline.act3.sub": "Execution that carries the thinking - all the way out.",
+"home.tagline.act3.body": "Identity, interface, and campaign, built as one system - so the strategy survives contact with the market. This is where the reading and the choosing become something your customers can see, feel, and act on.",
+"home.tagline.lockupNote": "One thread runs through all three - the sequence every Zoolyum engagement is built on.",
+"home.tagline.cta": "See the disciplines behind each word",
+"home.method.eyebrow": "The Method",
+"home.method.title": "Five stages. |One line of thinking.",
+"home.method.lead": "The same disciplined sequence on every engagement - because method is what turns projects into positions.",
+"home.method.hint": "KEEP SCROLLING",
+"home.results.eyebrow": "The Results",
+"home.results.title": "Proof, stated |plainly.",
+"home.results.lead": "Numbers from engagements we are allowed to name. Precise on purpose - vague claims are just noise.",
+"home.results.closing": "Eight years in the Bangladesh market. One hundred twenty engagements across education, real estate, F&B, and e-commerce. The pattern holds: give a brand a defensible position, and the category takes notice.",
+"home.work.eyebrow": "Selected Work",
+"home.work.title": "Ground our clients |hold.",
+"home.work.lead": "Every engagement is judged the same way: did the position strengthen - and can we prove it.",
+"home.work.cta": "View all work",
+"home.voices.eyebrow": "What Clients Say",
+"home.voices.title": "In their |words.",
+"home.voices.newsEyebrow": "One insight a month",
+"home.voices.newsTitle": "One strategic insight a month. |No noise.",
+"home.voices.newsLead": "The same discipline we bring to client work, in an email. Reading time: four minutes. Everything else: nothing.",
+"home.cta.eyebrow": "Let us Read Your Market Together",
+"home.cta.title": "Somewhere in your market, there is a pattern only a strategist would notice. |Let us find it.",
+"home.cta.lead": "One conversation. Thirty minutes. We will show you where your brand blends in - and what it takes to stand apart.",
+"home.cta.primary": "Start a Conversation",
+"home.cta.secondary": "Explore Our Services",
+};
+
+export async function getHomeCopy(): Promise<Record<string, string>> {
+  return first(async () => {
+    const rows = await prisma.siteSetting.findMany({ where: { key: { startsWith: "home." } } });
+    const out: Record<string, string> = { ...HOME_FALLBACK };
+    for (const r of rows) out[r.key] = r.value;
+    return out;
+  }, () => ({ ...HOME_FALLBACK }), "getHomeCopy");
+}
+
+export async function getTicker(): Promise<string[]> {
+  return getJsonSetting("home.ticker", [...INDUSTRIES_TICKER]);
+}
+
+export async function getHomeStages(): Promise<{ num: string; title: string; detail: string; outputs: string[] }[]> {
+  const rows = await getJsonSetting("home.method.stages", [...PROCESS_STAGES]);
+  return rows.map((s) => ({ num: s.num, title: s.title, detail: s.detail, outputs: [...s.outputs] }));
+}
+
+export async function getHomeStats(): Promise<{ value: number; suffix: string; label: string }[]> {
+  const rows = await getJsonSetting("home.results.stats", [...STATS]);
+  return rows.map((s) => ({ value: s.value, suffix: s.suffix, label: s.label }));
 }

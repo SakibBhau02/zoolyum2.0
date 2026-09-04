@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { COLLECTIONS, type CollectionKey, type FieldDef } from "../../config";
@@ -60,6 +61,13 @@ export default async function EditorPage({
   const base = VIEW_BASE[key];
   return (
     <div>
+      <nav aria-label="Breadcrumb" className="mb-4 flex items-center gap-2 font-body text-xs text-ivory/40">
+        <Link href="/admin" className="transition-colors hover:text-sienna-bright">Admin</Link>
+        <span aria-hidden="true">/</span>
+        <a href={`/admin/${collection}`} className="transition-colors hover:text-sienna-bright">{def.label}</a>
+        <span aria-hidden="true">/</span>
+        <span className="text-ivory/70">{id === "new" ? "New" : "Edit"}</span>
+      </nav>
       <p className="font-body text-[11px] font-semibold uppercase tracking-[0.22em] text-sienna-bright">
         {def.label} / {id === "new" ? "New" : "Edit"}
       </p>

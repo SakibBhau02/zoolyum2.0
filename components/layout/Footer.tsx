@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import type { MenuLinkItem } from "@/lib/content";
 import { createLead } from "@/app/admin/actions";
+import { trackLead } from "@/components/analytics/GoogleAnalytics";
 import { Logo } from "./Logo";
 
 const SOCIALS = [
@@ -40,7 +41,11 @@ function NewsletterForm() {
         e.preventDefault();
         if (!email.trim()) return;
         setDone(true);
-        createLead("newsletter", { email: email.trim() }).catch(() => {});
+        createLead("newsletter", { email: email.trim() })
+          .then((r) => {
+            if (r.ok) trackLead("newsletter");
+          })
+          .catch(() => {});
       }}
     >
       {done ? (

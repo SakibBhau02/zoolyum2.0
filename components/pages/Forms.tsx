@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useSound } from "@/components/layout/SoundProvider";
 import { createLead } from "@/app/admin/actions";
+import { trackLead } from "@/components/analytics/GoogleAnalytics";
 
 /**
  * Field — floating-label form field with inline validation styling
@@ -171,7 +172,11 @@ export function FormShell({
         if (v instanceof File && v.size === 0) return;
         fields[k] = v instanceof File ? v : String(v);
       });
-      createLead(leadKind, fields).catch(() => {});
+      createLead(leadKind, fields)
+        .then((r) => {
+          if (r.ok) trackLead(leadKind);
+        })
+        .catch(() => {});
     }
     onSubmitted?.();
   };

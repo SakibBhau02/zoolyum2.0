@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { LoginForm } from "../ui";
 
 export default async function AdminLoginPage({
@@ -19,7 +20,7 @@ export default async function AdminLoginPage({
           <LoginForm next={next ?? "/admin"} />
         </div>
         <p className="mt-6 text-center font-body text-xs text-ivory/35">
-          Studio members only · <a href="/" className="text-sienna-bright hover:underline">Back to site</a>
+          Studio members only · <Link href="/" className="text-sienna-bright hover:underline">Back to site</Link>
         </p>
       </div>
     </div>

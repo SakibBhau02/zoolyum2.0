@@ -138,9 +138,21 @@ export function EditorForm({
   viewHref?: string;
 }) {
   const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
+  const [fmtError, setFmtError] = useState<{ msg: string; field: string } | null>(null);
   const [state, act, pending] = useActionState(saveItem.bind(null, collection, id), {
     ok: false,
   });
+  const formatJson = (name: string) => {
+    const ta = formRef.current?.querySelector(`textarea[name="${name}"]`);
+    if (!(ta instanceof HTMLTextAreaElement)) return;
+    try {
+      ta.value = JSON.stringify(JSON.parse(ta.value || "null"), null, 2);
+      setFmtError(null);
+    } catch {
+      setFmtError({ msg: `Invalid JSON in ${name} - fix it before saving.`, field: name });
+    }
+  };
   useEffect(() => {
     if (state.ok) {
       router.push(`/admin/${collection}`);
@@ -148,7 +160,7 @@ export function EditorForm({
     }
   }, [state.ok, router, collection]);
   return (
-    <form action={act} className="space-y-6">
+    <form ref={formRef} action={act} className="space-y-6">
       {fields.map((f) => (
         <div key={f.name}>
           <label htmlFor={`f-${f.name}`} className="mb-2 block font-body text-xs font-semibold uppercase tracking-[0.16em] text-ivory/50">
@@ -157,7 +169,19 @@ export function EditorForm({
           </label>
           <div id={`f-${f.name}`}>
             <FieldInput field={f} initial={initial[f.name] ?? ""} />
+            {f.kind === "json" && (
+              <button
+                type="button"
+                onClick={() => formatJson(f.name)}
+                className="mt-2 rounded-lg border border-olive/30 px-3 py-1.5 font-body text-xs text-ivory/55 transition-colors hover:border-sienna-bright/60 hover:text-sienna-bright"
+              >
+                Format JSON
+              </button>
+            )}
           </div>
+          {fmtError && fmtError.field === f.name && (
+            <p role="alert" className="mt-2 font-body text-xs text-red-300">{fmtError.msg}</p>
+          )}
           {f.help && f.kind !== "json" && f.kind !== "textarea" && f.kind !== "list" && (
             <p className="mt-1.5 font-body text-xs text-ivory/35">{f.help}</p>
           )}

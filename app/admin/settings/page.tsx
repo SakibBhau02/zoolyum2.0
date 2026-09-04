@@ -7,6 +7,8 @@ const GROUPS: { title: string; prefix: string }[] = [
   { title: "Social links & brand", prefix: "social." },
   { title: "Brand & header", prefix: "brand." },
   { title: "Header", prefix: "header." },
+  { title: "Homepage", prefix: "home." },
+  { title: "Analytics & pixels", prefix: "analytics." },
 ];
 
 export default async function SettingsPage() {

@@ -177,7 +177,7 @@ export function Header({ links, ctaLabel, tagline }: { links: MenuLinkItem[]; ct
               variants={linkVariants}
               className="px-8 pb-10 font-body text-sm text-ivory/45"
             >
-              Consultancy. Strategy. Solution. — Based in Dhaka.
+              {tagline} - Based in Dhaka.
             </motion.p>
           </motion.div>
         )}

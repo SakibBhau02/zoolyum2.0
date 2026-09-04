@@ -7,6 +7,7 @@ import { AmbientParticles } from "@/components/ui/AmbientParticles";
 import { SignalFlash } from "@/components/ui/SignalFlash";
 import { SoundProvider } from "@/components/layout/SoundProvider";
 import { AuditTab } from "@/components/leadgen/AuditTab";
+import { AnalyticsLoader } from "@/components/analytics/AnalyticsLoader";
 import { getMenuLinks, getServices, getContactInfo, getSocials, getSetting } from "@/lib/content";
 import { ExitIntentModal } from "@/components/leadgen/ExitIntentModal";
 
@@ -48,6 +49,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         socials={socials}
         tagline={tagline}
       />
+      <AnalyticsLoader />
       <AuditTab />
       <ExitIntentModal />
       <SignalFlash />

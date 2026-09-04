@@ -362,7 +362,13 @@ function BuildCompare() {
 }
 /* ============ the chapter ============ */
 
-export function Chapter2Terrain() {
+export type TaglineCopy = {
+  openerA: string; openerB: string; openerSub: string;
+  act1sub: string; act1body: string; act2sub: string; act2body: string;
+  act3sub: string; act3body: string; lockupNote: string; cta: string;
+};
+
+export function Chapter2Terrain({ copy }: { copy: TaglineCopy }) {
   const arrivalRef = useInViewClass<HTMLElement>("in-view");
   const act1Ref = useInViewClass<HTMLElement>("act-in");
   const act2Ref = useInViewClass<HTMLElement>("act-in");
@@ -392,15 +398,15 @@ export function Chapter2Terrain() {
           </p>
 
           <h2 className="mx-auto mt-8 font-display text-[clamp(2.5rem,5.5vw,4.75rem)] font-semibold leading-[1.08] tracking-[-0.015em]">
-            <span className="ar-clause ar-clause-white block text-ivory">Three words.</span>
-            <span className="ar-clause ar-clause-orange block text-sienna">The entire method.</span>
+            <span className="ar-clause ar-clause-white block text-ivory">{copy.openerA}</span>
+            <span className="ar-clause ar-clause-orange block text-sienna">{copy.openerB}</span>
           </h2>
 
           <p className="ar-sub body-copy mx-auto mt-7 font-body text-lead text-olive-hi">
             <span className="font-medium text-ivory/85">Consultancy<span className="text-sienna">.</span></span>{" "}
             <span className="font-medium text-ivory/85">Strategy<span className="text-sienna">.</span></span>{" "}
             <span className="font-medium text-ivory/85">Solution<span className="text-sienna">.</span></span>{" "}
-            Not a slogan &mdash; a sequence. Every engagement runs through all three, in order.
+            {copy.openerSub}
           </p>
         </div>
 
@@ -435,12 +441,10 @@ export function Chapter2Terrain() {
               Consultancy<span className="text-sienna">.</span>
             </h3>
             <p className="mt-5 font-display text-xl font-medium leading-snug text-ivory/85 md:text-2xl">
-              The diagnosis comes before the prescription.
+              {copy.act1sub}
             </p>
             <p className="body-copy mt-5 font-body text-[15px] leading-relaxed text-ivory/60">
-              We start as the outside eye. Before any deliverable exists, we read your market,
-              competitors, and buyers &mdash; until the pattern under the noise is plain. The first
-              deliverable is the advice itself: a read you could act on without us.
+              {copy.act1body}
             </p>
           </Reveal>
           <Reveal delay={140} className="lg:col-span-7">
@@ -466,12 +470,10 @@ export function Chapter2Terrain() {
                 Strategy<span className="text-sienna">.</span>
               </h3>
               <p className="mt-5 font-display text-xl font-medium leading-snug text-ivory/85 md:text-2xl">
-                A position you can defend &mdash; chosen, not wished for.
+                {copy.act2sub}
               </p>
               <p className="body-copy mt-5 font-body text-[15px] leading-relaxed text-ivory/60">
-                Reading is not enough. Strategy is choosing the one piece of ground your brand can
-                hold and no competitor can copy &mdash; then aiming every touchpoint at it. The
-                crowd clusters where it is loud. We position where it is defensible.
+              {copy.act2body}
               </p>
             </Reveal>
             <Reveal delay={140} className="lg:order-1 lg:col-span-7">
@@ -498,12 +500,10 @@ export function Chapter2Terrain() {
                 Solution<span className="text-sienna">.</span>
               </h3>
               <p className="mt-5 font-display text-xl font-medium leading-snug text-ivory/85 md:text-2xl">
-                Execution that carries the thinking &mdash; all the way out.
+                {copy.act3sub}
               </p>
               <p className="body-copy mt-5 font-body text-[15px] leading-relaxed text-ivory/60">
-                Identity, interface, and campaign, built as one system &mdash; so the strategy
-                survives contact with the market. This is where the reading and the choosing
-                become something your customers can see, feel, and act on.
+              {copy.act3body}
               </p>
             </Reveal>
             <Reveal delay={140} className="lg:col-span-7">
@@ -552,15 +552,14 @@ export function Chapter2Terrain() {
 
           <Reveal delay={120}>
             <p className="mx-auto mt-10 max-w-xl text-center font-body text-sm leading-relaxed text-ivory/50">
-              One thread runs through all three &mdash; the sequence every Zoolyum engagement
-              is built on.
+              {copy.lockupNote}
             </p>
             <div className="mt-6 text-center">
               <Link
                 href="/services"
                 className="btn-ghost inline-flex font-display text-sm font-semibold text-sienna-bright"
               >
-                See the disciplines behind each word
+                {copy.cta}
                 <svg viewBox="0 0 20 20" className="ml-2 h-4 w-4 transition-transform duration-300 hover:translate-x-1" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
                   <path d="M4 10h12m0 0-5-5m5 5-5 5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>

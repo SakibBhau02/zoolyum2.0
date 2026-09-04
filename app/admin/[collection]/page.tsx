@@ -54,6 +54,11 @@ export default async function CollectionListPage({
     : all;
   return (
     <div>
+      <nav aria-label="Breadcrumb" className="mb-4 flex items-center gap-2 font-body text-xs text-ivory/40">
+        <Link href="/admin" className="transition-colors hover:text-sienna-bright">Admin</Link>
+        <span aria-hidden="true">/</span>
+        <span className="text-ivory/70">{def.label}</span>
+      </nav>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="font-body text-[11px] font-semibold uppercase tracking-[0.22em] text-sienna-bright">Content · {rows.length} of {all.length}</p>
@@ -93,6 +98,13 @@ export default async function CollectionListPage({
           return (
             <div key={id} className="card-surface flex flex-wrap items-center justify-between gap-4 p-5 transition-colors hover:border-olive/40">
               <div className="flex min-w-0 items-center gap-3.5">
+                {key === "posts" && typeof r.cover === "string" && r.cover !== "" && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={r.cover} alt="" aria-hidden="true" className="h-11 w-11 shrink-0 rounded-lg border border-olive/25 object-cover" loading="lazy" />
+                )}
+                {key === "projects" && typeof r.gradient === "string" && (
+                  <span aria-hidden="true" className={`h-11 w-11 shrink-0 rounded-lg bg-gradient-to-br ${r.gradient}`} />
+                )}
                 {"published" in r && (
                   <span title={pub ? "Published" : "Draft"} aria-label={pub ? "Published" : "Draft"} className={`h-2.5 w-2.5 shrink-0 rounded-full ${pub ? "bg-emerald-400" : "bg-amber-400"}`} />
                 )}

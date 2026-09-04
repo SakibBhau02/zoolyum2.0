@@ -4,7 +4,12 @@ import { useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { PROCESS_STAGES } from "@/lib/data";
+import { AccentSplit } from "@/components/ui/AccentSplit";
+
+export type MethodCopy = {
+  eyebrow: string; title: string; lead: string; hint: string;
+  stages: { num: string; title: string; detail: string; outputs: string[] }[];
+};
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -15,7 +20,7 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
  * way, doing structural work. Mobile / reduced motion: native snap
  * scrolling; the thread follows the track's own scroll position.
  */
-export function Chapter3Method() {
+export function Chapter3Method({ copy }: { copy: MethodCopy }) {
   const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLDivElement>(null);
@@ -25,10 +30,10 @@ export function Chapter3Method() {
     const el = stageRef.current;
     if (!el) return;
     const idx = Math.min(
-      PROCESS_STAGES.length,
-      Math.max(1, Math.round(p * (PROCESS_STAGES.length - 1)) + 1),
+      copy.stages.length,
+      Math.max(1, Math.round(p * (copy.stages.length - 1)) + 1),
     );
-    el.textContent = `STAGE ${String(idx).padStart(2, "0")} / 0${PROCESS_STAGES.length}`;
+    el.textContent = `STAGE ${String(idx).padStart(2, "0")} / 0${copy.stages.length}`;
   };
 
   // Native horizontal scroll (mobile fallback) drives the thread.
@@ -99,13 +104,12 @@ export function Chapter3Method() {
       <div className="section-shell relative z-10">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div className="max-w-2xl">
-            <p className="eyebrow">The Method</p>
+            <p className="eyebrow">{copy.eyebrow}</p>
             <h2 className="mt-4 font-display text-display-2 font-semibold text-ivory">
-              Five stages. <span className="text-ivory/55">One line of thinking.</span>
+              <AccentSplit text={copy.title} accentClassName="text-ivory/55" />
             </h2>
             <p className="body-copy mt-5 font-body text-lead text-ivory/60">
-              The same disciplined sequence on every engagement - because
-              method is what turns projects into positions.
+              {copy.lead}
             </p>
           </div>
           <div className="hidden items-center gap-6 lg:flex">
@@ -113,10 +117,10 @@ export function Chapter3Method() {
               ref={stageRef}
               className="font-body text-xs font-medium tracking-[0.2em] text-sienna-bright tabular-nums"
             >
-              STAGE 01 / 0{PROCESS_STAGES.length}
+              STAGE 01 / 0{copy.stages.length}
             </span>
             <span className="font-body text-xs tracking-[0.2em] text-ivory/35">
-              KEEP SCROLLING
+              {copy.hint}
             </span>
           </div>
         </div>
@@ -139,7 +143,7 @@ export function Chapter3Method() {
             onScroll={onScroll}
             className="flex snap-x snap-mandatory gap-6 overflow-x-auto pb-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
-            {PROCESS_STAGES.map((stage) => (
+            {copy.stages.map((stage) => (
               <article
                 key={stage.num}
                 className="card-surface relative flex w-[300px] shrink-0 snap-start flex-col p-7 md:w-[420px] md:pt-12 lg:w-[520px]"

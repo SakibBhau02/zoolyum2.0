@@ -10,6 +10,7 @@ import {
 } from "react";
 import { useSound } from "@/components/layout/SoundProvider";
 import { createLead } from "@/app/admin/actions";
+import { trackLead } from "@/components/analytics/GoogleAnalytics";
 export type WizardService = { name: string; tagline: string; slug: string };
 
 /**
@@ -335,7 +336,11 @@ export function ContactWizard({ contactEmail, services }: { contactEmail: string
         email: data.email,
         phone: data.phone,
         message: data.message,
-      }).catch(() => {});
+      })
+        .then((r) => {
+          if (r.ok) trackLead("contact");
+        })
+        .catch(() => {});
       setDone(true);
     }
   };

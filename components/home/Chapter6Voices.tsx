@@ -4,6 +4,9 @@ import { useState } from "react";
 type TestimonialItem = { quote: string; author: string; company: string; industry: string };
 import { Reveal, HorizonRule } from "@/components/ui/Reveal";
 import { MarqueeRow } from "@/components/ui/MarqueeRow";
+import { AccentSplit } from "@/components/ui/AccentSplit";
+import { createLead } from "@/app/admin/actions";
+import { trackLead } from "@/components/analytics/GoogleAnalytics";
 
 /**
  * Chapter 6 — What Clients Say.
@@ -12,7 +15,11 @@ import { MarqueeRow } from "@/components/ui/MarqueeRow";
  * reduced-motion falls back to a static grid. The inline newsletter
  * capture stays — "One strategic insight a month. No noise."
  */
-export function Chapter6Voices({ testimonials }: { testimonials: TestimonialItem[] }) {
+export type VoicesCopy = {
+  eyebrow: string; title: string; newsEyebrow: string; newsTitle: string; newsLead: string;
+};
+
+export function Chapter6Voices({ testimonials, copy }: { testimonials: TestimonialItem[]; copy: VoicesCopy }) {
   const rowA = testimonials.filter((_, i) => i % 2 === 0);
   const rowB = testimonials.filter((_, i) => i % 2 === 1);
 
@@ -23,9 +30,9 @@ export function Chapter6Voices({ testimonials }: { testimonials: TestimonialItem
     >
       <div className="section-shell relative z-10">
         <Reveal>
-          <p className="eyebrow eyebrow-dark">What Clients Say</p>
+          <p className="eyebrow eyebrow-dark">{copy.eyebrow}</p>
           <h2 className="mt-4 font-display text-display-2 font-semibold text-espresso">
-            In their <span className="font-accent italic">words.</span>
+            <AccentSplit text={copy.title} accentClassName="font-accent italic" />
           </h2>
         </Reveal>
       </div>
@@ -53,14 +60,12 @@ export function Chapter6Voices({ testimonials }: { testimonials: TestimonialItem
           >
             <div className="grid items-center gap-8 md:grid-cols-2">
               <div>
-                <p className="eyebrow eyebrow-dark">One insight a month</p>
+                <p className="eyebrow eyebrow-dark">{copy.newsEyebrow}</p>
                 <p className="mt-4 font-display text-display-3 font-semibold text-espresso">
-                  One strategic insight a month.{" "}
-                  <span className="text-espresso/55">No noise.</span>
+                  <AccentSplit text={copy.newsTitle} accentClassName="text-espresso/55" />
                 </p>
                 <p className="body-copy mt-4 font-body text-[15px] leading-relaxed text-espresso/60">
-                  The same discipline we bring to client work, in an email.
-                  Reading time: four minutes. Everything else: nothing.
+                  {copy.newsLead}
                 </p>
               </div>
               <NewsletterInlineForm />
@@ -118,7 +123,13 @@ function NewsletterInlineForm() {
       className="md:justify-self-end md:w-full"
       onSubmit={(e) => {
         e.preventDefault();
-        if (email.trim()) setDone(true);
+        if (!email.trim()) return;
+        setDone(true);
+        createLead("newsletter", { email: email.trim() })
+          .then((r) => {
+            if (r.ok) trackLead("newsletter");
+          })
+          .catch(() => {});
       }}
     >
       {done ? (

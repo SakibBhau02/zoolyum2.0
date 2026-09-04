@@ -7,6 +7,7 @@ import { useGSAP } from "@gsap/react";
 import { useMediaQuery } from "@/lib/hooks";
 import { LinkButton } from "@/components/ui/LinkButton";
 import { HeroBackdrop } from "@/components/ui/HeroBackdrop";
+import { AccentSplit } from "@/components/ui/AccentSplit";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -77,7 +78,13 @@ const BEATS = ["STILL", "NOISE", "FOG", "SIGNAL"] as const;
  * beat indicator, network fog, and a comet-led Signal Thread that
  * hands off into the site-wide scroll indicator.
  */
-export function Chapter1Noise() {
+export type HeroCopy = {
+  eyebrow: string; titleA: string; titleAccent: string; titleB: string;
+  sub: string; ctaPrimary: string; ctaSecondary: string; hint: string; meter: string;
+  beatB: string; beatC: string; beatD: string;
+};
+
+export function Chapter1Noise({ copy }: { copy: HeroCopy }) {
   const scope = useRef<HTMLDivElement>(null);
   const noiseFillRef = useRef<HTMLDivElement>(null);
   const noiseValueRef = useRef<HTMLSpanElement>(null);
@@ -247,14 +254,15 @@ export function Chapter1Noise() {
   if (reduced) {
     return (
       <div ref={scope}>
-        <StaticHero />
-        {(["b", "c"] as const).map((beat) => (
-          <section key={beat} className="relative flex min-h-[60vh] items-center overflow-hidden bg-espresso">
+        <StaticHero copy={copy} />
+        {([
+          { key: "b" as const, text: copy.beatB, accent: "text-ivory/50" },
+          { key: "c" as const, text: copy.beatC, accent: "text-ivory/50" },
+        ]).map((beat) => (
+          <section key={beat.key} className="relative flex min-h-[60vh] items-center overflow-hidden bg-espresso">
             <div className="section-shell relative z-10 mx-auto max-w-4xl py-20 text-center">
               <p className="font-display text-display-2 font-semibold text-ivory">
-                {beat === "b"
-                  ? "Most brands respond to that by shouting louder."
-                  : "In the fog, most brands start to look the same."}
+                <AccentSplit text={beat.text} accentClassName={beat.accent} />
               </p>
             </div>
           </section>
@@ -263,7 +271,7 @@ export function Chapter1Noise() {
           <div className="thread absolute left-0 right-0 top-1/2 opacity-80" aria-hidden="true" />
           <div className="section-shell relative z-10 mx-auto max-w-4xl py-20 text-center">
             <p className="font-display text-display-2 font-semibold text-ivory">
-              In that noise, only one <span className="accent-word lit">line</span> ever cuts through.
+              <AccentSplit text={copy.beatD} accentClassName="accent-word lit" />
             </p>
           </div>
         </section>
@@ -274,7 +282,7 @@ export function Chapter1Noise() {
   return (
     <div ref={scope}>
       {/* ============ BEAT 1a — THE HELD BREATH ============ */}
-      <StaticHero />
+      <StaticHero copy={copy} />
 
       {/* ============ BEATS 1b-1d — PINNED SEQUENCE ============ */}
       <section className="ch1-seq relative h-svh overflow-hidden bg-espresso" aria-label="The noise, the fog, and the signal">
@@ -348,8 +356,7 @@ export function Chapter1Noise() {
           <div className="section-shell text-center">
             <div className="grid">
               <h2 className="ch1-headline mx-auto max-w-4xl font-display text-display-2 font-semibold text-ivory" data-beat="b">
-                Most brands respond to that by shouting{" "}
-                <span className="text-ivory/50">louder.</span>
+                <AccentSplit text={copy.beatB} accentClassName="text-ivory/50" />
               </h2>
               <h2 className="ch1-headline mx-auto max-w-4xl font-display text-display-2 font-semibold text-ivory" data-beat="c">
                 In the fog, most brands start to{" "}
@@ -367,7 +374,7 @@ export function Chapter1Noise() {
         <div className="absolute bottom-8 left-6 z-20 hidden w-44 md:block" aria-hidden="true">
           <div className="flex items-baseline justify-between">
             <span className="font-body text-[10px] font-semibold tracking-[0.22em] text-ivory/40">
-              MARKET NOISE
+              {copy.meter}
             </span>
             <span ref={noiseValueRef} className="font-display text-xs font-semibold tabular-nums text-sienna-bright">
               0%
@@ -401,7 +408,7 @@ export function Chapter1Noise() {
 }
 
 /** Beat 1a — the landing hero: the held breath. */
-function StaticHero() {
+function StaticHero({ copy }: { copy: HeroCopy }) {
   return (
     <section
       className="relative flex min-h-svh items-center justify-center overflow-hidden bg-espresso"
@@ -418,29 +425,27 @@ function StaticHero() {
 
       <div className="section-shell relative z-10 py-32 text-center">
         <p className="first-read eyebrow mx-auto inline-block" style={{ animationDelay: "150ms" }}>
-          Consultancy. Strategy. Solution.
+          {copy.eyebrow}
         </p>
         <h1
           className="first-read first-read-slow mx-auto mt-7 max-w-4xl font-display text-display-1 font-semibold text-ivory"
           style={{ animationDelay: "500ms" }}
         >
-          Every market looks <span className="accent-word">crowded</span> from
-          the outside.
+          {copy.titleA} <span className="accent-word">{copy.titleAccent}</span> {copy.titleB}
         </h1>
         <p
           className="first-read body-copy mx-auto mt-7 font-body text-lead text-ivory/65"
           style={{ animationDelay: "850ms" }}
         >
-          Every market has a pattern. Most brands react to it. We help you
-          read it first — and act while others are still guessing.
+          {copy.sub}
         </p>
         <div
           className="first-read mt-11 flex flex-col items-center justify-center gap-4 sm:flex-row"
           style={{ animationDelay: "1050ms" }}
         >
-          <LinkButton href="/contact">Start a Conversation</LinkButton>
+          <LinkButton href="/contact">{copy.ctaPrimary}</LinkButton>
           <LinkButton href="/work" variant="secondary">
-            See Our Work
+            {copy.ctaSecondary}
           </LinkButton>
         </div>
       </div>
@@ -451,7 +456,7 @@ function StaticHero() {
         aria-hidden="true"
       >
         <p className="font-body text-[11px] font-medium tracking-[0.26em] text-ivory/35">
-          THE NOISE BEGINS BELOW
+          {copy.hint}
         </p>
       </div>
     </section>

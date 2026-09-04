@@ -8,6 +8,7 @@ import { useGSAP } from "@gsap/react";
 import type { ContentProject } from "@/lib/content";
 import { Reveal } from "@/components/ui/Reveal";
 import { ConfidenceIndicator } from "@/components/ui/metrics";
+import { AccentSplit } from "@/components/ui/AccentSplit";
 import { Tilt } from "@/components/ui/Tilt";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
@@ -19,7 +20,9 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
  * positions in view at once, the Signal Thread measuring progress.
  * Mobile / reduced motion: native snap scrolling, no scroll-jacking.
  */
-export function Chapter5Work({ projects }: { projects: ContentProject[] }) {
+export type WorkCopy = { eyebrow: string; title: string; lead: string; cta: string };
+
+export function Chapter5Work({ projects, copy }: { projects: ContentProject[]; copy: WorkCopy }) {
   const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLDivElement>(null);
@@ -90,17 +93,16 @@ export function Chapter5Work({ projects }: { projects: ContentProject[] }) {
         <Reveal>
           <div className="flex flex-wrap items-end justify-between gap-6">
             <div className="max-w-2xl">
-              <p className="eyebrow">Selected Work</p>
+              <p className="eyebrow">{copy.eyebrow}</p>
               <h2 className="mt-4 font-display text-display-2 font-semibold text-ivory">
-                Ground our clients <span className="accent-word">hold.</span>
+                <AccentSplit text={copy.title} accentClassName="accent-word" />
               </h2>
               <p className="body-copy mt-5 font-body text-lead text-ivory/60">
-                Every engagement is judged the same way: did the position
-                strengthen - and can we prove it.
+                {copy.lead}
               </p>
             </div>
             <Link href="/work" className="btn-ghost font-display text-sm font-semibold text-sienna-bright">
-              View all work
+              {copy.cta}
               <svg viewBox="0 0 20 20" className="ml-2 h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
                 <path d="M4 10h12m0 0-5-5m5 5-5 5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
