@@ -26,7 +26,7 @@ function publicUrl(key: string) {
   if (base) return `${base}/${key}`;
   const accountId = process.env.R2_ACCOUNT_ID ?? "";
   const bucket = process.env.R2_BUCKET ?? "";
-  return `https://pub-${accountId}.r2.dev/${bucket}/${key}`;
+  return `https://pub-${accountId}.r2.dev/${key}`;
 }
 
 export async function saveR2(data: Buffer, filename: string, mime: string): Promise<SavedFile> {
