@@ -50,12 +50,20 @@ export function validateUpload(mime: string, size: number, docs = false) {
 
 export async function saveFile(data: Buffer, filename: string, mime: string): Promise<SavedFile> {
   const driver = process.env.STORAGE_DRIVER ?? "local";
+  if (driver === "r2") {
+    const { saveR2 } = await import("./storage-r2");
+    return saveR2(data, filename, mime);
+  }
   if (driver !== "local") throw new Error(`Unknown STORAGE_DRIVER: ${driver}`);
   return saveLocal(data, filename, mime);
 }
 
 export async function removeFile(key: string) {
   const driver = process.env.STORAGE_DRIVER ?? "local";
+  if (key.startsWith("r2:")) {
+    const { removeR2 } = await import("./storage-r2");
+    return removeR2(key);
+  }
   if (driver !== "local") throw new Error(`Unknown STORAGE_DRIVER: ${driver}`);
   return removeLocal(key);
 }
