@@ -216,14 +216,14 @@ export default async function BlogPostPage({
       <JourneyRail chapters={chapters} rail={false} />
 
       {/* ---------- Article body ---------- */}
-      <article className="relative pb-20 md:pb-24">
+      <article className="relative pb-20 pt-14 md:pb-24 md:pt-20">
         <div className="section-shell flex flex-col gap-14 lg:flex-row lg:gap-14 xl:gap-16">
           <div className="min-w-0 flex-1">
             {/* AEO: the takeaway box */}
             <section id="takeaways" aria-label="Key takeaways" className="scroll-mt-32" data-sidebar-anchor>
               <Reveal>
                 <div className="card-surface relative overflow-hidden p-7 md:p-8">
-                  <span className="thread absolute left-0 top-0 h-full w-[3px]" aria-hidden="true" />
+                  <span className="thread-y" aria-hidden="true" />
                   <p className="eyebrow">In this article</p>
                   <ul className="mt-5 space-y-3.5">
                     {post.takeaways.map((t) => (
@@ -359,7 +359,7 @@ export default async function BlogPostPage({
             <div className="space-y-6 lg:sticky lg:top-28">
               {post.quote && (
                 <div className="relative overflow-hidden rounded-xl border border-olive/25 bg-umber/60 p-7">
-                  <span className="signal-line absolute left-0 top-0" aria-hidden="true" />
+                  <span className="thread-y" aria-hidden="true" />
                   <p className="font-accent text-[1.45rem] italic leading-snug text-ivory/90">
                     &ldquo;{post.quote}&rdquo;
                   </p>

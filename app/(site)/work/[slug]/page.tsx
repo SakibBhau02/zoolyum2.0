@@ -175,7 +175,7 @@ export default async function CaseStudyPage({
         <div className="section-shell">
           <Reveal>
             <div className="card-surface relative overflow-hidden p-8 md:p-10">
-              <span className="thread absolute left-0 top-0 h-full w-[3px]" aria-hidden="true" />
+              <span className="thread-y" aria-hidden="true" />
               <p className="eyebrow">{w["work.case.snapshotEyebrow"]}</p>
               {meta && (
                 <p className="body-copy mt-5 max-w-3xl font-body text-[1.0625rem] leading-[1.8] text-ivory/75">

@@ -181,6 +181,18 @@ body {
   background: #ff5001;
 }
 
+/* Vertical thread bar for card edges. Separate class (not a
+   Tailwind override) because unlayered CSS beats layered utilities. */
+.thread-y {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 3px;
+  height: 100%;
+  background: #ff5001;
+  box-shadow: 0 0 14px rgba(255, 80, 1, 0.5);
+}
+
 /* Terrain Gradient — reads as a horizon, not a hard color jump */
 .terrain-gradient {
   background: linear-gradient(

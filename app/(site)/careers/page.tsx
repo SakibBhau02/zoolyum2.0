@@ -130,7 +130,7 @@ export default async function CareersPage() {
           <div className="mt-14 grid items-center gap-10 lg:grid-cols-12">
             <Reveal className="lg:col-span-7">
               <div className="card-surface relative overflow-hidden p-8 md:p-10">
-                <span className="thread absolute left-0 top-0 h-full w-[3px]" aria-hidden="true" />
+                <span className="thread-y" aria-hidden="true" />
                 <p className="eyebrow">A Tuesday at Zoolyum</p>
                 <p className="body-copy mt-5 font-body text-[1.0625rem] leading-[1.8] text-ivory/70">
                   Standup at ten, critiques without rank, client work before

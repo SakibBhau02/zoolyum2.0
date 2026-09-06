@@ -128,7 +128,7 @@ export default async function ServiceDetailPage({
         <div className="section-shell">
           <Reveal>
             <div className="card-surface relative overflow-hidden p-8 md:p-10">
-              <span className="thread absolute left-0 top-0 h-full w-[3px]" aria-hidden="true" />
+              <span className="thread-y" aria-hidden="true" />
               <p className="eyebrow">In one paragraph</p>
               <p className="body-copy mt-5 max-w-4xl font-display text-xl font-medium leading-relaxed text-ivory/90 md:text-2xl">
                 {service.oneParagraph}
