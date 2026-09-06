@@ -7,7 +7,7 @@ import { Reveal, HorizonRule } from "@/components/ui/Reveal";
 import { MarqueeRow } from "@/components/ui/MarqueeRow";
 import { AccentSplit } from "@/components/ui/AccentSplit";
 import { createLead } from "@/app/admin/actions";
-import { trackLead } from "@/components/analytics/GoogleAnalytics";
+import { fireBrowserLead, newLeadContext } from "@/lib/tracking-client";
 
 /**
  * Chapter 6 — What Clients Say.
@@ -127,9 +127,10 @@ function NewsletterInlineForm({ news }: { news: NewsCopy }) {
         e.preventDefault();
         if (!email.trim()) return;
         setDone(true);
-        createLead("newsletter", { email: email.trim() })
+        const ctx = newLeadContext();
+        createLead("newsletter", { email: email.trim() }, ctx)
           .then((r) => {
-            if (r.ok) trackLead("newsletter");
+            if (r.ok) fireBrowserLead("newsletter", ctx);
           })
           .catch(() => {});
       }}

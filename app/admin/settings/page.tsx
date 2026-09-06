@@ -1,14 +1,18 @@
 import { prisma } from "@/lib/prisma";
 import { SettingsForm } from "./form";
 
-const GROUPS: { title: string; prefix: string }[] = [
+const GROUPS: { title: string; prefix: string; hint?: string }[] = [
   { title: "SEO titles & descriptions", prefix: "seo." },
-  { title: "Contact info", prefix: "contact." },
-  { title: "Social links & brand", prefix: "social." },
+  { title: "Contact info", prefix: "contact.", hint: "Address + map URL power the Contact page card and the footer address link." },
+  { title: "Social links & brand", prefix: "social.", hint: "Full URLs, e.g. https://facebook.com/yourpage — empty keeps the icon fallback." },
   { title: "Brand & header", prefix: "brand." },
   { title: "Header", prefix: "header." },
   { title: "Homepage", prefix: "home." },
-  { title: "Analytics & pixels", prefix: "analytics." },
+  {
+    title: "Analytics, pixels & server tracking",
+    prefix: "analytics.",
+    hint: "Public IDs render tags on the site. Tokens/secrets stay server-only and never ship to the browser — they power Meta CAPI + GA4 Measurement Protocol from createLead.",
+  },
 ];
 
 export default async function SettingsPage() {

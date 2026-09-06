@@ -229,10 +229,18 @@ export async function listMedia(): Promise<{ id: number; url: string; alt: strin
 export async function createLead(
   kind: string,
   fields: Record<string, string | File>,
+  tracking?: {
+    event_id?: string;
+    event_source_url?: string;
+    fbp?: string;
+    fbc?: string;
+    client_id?: string;
+  },
 ): Promise<ActionResult> {
   try {
     const payload: Record<string, string> = {};
     for (const [k, v] of Object.entries(fields)) {
+      if (k.startsWith("_")) continue;
       if (typeof v !== "string" && v instanceof File) {
         if (v.size === 0) continue;
         validateUpload(v.type, v.size, kind === "careers");
@@ -253,6 +261,32 @@ export async function createLead(
     const name =
       payload.name ?? payload.firstname ?? payload["full name"] ?? payload.fullname ?? null;
     await prisma.lead.create({ data: { kind, name, email, payload } });
+    // Server-side Lead (Meta CAPI + GA4 MP) with shared event_id for dedupe.
+    // Fire-and-forget semantics: awaited but never fails the form.
+    try {
+      const { headers, cookies } = await import("next/headers");
+      const { trackServerLead, newServerEventId, gaClientIdFromCookie } = await import(
+        "@/lib/tracking"
+      );
+      const h = await headers();
+      const c = await cookies();
+      const cookieHeader = c.toString();
+      const forwarded = h.get("x-forwarded-for");
+      const ip = forwarded?.split(",")[0]?.trim() || h.get("x-real-ip") || undefined;
+      await trackServerLead({
+        kind,
+        email,
+        eventId: tracking?.event_id?.trim() || newServerEventId(),
+        eventSourceUrl: tracking?.event_source_url || undefined,
+        fbp: tracking?.fbp || c.get("_fbp")?.value || undefined,
+        fbc: tracking?.fbc || c.get("_fbc")?.value || undefined,
+        clientId: tracking?.client_id || gaClientIdFromCookie(cookieHeader || null),
+        ip,
+        userAgent: h.get("user-agent") || undefined,
+      });
+    } catch {
+      /* server tracking must never break lead capture */
+    }
     return { ok: true };
   } catch (e) {
     return { ok: false, error: friendly(e) };

@@ -10,7 +10,7 @@ import {
 } from "react";
 import { useSound } from "@/components/layout/SoundProvider";
 import { createLead } from "@/app/admin/actions";
-import { trackLead } from "@/components/analytics/GoogleAnalytics";
+import { fireBrowserLead, newLeadContext } from "@/lib/tracking-client";
 export type WizardService = { name: string; tagline: string; slug: string };
 
 /**
@@ -328,6 +328,7 @@ export function ContactWizard({ contactEmail, services }: { contactEmail: string
       setStep((s) => s + 1);
     } else {
       click();
+      const ctx = newLeadContext();
       createLead("contact", {
         service: data.service,
         budget: data.budget,
@@ -336,9 +337,9 @@ export function ContactWizard({ contactEmail, services }: { contactEmail: string
         email: data.email,
         phone: data.phone,
         message: data.message,
-      })
+      }, ctx)
         .then((r) => {
-          if (r.ok) trackLead("contact");
+          if (r.ok) fireBrowserLead("contact", ctx);
         })
         .catch(() => {});
       setDone(true);

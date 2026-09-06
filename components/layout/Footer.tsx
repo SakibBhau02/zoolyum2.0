@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import type { MenuLinkItem, NewsCopy } from "@/lib/content";
 import { createLead } from "@/app/admin/actions";
-import { trackLead } from "@/components/analytics/GoogleAnalytics";
+import { fireBrowserLead, newLeadContext } from "@/lib/tracking-client";
 import { Logo } from "./Logo";
 
 const SOCIALS = [
@@ -41,9 +41,10 @@ function NewsletterForm({ news }: { news: NewsCopy }) {
         e.preventDefault();
         if (!email.trim()) return;
         setDone(true);
-        createLead("newsletter", { email: email.trim() })
+        const ctx = newLeadContext();
+        createLead("newsletter", { email: email.trim() }, ctx)
           .then((r) => {
-            if (r.ok) trackLead("newsletter");
+            if (r.ok) fireBrowserLead("newsletter", ctx);
           })
           .catch(() => {});
       }}
@@ -91,7 +92,7 @@ export function Footer({
   explore: MenuLinkItem[];
   legal: MenuLinkItem[];
   services: { name: string; slug: string }[];
-  contact: { email: string; phone: string; address: string };
+  contact: { email: string; phone: string; address: string; mapUrl?: string };
   socials: Record<string, string>;
   tagline: string;
   news: NewsCopy;
@@ -112,7 +113,20 @@ export function Footer({
             competitive advantage.
           </p>
           <address className="mt-6 space-y-1.5 font-body text-sm not-italic text-ivory/60">
-            <p>{contact.address}</p>
+            {contact.mapUrl ? (
+              <p>
+                <a
+                  href={contact.mapUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="transition-colors hover:text-sienna-bright"
+                >
+                  {contact.address}
+                </a>
+              </p>
+            ) : (
+              <p>{contact.address}</p>
+            )}
             <p>
               <a href={`mailto:${contact.email}`} className="text-sienna-bright transition-opacity hover:opacity-80">
                 {contact.email}

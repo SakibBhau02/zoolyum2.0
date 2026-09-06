@@ -3,6 +3,7 @@
 import Script from "next/script";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
+import { fireBrowserLead } from "@/lib/tracking-client";
 
 declare global {
   interface Window {
@@ -13,12 +14,7 @@ declare global {
 
 /** Fire a conversion event to GA4 (if loaded) and Meta Pixel (if loaded). */
 export function trackLead(kind: string) {
-  try {
-    window.dataLayer?.push({ event: "lead", kind });
-    (window as unknown as { fbq?: (...a: unknown[]) => void }).fbq?.("track", "Lead", { content_name: kind });
-  } catch {
-    /* analytics must never break the form */
-  }
+  fireBrowserLead(kind);
 }
 
 export function GoogleAnalytics({ id }: { id: string }) {

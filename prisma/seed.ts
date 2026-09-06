@@ -310,9 +310,14 @@ const HOME_COPY: Record<string, string> = {
 "home.footer.newsTitle": "One insight a month",
 "home.footer.newsText": "One strategic insight a month. No noise — we dislike noise more than you do.",
 "home.footer.based": "— Based in Dhaka.",
-"analytics.ga4_id": "",
-"analytics.clarity_id": "",
-"analytics.pixel_id": "",
+  "analytics.ga4_id": "",
+  "analytics.clarity_id": "",
+  "analytics.pixel_id": "",
+  "analytics.gtm_id": "",
+  "analytics.meta_capi_token": "",
+  "analytics.meta_test_event_code": "",
+  "analytics.ga4_api_secret": "",
+  "analytics.server_tracking_enabled": "true",
 };
 
 const WORK_COPY: Record<string, string> = {
