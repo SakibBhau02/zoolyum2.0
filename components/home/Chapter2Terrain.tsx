@@ -363,9 +363,12 @@ function BuildCompare() {
 /* ============ the chapter ============ */
 
 export type TaglineCopy = {
-  openerA: string; openerB: string; openerSub: string;
-  act1sub: string; act1body: string; act2sub: string; act2body: string;
-  act3sub: string; act3body: string; lockupNote: string; cta: string;
+  eyebrow: string; openerA: string; openerB: string; openerSub: string;
+  act1step: string; act1title: string; act1sub: string; act1body: string;
+  act2step: string; act2title: string; act2sub: string; act2body: string;
+  act3step: string; act3title: string; act3sub: string; act3body: string;
+  lockupEyebrow: string; lockup: { word: string; stage: string }[];
+  lockupNote: string; cta: string; ctaHref: string;
 };
 
 export function Chapter2Terrain({ copy }: { copy: TaglineCopy }) {
@@ -394,7 +397,7 @@ export function Chapter2Terrain({ copy }: { copy: TaglineCopy }) {
         <div className="section-shell relative z-10 py-28 text-center">
           <p className="ar-label mx-auto flex max-w-lg flex-wrap items-center justify-center gap-3 font-body text-[13px] font-semibold uppercase tracking-[0.08em] text-olive-hi">
             <span aria-hidden="true" className="h-px w-6 shrink-0 bg-sienna" />
-            <span>Chapter 02 &mdash; The Tagline</span>
+            <span>{copy.eyebrow}</span>
           </p>
 
           <h2 className="mx-auto mt-8 font-display text-[clamp(2.5rem,5.5vw,4.75rem)] font-semibold leading-[1.08] tracking-[-0.015em]">
@@ -435,10 +438,10 @@ export function Chapter2Terrain({ copy }: { copy: TaglineCopy }) {
         <div className="section-shell grid items-center gap-12 lg:grid-cols-12">
           <Reveal className="lg:col-span-5">
             <p className="font-body text-[11px] font-semibold uppercase tracking-[0.22em] text-olive-hi">
-              01 &middot; The Read
+              {copy.act1step}
             </p>
             <h3 className="mt-4 font-display text-[clamp(2.5rem,4.5vw,4rem)] font-semibold leading-[1.05] text-ivory">
-              Consultancy<span className="text-sienna">.</span>
+              {copy.act1title.replace(/\.$/, "")}<span className="text-sienna">.</span>
             </h3>
             <p className="mt-5 font-display text-xl font-medium leading-snug text-ivory/85 md:text-2xl">
               {copy.act1sub}
@@ -464,10 +467,10 @@ export function Chapter2Terrain({ copy }: { copy: TaglineCopy }) {
           <div className="grid items-center gap-12 lg:grid-cols-12">
             <Reveal className="lg:order-2 lg:col-span-5">
               <p className="font-body text-[11px] font-semibold uppercase tracking-[0.22em] text-olive-hi">
-                02 &middot; The Map
+                {copy.act2step}
               </p>
               <h3 className="mt-4 font-display text-[clamp(2.5rem,4.5vw,4rem)] font-semibold leading-[1.05] text-ivory">
-                Strategy<span className="text-sienna">.</span>
+                {copy.act2title.replace(/\.$/, "")}<span className="text-sienna">.</span>
               </h3>
               <p className="mt-5 font-display text-xl font-medium leading-snug text-ivory/85 md:text-2xl">
                 {copy.act2sub}
@@ -494,10 +497,10 @@ export function Chapter2Terrain({ copy }: { copy: TaglineCopy }) {
           <div className="grid items-center gap-12 lg:grid-cols-12">
             <Reveal className="lg:col-span-5">
               <p className="font-body text-[11px] font-semibold uppercase tracking-[0.22em] text-olive-hi">
-                03 &middot; The Build
+                {copy.act3step}
               </p>
               <h3 className="mt-4 font-display text-[clamp(2.5rem,4.5vw,4rem)] font-semibold leading-[1.05] text-ivory">
-                Solution<span className="text-sienna">.</span>
+                {copy.act3title.replace(/\.$/, "")}<span className="text-sienna">.</span>
               </h3>
               <p className="mt-5 font-display text-xl font-medium leading-snug text-ivory/85 md:text-2xl">
                 {copy.act3sub}
@@ -522,14 +525,14 @@ export function Chapter2Terrain({ copy }: { copy: TaglineCopy }) {
         <div className="section-shell">
           <HorizonRule className="mb-14 opacity-60" />
           <Reveal>
-            <p className="eyebrow">The sequence, locked</p>
+            <p className="eyebrow">{copy.lockupEyebrow}</p>
           </Reveal>
 
           <div className="mt-10 grid gap-10 md:mt-12 md:grid-cols-3 md:gap-0">
-            {STAGES.map((s, i) => (
+            {(copy.lockup.length > 0 ? copy.lockup : STAGES).map((s, i) => (
               <div key={s.word} className="flex flex-col items-center">
                 <h3 className="px-6 font-display text-[clamp(1.625rem,3vw,2.5rem)] font-semibold text-ivory">
-                  {s.word}<span className="text-sienna">.</span>
+                  {s.word.replace(/\.$/, "")}<span className="text-sienna">.</span>
                 </h3>
                 <div className="relative mt-6 h-3.5 w-full">
                   <span
@@ -556,7 +559,7 @@ export function Chapter2Terrain({ copy }: { copy: TaglineCopy }) {
             </p>
             <div className="mt-6 text-center">
               <Link
-                href="/services"
+                href={copy.ctaHref}
                 className="btn-ghost inline-flex font-display text-sm font-semibold text-sienna-bright"
               >
                 {copy.cta}

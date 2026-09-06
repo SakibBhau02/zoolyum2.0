@@ -9,12 +9,14 @@ import { getSetting } from "@/lib/content";
  * line of the brief, and two considered CTAs.
  */
 export async function Chapter7CTA() {
-  const [eyebrow, title, lead, primary, secondary] = await Promise.all([
+  const [eyebrow, title, lead, primary, secondary, primaryHref, secondaryHref] = await Promise.all([
     getSetting("home.cta.eyebrow", ""),
     getSetting("home.cta.title", ""),
     getSetting("home.cta.lead", ""),
     getSetting("home.cta.primary", ""),
     getSetting("home.cta.secondary", ""),
+    getSetting("home.cta.primaryHref", "/contact"),
+    getSetting("home.cta.secondaryHref", "/services"),
   ]);
   return (
     <section
@@ -33,8 +35,8 @@ export async function Chapter7CTA() {
         </Reveal>
         <Reveal delay={140}>
           <div className="mt-11 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <LinkButton href="/contact">{primary}</LinkButton>
-            <LinkButton href="/services" variant="secondary">
+            <LinkButton href={primaryHref}>{primary}</LinkButton>
+            <LinkButton href={secondaryHref} variant="secondary">
               {secondary}
             </LinkButton>
           </div>

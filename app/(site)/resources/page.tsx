@@ -29,7 +29,7 @@ export default function ResourcesPage() {
         lead="The exact documents our strategists use on paid engagements. Free, because a market full of sharper brands is a better market for everyone."
       />
 
-      <section className="relative overflow-hidden pb-24 md:pb-32" aria-label="Resources">
+      <section className="relative overflow-hidden pb-24 pt-12 md:pb-32 md:pt-16" aria-label="Resources">
         <div className="section-shell grid gap-6 md:grid-cols-3">
           {RESOURCES.map((resource, i) => (
             <Reveal key={resource.title} delay={i * 90}>

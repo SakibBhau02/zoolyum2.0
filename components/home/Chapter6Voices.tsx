@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { NewsCopy } from "@/lib/content";
 type TestimonialItem = { quote: string; author: string; company: string; industry: string };
 import { Reveal, HorizonRule } from "@/components/ui/Reveal";
 import { MarqueeRow } from "@/components/ui/MarqueeRow";
@@ -17,9 +18,10 @@ import { trackLead } from "@/components/analytics/GoogleAnalytics";
  */
 export type VoicesCopy = {
   eyebrow: string; title: string; newsEyebrow: string; newsTitle: string; newsLead: string;
+  news: NewsCopy;
 };
 
-export function Chapter6Voices({ testimonials, copy }: { testimonials: TestimonialItem[]; copy: VoicesCopy }) {
+export function Chapter6Voices({ testimonials, copy, news }: { testimonials: TestimonialItem[]; copy: VoicesCopy; news: NewsCopy }) {
   const rowA = testimonials.filter((_, i) => i % 2 === 0);
   const rowB = testimonials.filter((_, i) => i % 2 === 1);
 
@@ -68,7 +70,7 @@ export function Chapter6Voices({ testimonials, copy }: { testimonials: Testimoni
                   {copy.newsLead}
                 </p>
               </div>
-              <NewsletterInlineForm />
+              <NewsletterInlineForm news={news} />
             </div>
           </div>
         </Reveal>
@@ -114,7 +116,7 @@ function TestimonialCard({
   );
 }
 
-function NewsletterInlineForm() {
+function NewsletterInlineForm({ news }: { news: NewsCopy }) {
   const [email, setEmail] = useState("");
   const [done, setDone] = useState(false);
 
@@ -134,12 +136,12 @@ function NewsletterInlineForm() {
     >
       {done ? (
         <p className="font-accent text-xl italic text-sienna">
-          You&apos;re on the list. First insight arrives next month.
+          {news.success}
         </p>
       ) : (
         <>
           <label htmlFor="ch6-newsletter" className="sr-only">
-            Email address
+            {news.label}
           </label>
           <div className="flex flex-col gap-3 sm:flex-row">
             <input
@@ -148,15 +150,15 @@ function NewsletterInlineForm() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Your email"
+              placeholder={news.placeholder}
               className="w-full rounded-lg border border-espresso/20 bg-ivory px-4 py-3.5 font-body text-sm text-espresso placeholder:text-espresso/40 transition-colors focus:border-sienna focus:outline-none sm:min-w-[260px]"
             />
             <button type="submit" className="btn btn-primary shrink-0">
-              Subscribe
+              {news.button}
             </button>
           </div>
           <p className="mt-3 font-body text-xs text-espresso/45">
-            No spam, no sharing, unsubscribe anytime.
+            {news.disclaimer}
           </p>
         </>
       )}

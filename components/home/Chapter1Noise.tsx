@@ -80,7 +80,7 @@ const BEATS = ["STILL", "NOISE", "FOG", "SIGNAL"] as const;
  */
 export type HeroCopy = {
   eyebrow: string; titleA: string; titleAccent: string; titleB: string;
-  sub: string; ctaPrimary: string; ctaSecondary: string; hint: string; meter: string;
+  sub: string; ctaPrimary: string; ctaSecondary: string; ctaPrimaryHref: string; ctaSecondaryHref: string; hint: string; meter: string;
   beatB: string; beatC: string; beatD: string;
 };
 
@@ -443,8 +443,8 @@ function StaticHero({ copy }: { copy: HeroCopy }) {
           className="first-read mt-11 flex flex-col items-center justify-center gap-4 sm:flex-row"
           style={{ animationDelay: "1050ms" }}
         >
-          <LinkButton href="/contact">{copy.ctaPrimary}</LinkButton>
-          <LinkButton href="/work" variant="secondary">
+          <LinkButton href={copy.ctaPrimaryHref}>{copy.ctaPrimary}</LinkButton>
+          <LinkButton href={copy.ctaSecondaryHref} variant="secondary">
             {copy.ctaSecondary}
           </LinkButton>
         </div>

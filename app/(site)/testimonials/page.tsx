@@ -29,7 +29,7 @@ export default async function TestimonialsPage() {
         }
         lead="We don't write our own references. The brands we've strengthened do that for us."
       />
-      <section className="relative overflow-hidden pb-24 md:pb-32" aria-label="Testimonials">
+      <section className="relative overflow-hidden pb-24 pt-12 md:pb-32 md:pt-16" aria-label="Testimonials">
         <div className="section-shell">
           <TestimonialWall testimonials={testimonials} />
         </div>

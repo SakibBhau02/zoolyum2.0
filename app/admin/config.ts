@@ -1,8 +1,9 @@
 /**
  * Collection registry driving the generic admin CRUD.
  */
-export type FieldKind = "text" | "textarea" | "list" | "json" | "number" | "checkbox" | "select";
+export type FieldKind = "text" | "textarea" | "list" | "json" | "number" | "checkbox" | "select" | "image";
 
+export type JsonEditor = "qa" | "imagelist" | "stats" | "proofstat" | "process" | "story" | "meta" | "jobdetail";
 export type FieldDef = {
   name: string;
   label: string;
@@ -12,6 +13,9 @@ export type FieldDef = {
   rows?: number;
   sep?: string;
   help?: string;
+  editor?: JsonEditor;
+  altKey?: string;
+  altLabel?: string;
 };
 
 export type CollectionKey = "posts" | "projects" | "services" | "team" | "jobs" | "testimonials" | "menulinks";
@@ -25,7 +29,7 @@ export type CollectionDef = {
   revalidate: (slug: string) => string[];
 };
 
-const jsonHelp = "Valid JSON. Arrays and objects accepted.";
+
 
 export const COLLECTIONS: Record<CollectionKey, CollectionDef> = {
   posts: {
@@ -43,15 +47,15 @@ export const COLLECTIONS: Record<CollectionKey, CollectionDef> = {
       { name: "readTime", label: "Read time", kind: "text", required: true },
       { name: "author", label: "Author", kind: "text", required: true },
       { name: "authorRole", label: "Author role", kind: "text", required: true },
-      { name: "cover", label: "Cover image path", kind: "text", required: true },
+      { name: "cover", label: "Cover image", kind: "image", required: true, help: "Pick from the media library or upload a new image." },
       { name: "published", label: "Published (visible on site)", kind: "checkbox" },
       { name: "keywords", label: "Keywords (one per line)", kind: "list", rows: 4 },
       { name: "takeaways", label: "Takeaways (one per line)", kind: "list", rows: 5 },
       { name: "quote", label: "Pull quote", kind: "textarea", rows: 2 },
       { name: "body", label: "Body paragraphs (blank line between)", kind: "list", sep: "DOUBLE_NEWLINE", rows: 12 },
-      { name: "images", label: "Inline images JSON", kind: "json", rows: 4 },
+      { name: "images", label: "Inline images", kind: "json", editor: "imagelist", altKey: "caption", altLabel: "Caption", help: "One row per image, in order. Images appear between article sections." },
       { name: "updated", label: "Updated date (optional)", kind: "text" },
-      { name: "faqs", label: "FAQs JSON", kind: "json", rows: 6 },
+      { name: "faqs", label: "FAQs", kind: "json", editor: "qa", help: "One question and answer per row." },
     ],
   },  projects: {
     label: "Work / Case Studies",
@@ -68,15 +72,16 @@ export const COLLECTIONS: Record<CollectionKey, CollectionDef> = {
       { name: "result", label: "Headline result", kind: "text", required: true },
       { name: "timeline", label: "Timeline", kind: "text", required: true },
       { name: "published", label: "Published (visible on site)", kind: "checkbox" },
-      { name: "images", label: "Gallery images JSON", kind: "json", rows: 6, help: jsonHelp },
+      { name: "images", label: "Gallery images", kind: "json", editor: "imagelist", help: "One row per image, in display order." },
       { name: "challenge", label: "Challenge", kind: "textarea", rows: 3, required: true },
       { name: "strategy", label: "Strategy", kind: "textarea", rows: 3, required: true },
       { name: "execution", label: "Execution moves (one per line)", kind: "list", rows: 5 },
-      { name: "stats", label: "Stats JSON", kind: "json", rows: 4 },
+      { name: "stats", label: "Stats", kind: "json", editor: "stats", help: "Value plus label per row - e.g. 42% / enrollment lift in 3 months." },
       { name: "quote", label: "Client quote", kind: "textarea", rows: 2 },
       { name: "quoteAuthor", label: "Quote author", kind: "text" },
-      { name: "gradient", label: "Card gradient classes", kind: "text" },
-      { name: "meta", label: "Dossier JSON (overview, obstacles, toolbox, deliverables, faqs)", kind: "json", rows: 10, help: jsonHelp },
+      { name: "gradient", label: "Card gradient (pick in editor)", kind: "text", help: "Tailwind gradient classes for the card art. Best chosen with the visual picker below." },
+      { name: "sort", label: "Sort order (1 shows first, featured)", kind: "number", help: "Lowest number leads the gallery as the featured case." },
+      { name: "meta", label: "Case dossier", kind: "json", editor: "meta", help: "Overview, obstacles, toolbox, deliverables and FAQs for the case page." },
     ],
   },  services: {
     label: "Services",
@@ -95,11 +100,11 @@ export const COLLECTIONS: Record<CollectionKey, CollectionDef> = {
       { name: "position", label: "Position", kind: "textarea", rows: 3 },
       { name: "problem", label: "Problem", kind: "textarea", rows: 2 },
       { name: "solution", label: "Solution", kind: "textarea", rows: 2 },
-      { name: "proofStat", label: "Proof stat JSON", kind: "json", rows: 2 },
+      { name: "proofStat", label: "Proof stat", kind: "json", editor: "proofstat", help: "The headline number - e.g. +42% / avg. brand-recall lift." },
       { name: "deliverables", label: "Deliverables (one per line)", kind: "list", rows: 5 },
-      { name: "process", label: "Process JSON", kind: "json", rows: 6 },
-      { name: "faqs", label: "FAQs JSON", kind: "json", rows: 6 },
-      { name: "story", label: "Story acts JSON (optional)", kind: "json", rows: 4 },
+      { name: "process", label: "Process steps", kind: "json", editor: "process", help: "One step plus detail per row, in order." },
+      { name: "faqs", label: "FAQs", kind: "json", editor: "qa", help: "One question and answer per row." },
+      { name: "story", label: "Story acts (optional)", kind: "json", editor: "story", help: "Label, title and body per act." },
     ],
   },  team: {
     label: "Team",
@@ -127,7 +132,7 @@ export const COLLECTIONS: Record<CollectionKey, CollectionDef> = {
       { name: "location", label: "Location", kind: "text", required: true },
       { name: "dept", label: "Department", kind: "text", required: true },
       { name: "active", label: "Visible on site", kind: "checkbox" },
-      { name: "detail", label: "Dossier JSON", kind: "json", rows: 10, help: jsonHelp },
+      { name: "detail", label: "Role dossier", kind: "json", editor: "jobdetail", help: "About the role, responsibility and requirement lists, and the 90-day bar." },
     ],
   },
   testimonials: {

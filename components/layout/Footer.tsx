@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import type { MenuLinkItem } from "@/lib/content";
+import type { MenuLinkItem, NewsCopy } from "@/lib/content";
 import { createLead } from "@/app/admin/actions";
 import { trackLead } from "@/components/analytics/GoogleAnalytics";
 import { Logo } from "./Logo";
@@ -30,7 +30,7 @@ const SOCIALS = [
   },
 ] as const;
 
-function NewsletterForm() {
+function NewsletterForm({ news }: { news: NewsCopy }) {
   const [email, setEmail] = useState("");
   const [done, setDone] = useState(false);
 
@@ -50,12 +50,12 @@ function NewsletterForm() {
     >
       {done ? (
         <p className="font-accent text-lg italic text-sienna-bright">
-          You&apos;re on the list. First insight arrives next month.
+          {news.success}
         </p>
       ) : (
         <div className="flex overflow-hidden rounded-lg border border-olive/35 focus-within:border-sienna-bright/70">
           <label htmlFor="newsletter-email" className="sr-only">
-            Email address
+            {news.label}
           </label>
           <input
             id="newsletter-email"
@@ -63,14 +63,14 @@ function NewsletterForm() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="Your email"
+            placeholder={news.placeholder}
             className="w-full bg-transparent px-4 py-3 font-body text-sm text-ivory placeholder:text-ivory/40 focus:outline-none"
           />
           <button
             type="submit"
             className="shrink-0 bg-sienna-bright px-5 font-display text-sm font-semibold text-espresso transition-colors duration-300 hover:bg-sienna"
           >
-            Subscribe
+            {news.button}
           </button>
         </div>
       )}
@@ -85,6 +85,8 @@ export function Footer({
   contact,
   socials,
   tagline,
+  news,
+  foot,
 }: {
   explore: MenuLinkItem[];
   legal: MenuLinkItem[];
@@ -92,6 +94,8 @@ export function Footer({
   contact: { email: string; phone: string; address: string };
   socials: Record<string, string>;
   tagline: string;
+  news: NewsCopy;
+  foot: { blurb: string; newsTitle: string; newsText: string; based: string };
 }) {
   return (
     <footer className="relative overflow-hidden bg-umber/50">
@@ -104,7 +108,7 @@ export function Footer({
         <div>
           <Logo />
           <p className="body-copy mt-5 font-body text-sm leading-relaxed text-ivory/60">
-            The strategic partner that turns market noise into a clear
+            {foot.blurb}
             competitive advantage.
           </p>
           <address className="mt-6 space-y-1.5 font-body text-sm not-italic text-ivory/60">
@@ -151,12 +155,11 @@ export function Footer({
         </nav>
 
         <div data-lead-inline>
-          <h3 className="eyebrow">One insight a month</h3>
+          <h3 className="eyebrow">{foot.newsTitle}</h3>
           <p className="body-copy mt-5 font-body text-sm leading-relaxed text-ivory/60">
-            One strategic insight a month. No noise — we dislike noise more
-            than you do.
+            {foot.newsText}
           </p>
-          <NewsletterForm />
+          <NewsletterForm news={news} />
           <div className="mt-8 flex gap-3">
             {SOCIALS.map((social) => (
               <a
@@ -180,7 +183,7 @@ export function Footer({
         <div className="section-shell flex flex-col items-center justify-between gap-4 py-6 sm:flex-row">
           <p className="font-display text-sm font-semibold tracking-wide text-ivory">
             {tagline}{" "}
-            <span className="font-normal text-ivory/50">— Based in Dhaka.</span>
+            <span className="font-normal text-ivory/50">{foot.based}</span>
           </p>
           <div className="flex gap-6 font-body text-xs text-ivory/45">
             {legal.map((l) => (

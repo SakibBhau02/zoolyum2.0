@@ -6,6 +6,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { useMediaQuery } from "@/lib/hooks";
+import { youtubeEmbed, youtubeThumb } from "@/lib/text";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -16,12 +17,16 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
  * frame grows it slightly; clicking opens the lightbox with
  * arrow-key navigation.
  */
+export type GalleryMedia = { src: string; alt: string; kind: "image" | "youtube"; youtubeId?: string };
+
 export function CaseGallery({
   images,
   client,
+  labels,
 }: {
-  images: { src: string; alt: string }[];
+  images: GalleryMedia[];
   client: string;
+  labels: { eyebrow: string; titleA: string; titleB: string; note: string };
 }) {
   const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -98,12 +103,17 @@ export function CaseGallery({
 
   if (images.length === 0) return null;
 
-  const frame = (img: { src: string; alt: string }, i: number, tall = false) => (
+  const active: GalleryMedia | null = lightbox === null ? null : images[lightbox];
+
+  const frame = (img: GalleryMedia, i: number, tall = false) => {
+    const isVideo = img.kind === "youtube" && (img.youtubeId ?? "") !== "";
+    const label = img.alt || `${client} - frame ${i + 1}`;
+    return (
     <button
-      key={img.src + i}
+      key={(isVideo ? (img.youtubeId ?? "") : img.src) + i}
       type="button"
       onClick={() => setLightbox(i)}
-      aria-label={`Open frame ${i + 1} of ${images.length} - ${client}`}
+      aria-label={`Open frame ${i + 1} of ${images.length} - ${client}${isVideo ? " (video)" : ""}`}
       className={`group relative shrink-0 snap-center overflow-hidden rounded-xl border border-olive/25 bg-umber focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sienna-bright ${
         images.length >= 3 ? "w-[420px] md:w-[480px]" : "w-full"
       }`}
@@ -111,20 +121,41 @@ export function CaseGallery({
       <div
         className={`overflow-hidden ${tall ? "aspect-[3/3.4]" : "aspect-[3/2]"}`}
       >
-        <Image
-          src={img.src}
-          alt={img.alt || `${client} - frame ${i + 1}`}
-          width={960}
-          height={640}
-          unoptimized
-          className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.06]"
-        />
+        {isVideo ? (
+          <Image
+            src={youtubeThumb(img.youtubeId as string)}
+            alt={label}
+            width={960}
+            height={640}
+            unoptimized
+            className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.06]"
+          />
+        ) : (
+          <Image
+            src={img.src}
+            alt={label}
+            width={960}
+            height={640}
+            unoptimized
+            className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.06]"
+          />
+        )}
       </div>
+      {isVideo && (
+        <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center">
+          <span className="flex h-16 w-16 items-center justify-center rounded-full bg-espresso/70 backdrop-blur-sm transition-transform duration-300 group-hover:scale-110">
+            <svg viewBox="0 0 24 24" className="ml-1 h-6 w-6 text-ivory" fill="currentColor" aria-hidden="true">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          </span>
+        </span>
+      )}
       <span className="pointer-events-none absolute bottom-3 right-3 rounded-full bg-espresso/70 px-3 py-1 font-body text-[11px] tracking-widest text-ivory/80 opacity-0 backdrop-blur-sm transition-opacity duration-300 group-hover:opacity-100">
-        FRAME {String(i + 1).padStart(2, "0")}
+        {isVideo ? "VIDEO" : "FRAME " + String(i + 1).padStart(2, "0")}
       </span>
     </button>
-  );
+    );
+  };
 
   const isTraverse = images.length >= 3;
 
@@ -138,12 +169,12 @@ export function CaseGallery({
       <div className="section-shell">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div className="max-w-2xl">
-            <p className="eyebrow">The frames</p>
+            <p className="eyebrow">{labels.eyebrow}</p>
             <h2 className="mt-4 font-display text-display-2 font-semibold text-ivory">
-              The work, <span className="accent-word">in frames.</span>
+              {labels.titleA} <span className="accent-word">{labels.titleB}</span>
             </h2>
             <p className="body-copy mt-4 font-body text-lead text-ivory/60">
-              Hover to lean in. Click any frame to view it full-size.
+              {labels.note}
             </p>
           </div>
           {isTraverse && (
@@ -197,6 +228,15 @@ export function CaseGallery({
             </svg>
           </button>
           <figure onClick={(e) => e.stopPropagation()} className="max-h-full">
+            {active !== null && active.kind === "youtube" && (active.youtubeId ?? "") !== "" ? (
+              <iframe
+                src={youtubeEmbed(active.youtubeId as string)}
+                title={`${client} - video ${lightbox + 1}`}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="aspect-video w-[min(90vw,960px)] rounded-xl border border-olive/30"
+              />
+            ) : (
             <Image
               src={images[lightbox].src}
               alt={images[lightbox].alt || `${client} - frame ${lightbox + 1}`}
@@ -205,6 +245,7 @@ export function CaseGallery({
               unoptimized
               className="max-h-[78vh] w-auto max-w-full rounded-xl border border-olive/30 object-contain"
             />
+            )}
             <figcaption className="mt-4 text-center font-body text-xs tracking-[0.2em] text-ivory/45">
               {client.toUpperCase()} - FRAME {String(lightbox + 1).padStart(2, "0")} / {String(images.length).padStart(2, "0")}
             </figcaption>

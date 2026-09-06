@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
 import { SERVICES, PROJECTS, POSTS, POST_UPDATED, SITE_URL } from "@/lib/data";
+import { prisma } from "@/lib/prisma";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -41,12 +42,24 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }));
 
-  const postRoutes: MetadataRoute.Sitemap = POSTS.map((p) => ({
-    url: `${SITE_URL}/blog/${p.slug}`,
-    lastModified: POST_UPDATED[p.slug] ? new Date(POST_UPDATED[p.slug]) : now,
-    changeFrequency: "monthly",
-    priority: 0.6,
-  }));
+  const postRoutes: MetadataRoute.Sitemap = await prisma.post
+    .findMany({ where: { published: true }, select: { slug: true, date: true, updated: true } })
+    .then((rows) =>
+      rows.map((p) => ({
+        url: `${SITE_URL}/blog/${p.slug}`,
+        lastModified: p.updated && p.updated !== "" ? new Date(p.updated) : new Date(p.date),
+        changeFrequency: "monthly" as const,
+        priority: 0.6,
+      })),
+    )
+    .catch(() =>
+      POSTS.map((p) => ({
+        url: `${SITE_URL}/blog/${p.slug}`,
+        lastModified: POST_UPDATED[p.slug] ? new Date(POST_UPDATED[p.slug]) : now,
+        changeFrequency: "monthly" as const,
+        priority: 0.6,
+      })),
+    );
 
   return [...staticRoutes, ...serviceRoutes, ...workRoutes, ...postRoutes];
 }

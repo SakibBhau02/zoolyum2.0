@@ -102,6 +102,8 @@ body {
 }
 
 .eyebrow {
+  position: relative;
+  padding-left: 2.25rem;
   font-family: var(--font-body);
   font-weight: 500;
   font-size: 0.75rem;
@@ -111,12 +113,26 @@ body {
 }
 .eyebrow::before {
   content: "";
-  display: inline-block;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
   width: 1.5rem;
   height: 2px;
+  background: #ff5001;
+}
+/* Centered eyebrows keep the inline bar so the whole line stays optically balanced. */
+.text-center > .eyebrow,
+.eyebrow.mx-auto {
+  padding-left: 0;
+}
+.text-center > .eyebrow::before,
+.eyebrow.mx-auto::before {
+  position: static;
+  transform: none;
+  display: inline-block;
   margin-right: 0.75rem;
   vertical-align: middle;
-  background: #ff5001;
 }
 .eyebrow-dark {
   color: rgba(36, 31, 27, 0.6);

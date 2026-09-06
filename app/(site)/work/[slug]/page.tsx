@@ -7,7 +7,7 @@ import { JourneyRail } from "@/components/pages/JourneyRail";
 import { CaseStat } from "@/components/pages/CaseStat";
 import { CaseGallery } from "@/components/pages/CaseGallery";
 import { SITE_URL } from "@/lib/data";
-import { getProjectSlugs, getProject, getProjects, getServices } from "@/lib/content";
+import { getProjectSlugs, getProject, getProjects, getServices, getWorkCopy } from "@/lib/content";
 
 export async function generateStaticParams() {
   return (await getProjectSlugs()).map((slug) => ({ slug }));
@@ -44,23 +44,12 @@ export async function generateMetadata({
   };
 }
 
-const CHAPTERS = [
-  { id: "snapshot", label: "Snapshot" },
-  { id: "problem", label: "The problem" },
-  { id: "solution", label: "The solution" },
-  { id: "overcome", label: "How we overcame" },
-  { id: "toolbox", label: "Toolbox" },
-  { id: "frames", label: "The frames" },
-  { id: "results", label: "Results" },
-  { id: "faq", label: "FAQ" },
-  { id: "next-steps", label: "Next steps" },
-];
 
-function groupToolbox(toolbox: string[]): { group: string; items: string[] }[] {
+function groupToolbox(toolbox: string[], ungrouped: string): { group: string; items: string[] }[] {
   const groups = new Map<string, string[]>();
   for (const t of toolbox) {
     const i = t.indexOf(":");
-    const g = i > 0 ? t.slice(0, i).trim() : "Stack";
+    const g = i > 0 ? t.slice(0, i).trim() : ungrouped;
     const item = i > 0 ? t.slice(i + 1).trim() : t;
     if (!groups.has(g)) groups.set(g, []);
     groups.get(g)!.push(item);
@@ -77,6 +66,19 @@ export default async function CaseStudyPage({
   const project = await getProject(slug);
   if (!project) notFound();
   const meta = project.meta;
+  const w = await getWorkCopy();
+  const ogImage = project.images.find((g) => g.kind === "image") ?? project.images[0];
+  const CHAPTERS = [
+    { id: "snapshot", label: w["work.case.rail.snapshot"] },
+    { id: "problem", label: w["work.case.rail.problem"] },
+    { id: "solution", label: w["work.case.rail.solution"] },
+    { id: "overcome", label: w["work.case.rail.overcome"] },
+    { id: "toolbox", label: w["work.case.rail.toolbox"] },
+    { id: "frames", label: w["work.case.rail.frames"] },
+    { id: "results", label: w["work.case.rail.results"] },
+    { id: "faq", label: w["work.case.rail.faq"] },
+    { id: "next-steps", label: w["work.case.rail.next"] },
+  ];
 
   const all = await getProjects();
   const idx = all.findIndex((p) => p.slug === slug);
@@ -99,10 +101,10 @@ export default async function CaseStudyPage({
         headline: `${project.client} - ${project.title}`,
         description: meta?.overview ?? project.challenge,
         about: `${project.industry} - ${project.services.join(", ")}`,
-        dateModified: "2026-09-03",
+        ...(project.updatedAt !== "" ? { dateModified: project.updatedAt } : {}),
         wordCount,
         url: `${SITE_URL}/work/${project.slug}`,
-        image: `${SITE_URL}${project.images[0]?.src ?? ""}`,
+        image: `${SITE_URL}${ogImage?.src ?? ""}`,
         author: { "@type": "Organization", name: "Zoolyum", url: SITE_URL },
         publisher: { "@type": "Organization", name: "Zoolyum", url: SITE_URL },
       },
@@ -131,7 +133,7 @@ export default async function CaseStudyPage({
   return (
     <>
       <PageHero
-        eyebrow={`Case Study - ${project.industry}`}
+        eyebrow={`${w["work.case.eyebrowPrefix"]}${project.industry}`}
         title={project.title}
         lead={project.result}
       >
@@ -174,7 +176,7 @@ export default async function CaseStudyPage({
           <Reveal>
             <div className="card-surface relative overflow-hidden p-8 md:p-10">
               <span className="thread absolute left-0 top-0 h-full w-[3px]" aria-hidden="true" />
-              <p className="eyebrow">The case at a glance</p>
+              <p className="eyebrow">{w["work.case.snapshotEyebrow"]}</p>
               {meta && (
                 <p className="body-copy mt-5 max-w-3xl font-body text-[1.0625rem] leading-[1.8] text-ivory/75">
                   {meta.overview}
@@ -182,10 +184,10 @@ export default async function CaseStudyPage({
               )}
               <div className="mt-7 grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
                 {[
-                  { k: "Client", v: project.client },
-                  { k: "Industry", v: project.industry },
-                  { k: "Timeline", v: project.timeline },
-                  { k: "Disciplines", v: project.services.join(" + ") },
+                  { k: w["work.case.rowClient"], v: project.client },
+                  { k: w["work.case.rowIndustry"], v: project.industry },
+                  { k: w["work.case.rowTimeline"], v: project.timeline },
+                  { k: w["work.case.rowDisciplines"], v: project.services.join(" + ") },
                 ].map((row) => (
                   <div key={row.k}>
                     <p className="font-body text-[11px] font-semibold uppercase tracking-[0.2em] text-ivory/40">
@@ -209,12 +211,12 @@ export default async function CaseStudyPage({
         <div className="section-shell">
           <Reveal>
             <div className="max-w-3xl">
-              <p className="eyebrow">The problem</p>
+              <p className="eyebrow">{w["work.case.problemEyebrow"]}</p>
               <h2 className="mt-5 font-display text-display-2 font-semibold leading-tight text-ivory">
                 {project.challenge}
               </h2>
               <p className="mt-6 font-body text-sm tracking-wide text-ivory/40">
-                Every engagement opens here - the ground, read honestly.
+                {w["work.case.problemNote"]}
               </p>
             </div>
           </Reveal>
@@ -251,9 +253,9 @@ export default async function CaseStudyPage({
           <Reveal>
             <div className="grid gap-10 lg:grid-cols-12">
               <div className="lg:col-span-4">
-                <p className="eyebrow">The solution</p>
+                <p className="eyebrow">{w["work.case.solutionEyebrow"]}</p>
                 <h2 className="mt-4 font-display text-display-3 font-semibold text-ivory">
-                  What we did <span className="text-ivory/55">about it.</span>
+                  {w["work.case.solutionTitleA"]} <span className="text-ivory/55">{w["work.case.solutionTitleB"]}</span>
                 </h2>
               </div>
               <p className="body-copy font-body text-lead leading-relaxed text-ivory/80 lg:col-span-8">
@@ -286,9 +288,9 @@ export default async function CaseStudyPage({
       >
         <div className="section-shell">
           <Reveal>
-            <p className="eyebrow">How we overcame</p>
+            <p className="eyebrow">{w["work.case.overcomeEyebrow"]}</p>
             <h2 className="mt-4 font-display text-display-2 font-semibold text-ivory">
-              How the position <span className="accent-word">was taken.</span>
+              {w["work.case.overcomeTitleA"]} <span className="accent-word">{w["work.case.overcomeTitleB"]}</span>
             </h2>
           </Reveal>
 
@@ -334,13 +336,13 @@ export default async function CaseStudyPage({
         >
           <div className="section-shell">
             <Reveal>
-              <p className="eyebrow">Toolbox</p>
+              <p className="eyebrow">{w["work.case.toolboxEyebrow"]}</p>
               <h2 className="mt-4 font-display text-display-3 font-semibold text-ivory">
-                What it was built <span className="text-ivory/55">with.</span>
+                {w["work.case.toolboxTitleA"]} <span className="text-ivory/55">{w["work.case.toolboxTitleB"]}</span>
               </h2>
             </Reveal>
             <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-              {groupToolbox(meta.toolbox).map((g, gi) => (
+              {groupToolbox(meta.toolbox, w["work.case.toolboxUngrouped"]).map((g, gi) => (
                 <Reveal key={g.group} delay={gi * 80}>
                   <div className="h-full rounded-xl border border-olive/25 bg-umber/40 p-6">
                     <p className="font-body text-[10px] font-semibold uppercase tracking-[0.22em] text-sienna-bright">
@@ -361,7 +363,16 @@ export default async function CaseStudyPage({
         </section>
       )}
 
-      <CaseGallery images={project.images} client={project.client} />
+      <CaseGallery
+        images={project.images}
+        client={project.client}
+        labels={{
+          eyebrow: w["work.case.framesEyebrow"],
+          titleA: w["work.case.framesTitleA"],
+          titleB: w["work.case.framesTitleB"],
+          note: w["work.case.framesNote"],
+        }}
+      />
       {/* ---- Results: the proof ---- */}
       <section
         id="results"
@@ -370,9 +381,9 @@ export default async function CaseStudyPage({
       >
         <div className="section-shell">
           <Reveal>
-            <p className="eyebrow">Position held</p>
+              <p className="eyebrow">{w["work.case.resultsEyebrow"]}</p>
             <h2 className="mt-4 max-w-2xl font-display text-display-2 font-semibold text-ivory">
-              The numbers after <span className="accent-word">the engagement.</span>
+              {w["work.case.resultsTitleA"]} <span className="accent-word">{w["work.case.resultsTitleB"]}</span>
             </h2>
           </Reveal>
 
@@ -413,9 +424,9 @@ export default async function CaseStudyPage({
           <div className="section-shell">
             <div className="max-w-3xl">
               <Reveal>
-                <p className="eyebrow">Questions, answered</p>
+                <p className="eyebrow">{w["work.case.faqEyebrow"]}</p>
                 <h2 className="mt-4 font-display text-display-3 font-semibold text-ivory">
-                  What prospects <span className="text-ivory/55">ask us.</span>
+                  {w["work.case.faqTitleA"]} <span className="text-ivory/55">{w["work.case.faqTitleB"]}</span>
                 </h2>
               </Reveal>
               <div className="mt-8 space-y-3">
@@ -454,16 +465,14 @@ export default async function CaseStudyPage({
             <div className="mx-auto max-w-2xl text-center">
               <span className="thread mx-auto mb-8 block w-16" aria-hidden="true" />
               <h2 className="font-display text-display-2 font-semibold text-ivory">
-                Facing a similar <span className="accent-word">problem?</span>
+                {w["work.case.nextTitleA"]} <span className="accent-word">{w["work.case.nextTitleB"]}</span>
               </h2>
               <p className="body-copy mx-auto mt-5 font-body text-lead text-ivory/60">
-                {project.client} started with one conversation about where their
-                market was heading. If your category has the same pattern, the
-                same method applies - the terrain is read before we move.
+                {project.client} {w["work.case.nextTextA"]} {w["work.case.nextTextB"]}
               </p>
               <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-                <Link href="/contact" className="btn btn-primary">
-                  Start a Conversation
+                <Link href={w["work.cta.primaryHref"]} className="btn btn-primary">
+                  {w["work.cta.primary"]}
                 </Link>
                 {primaryService && (
                   <Link href={`/services/${primaryService.slug}`} className="btn btn-secondary">
@@ -479,7 +488,7 @@ export default async function CaseStudyPage({
       {/* ---- Next case study: keep the loop ---- */}
       <section className="relative overflow-hidden py-14" aria-label="Next case study">
         <div className="section-shell">
-          <p className="font-body text-sm text-ivory/45">Next position</p>
+          <p className="font-body text-sm text-ivory/45">{w["work.case.nextLabel"]}</p>
           <Link href={`/work/${nextProject.slug}`} className="group mt-4 block">
             <div className="card-surface flex flex-col gap-6 p-7 md:flex-row md:items-center md:justify-between md:p-8">
               <div className="flex items-center gap-6">

@@ -32,7 +32,7 @@ export default async function FaqPage() {
         lead="How we work, what things cost, and what happens after you get in touch — stated plainly, because that's the whole brand."
       />
 
-      <section className="relative overflow-hidden pb-24 md:pb-32" aria-label="FAQ content">
+      <section className="relative overflow-hidden pb-24 pt-12 md:pb-32 md:pt-16" aria-label="FAQ content">
         <div className="section-shell grid gap-12 lg:grid-cols-12">
           <div className="lg:col-span-4">
             <div className="lg:sticky lg:top-28">

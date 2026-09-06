@@ -41,14 +41,14 @@ function parseFields(fields: FieldDef[], form: FormData): Record<string, any> {
       continue;
     }
     if (f.kind === "list") {
-      out[f.name] = String(raw ?? "")
+      out[f.name] = String(raw ?? "").replace(/\r\n/g, "\n")
         .split(sepOf(f))
         .map((s) => s.trim())
         .filter(Boolean);
       continue;
     }
     if (f.kind === "json") {
-      const s = String(raw ?? "").trim();
+      const s = String(raw ?? "").replace(/\r\n/g, "\n").trim();
       if (!s) {
         out[f.name] = f.name === "images" || f.name === "faqs" ? [] : {};
         continue;
@@ -60,7 +60,7 @@ function parseFields(fields: FieldDef[], form: FormData): Record<string, any> {
       }
       continue;
     }
-    const s = String(raw ?? "").trim();
+    const s = String(raw ?? "").replace(/\r\n/g, "\n").trim();
     if (f.required && !s) throw new Error(`${f.label} is required`);
     out[f.name] = s;
   }
@@ -142,9 +142,12 @@ export async function duplicateItem(collection: CollectionKey, id: number): Prom
 export async function deleteItem(collection: CollectionKey, id: number): Promise<ActionResult> {
   if (!(await isAuthed())) return { ok: false, error: "Unauthorized." };
   try {
-    await delegates()[collection].delete({ where: { id } });
+    const db = delegates()[collection];
+    const row = (await db.findUnique({ where: { id } })) as Record<string, unknown> | null;
+    const slugVal = row ? String(row[COLLECTIONS[collection].slugField] ?? "") : "";
+    await db.delete({ where: { id } });
     if (collection === "menulinks") revalidatePath("/", "layout");
-    for (const rpath of COLLECTIONS[collection].revalidate("")) revalidatePath(rpath);
+    for (const rpath of COLLECTIONS[collection].revalidate(slugVal)) revalidatePath(rpath);
     return { ok: true };
   } catch (e) {
     return { ok: false, error: friendly(e) };
@@ -208,6 +211,19 @@ export async function deleteMedia(id: number): Promise<ActionResult> {
   await prisma.media.delete({ where: { id } });
   revalidatePath("/admin/media");
   return { ok: true };
+}
+
+export async function listMedia(): Promise<{ id: number; url: string; alt: string | null; mime: string | null }[]> {
+  if (!(await isAuthed())) return [];
+  try {
+    return await prisma.media.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 60,
+      select: { id: true, url: true, alt: true, mime: true },
+    });
+  } catch {
+    return [];
+  }
 }
 
 export async function createLead(

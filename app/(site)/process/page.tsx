@@ -29,7 +29,7 @@ export default function ProcessPage() {
         lead="Every engagement runs the same disciplined sequence — because method is what turns projects into positions."
       />
 
-      <section className="relative overflow-hidden pb-24 md:pb-32" aria-label="Process stages">
+      <section className="relative overflow-hidden pb-24 pt-12 md:pb-32 md:pt-16" aria-label="Process stages">
         <div className="section-shell max-w-4xl">
           <HorizonRule className="mb-16 opacity-50" />
           <ol className="relative">

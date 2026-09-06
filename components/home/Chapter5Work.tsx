@@ -20,7 +20,7 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
  * positions in view at once, the Signal Thread measuring progress.
  * Mobile / reduced motion: native snap scrolling, no scroll-jacking.
  */
-export type WorkCopy = { eyebrow: string; title: string; lead: string; cta: string };
+export type WorkCopy = { eyebrow: string; title: string; lead: string; cta: string; href: string; nextTitle: string; nextText: string; nextCta: string; nextHref: string };
 
 export function Chapter5Work({ projects, copy }: { projects: ContentProject[]; copy: WorkCopy }) {
   const sectionRef = useRef<HTMLElement>(null);
@@ -101,7 +101,7 @@ export function Chapter5Work({ projects, copy }: { projects: ContentProject[]; c
                 {copy.lead}
               </p>
             </div>
-            <Link href="/work" className="btn-ghost font-display text-sm font-semibold text-sienna-bright">
+            <Link href={copy.href} className="btn-ghost font-display text-sm font-semibold text-sienna-bright">
               {copy.cta}
               <svg viewBox="0 0 20 20" className="ml-2 h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
                 <path d="M4 10h12m0 0-5-5m5 5-5 5" strokeLinecap="round" strokeLinejoin="round" />
@@ -158,15 +158,14 @@ export function Chapter5Work({ projects, copy }: { projects: ContentProject[]; c
               <span className="thread w-12" aria-hidden="true" />
               <div>
                 <h3 className="font-display text-xl font-semibold text-ivory">
-                  Your position could be next.
+                  {copy.nextTitle}
                 </h3>
                 <p className="body-copy mt-3 font-body text-sm leading-relaxed text-ivory/55">
-                  Every case study here started with one conversation about
-                  where the market was heading.
+                  {copy.nextText}
                 </p>
               </div>
-              <Link href="/contact" className="btn btn-primary !px-6 !py-3 !text-sm">
-                Start a Conversation
+              <Link href={copy.nextHref} className="btn btn-primary !px-6 !py-3 !text-sm">
+                {copy.nextCta}
               </Link>
             </div>
           </div>

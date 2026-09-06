@@ -9,7 +9,7 @@ async function fetchRows(key: CollectionKey): Promise<Record<string, unknown>[]>
     case "posts":
       return (await prisma.post.findMany({ orderBy: { date: "desc" } })) as unknown as Record<string, unknown>[];
     case "projects":
-      return (await prisma.project.findMany({ orderBy: { updatedAt: "desc" } })) as unknown as Record<string, unknown>[];
+      return (await prisma.project.findMany({ orderBy: [{ sort: "asc" }, { updatedAt: "desc" }] })) as unknown as Record<string, unknown>[];
     case "services":
       return (await prisma.service.findMany()) as unknown as Record<string, unknown>[];
     case "team":

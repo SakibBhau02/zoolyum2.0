@@ -30,7 +30,14 @@ function ChevronDown({ className = "" }: { className?: string }) {
   );
 }
 
-export function WorkGallery({ projects }: { projects: ContentProject[] }) {
+export type GalleryUi = {
+  filter: string; all: string; industry: string; service: string;
+  showingA: string; showingB: string; showingC: string;
+  featured: string; read: string; engagement: string;
+  empty: string; menuLabel: string;
+};
+
+export function WorkGallery({ projects, ui }: { projects: ContentProject[]; ui: GalleryUi }) {
   const [filter, setFilter] = useState("All");
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -127,10 +134,10 @@ export function WorkGallery({ projects }: { projects: ContentProject[] }) {
             }`}
           >
             <span className="font-body text-[11px] font-semibold uppercase tracking-[0.18em] text-ivory/40">
-              Filter
+              {ui.filter}
             </span>
             <span className="font-display text-[13px] font-semibold tracking-wide">
-              {filter === "All" ? "All work" : filter}
+              {filter === "All" ? ui.all : filter}
             </span>
             <ChevronDown
               className={`h-3.5 w-3.5 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
@@ -141,7 +148,7 @@ export function WorkGallery({ projects }: { projects: ContentProject[] }) {
             {open && (
               <motion.div
                 role="menu"
-                aria-label="Filter work by industry or service"
+                aria-label={ui.menuLabel}
                 initial={{ opacity: 0, y: -6, scale: 0.98 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -6, scale: 0.98 }}
@@ -152,13 +159,13 @@ export function WorkGallery({ projects }: { projects: ContentProject[] }) {
                 <div className="mt-2 grid grid-cols-2 gap-x-2 border-t border-olive/15 pt-2">
                   <div>
                     <p className="px-3 pb-1 pt-2 font-body text-[10px] font-semibold uppercase tracking-[0.2em] text-ivory/35">
-                      Industry
+                      {ui.industry}
                     </p>
                     {industries.map(menuItem)}
                   </div>
                   <div>
                     <p className="px-3 pb-1 pt-2 font-body text-[10px] font-semibold uppercase tracking-[0.2em] text-ivory/35">
-                      Service
+                      {ui.service}
                     </p>
                     {services.map(menuItem)}
                   </div>
@@ -172,7 +179,7 @@ export function WorkGallery({ projects }: { projects: ContentProject[] }) {
           className="font-body text-xs uppercase tracking-[0.18em] text-ivory/40"
           aria-live="polite"
         >
-          Showing {visible.length} of {projects.length} case studies
+          {ui.showingA} {visible.length} {ui.showingB} {projects.length} {ui.showingC}
         </p>
       </div>
 
@@ -205,7 +212,7 @@ export function WorkGallery({ projects }: { projects: ContentProject[] }) {
 
             <div className="flex flex-col p-8 md:p-10 lg:col-span-6">
               <p className="font-body text-[11px] font-semibold uppercase tracking-[0.22em] text-sienna-bright">
-                Featured case
+                {ui.featured}
               </p>
               <h2 className="mt-4 font-display text-display-3 font-semibold leading-tight text-ivory transition-colors duration-300 group-hover:text-sienna-bright">
                 {featured.client}
@@ -248,10 +255,10 @@ export function WorkGallery({ projects }: { projects: ContentProject[] }) {
 
               <div className="mt-8 flex items-center justify-between border-t border-olive/20 pt-6">
                 <span className="font-body text-xs text-ivory/40">
-                  {featured.timeline} engagement
+                  {featured.timeline} {ui.engagement}
                 </span>
                 <span className="inline-flex items-center gap-2 font-display text-sm font-semibold text-sienna-bright">
-                  Read case study
+                  {ui.read}
                   <svg viewBox="0 0 20 20" className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
                     <path d="M4 10h12m0 0-5-5m5 5-5 5" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
@@ -341,10 +348,10 @@ export function WorkGallery({ projects }: { projects: ContentProject[] }) {
                       </div>
                       <div className="mt-5 flex items-center justify-between border-t border-olive/20 pt-5">
                         <span className="font-body text-xs text-ivory/40">
-                          {project.timeline} engagement
+                          {project.timeline} {ui.engagement}
                         </span>
                         <span className="inline-flex items-center gap-2 font-display text-sm font-semibold text-sienna-bright">
-                          Read case study
+                          {ui.read}
                           <svg viewBox="0 0 20 20" className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
                             <path d="M4 10h12m0 0-5-5m5 5-5 5" strokeLinecap="round" strokeLinejoin="round" />
                           </svg>
@@ -361,7 +368,7 @@ export function WorkGallery({ projects }: { projects: ContentProject[] }) {
 
       {visible.length === 0 && (
         <p className="mt-16 text-center font-accent text-xl italic text-ivory/45">
-          No work in this filter yet. Ask us about yours.
+          {ui.empty}
         </p>
       )}
     </div>

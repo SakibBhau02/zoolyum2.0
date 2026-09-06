@@ -14,6 +14,7 @@ function Icon({ d }: { d: string }) {
 
 const ICONS: Record<string, string> = {
   dashboard: "M3 3h7v7H3zM10 3h7v4h-7zM10 9h7v8h-7zM3 12h7v5H3z",
+  home: "M3 10.5 10 3.5l7 7M5 9.5V17h10V9.5",
   posts: "M4 5h12M4 10h12M4 15h7",
   projects: "M3 7h14v9H3zM7 4h6v3H7z",
   services: "M4 4l6 3-6 3zM10 10l6 3-6 3zM4 4v12",
@@ -47,6 +48,7 @@ export function AdminNav({ unread }: { unread: number }) {
   return (
     <nav className="flex gap-1.5 overflow-x-auto md:flex-col" aria-label="Admin">
       {item("/admin", "Dashboard", "dashboard")}
+      {item("/admin/home", "Homepage", "home")}
       <p className="hidden px-3.5 pt-4 font-body text-[10px] font-semibold uppercase tracking-[0.2em] text-ivory/30 md:block">Content</p>
       {COLLECTION_KEYS.map((k) => item(`/admin/${k}`, COLLECTIONS[k].label, k))}
       <p className="hidden px-3.5 pt-4 font-body text-[10px] font-semibold uppercase tracking-[0.2em] text-ivory/30 md:block">Studio</p>

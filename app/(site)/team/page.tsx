@@ -31,7 +31,7 @@ export default async function TeamPage() {
         lead="Eight people, one method. We've killed projects we believed in because the strategy demanded better — that's the standard."
       />
 
-      <section className="relative overflow-hidden pb-24 md:pb-32" aria-label="Team members">
+      <section className="relative overflow-hidden pb-24 pt-12 md:pb-32 md:pt-16" aria-label="Team members">
         <div className="section-shell grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {team.map((member, i) => (
             <Reveal key={member.name} delay={(i % 4) * 80}>

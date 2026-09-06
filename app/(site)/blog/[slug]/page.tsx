@@ -133,7 +133,10 @@ export default async function BlogPostPage({
 
   const chapters = [
     { id: "takeaways", label: "In this article" },
-    ...sections.map((s, i) => ({ id: `section-${i}`, label: s.heading })),
+    ...sections
+      .map((s, si) => ({ si, label: s.heading }))
+      .filter((s) => s.label !== "")
+      .map((s) => ({ id: `section-${s.si}`, label: s.label })),
     ...(faqs.length > 0 ? [{ id: "faq", label: "Questions, answered" }] : []),
   ];
 
@@ -238,17 +241,20 @@ export default async function BlogPostPage({
 
             <div className="mt-14 space-y-14 md:mt-16 md:space-y-16">
               {sections.map((section, si) => {
-                const paras = body.slice(section.paras[0], section.paras[1] + 1);
+                const paras = body.slice(section.paras[0], section.paras[1] + 1).filter((p) => !p.startsWith("## "));
+                const n = sections.slice(0, si + 1).filter((s) => s.heading !== "").length;
                 return (
-                  <section key={section.heading} id={`section-${si}`} className="scroll-mt-32" aria-label={section.heading}>
+                  <section key={`section-${si}`} id={`section-${si}`} className="scroll-mt-32" aria-label={section.heading !== "" ? section.heading : "Article section " + (si + 1)}>
+                    {section.heading !== "" && (
                     <Reveal>
                       <h2 className="flex items-baseline gap-4 font-display text-2xl font-semibold tracking-tight text-ivory md:text-3xl">
                         <span className="font-display text-sm font-semibold text-sienna tabular-nums" aria-hidden="true">
-                          {String(si + 1).padStart(2, "0")}
+                          {String(n).padStart(2, "0")}
                         </span>
                         {section.heading}
                       </h2>
                     </Reveal>
+                    )}
                     <div className="mt-6 space-y-6">
                       {paras.map((paragraph, pi) => (
                         <Reveal key={pi} delay={30}>

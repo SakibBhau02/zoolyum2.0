@@ -8,7 +8,7 @@ import { SignalFlash } from "@/components/ui/SignalFlash";
 import { SoundProvider } from "@/components/layout/SoundProvider";
 import { AuditTab } from "@/components/leadgen/AuditTab";
 import { AnalyticsLoader } from "@/components/analytics/AnalyticsLoader";
-import { getMenuLinks, getServices, getContactInfo, getSocials, getSetting } from "@/lib/content";
+import { getMenuLinks, getServices, getContactInfo, getSocials, getSetting, getNewsCopy } from "@/lib/content";
 import { ExitIntentModal } from "@/components/leadgen/ExitIntentModal";
 
 /**
@@ -17,7 +17,7 @@ import { ExitIntentModal } from "@/components/leadgen/ExitIntentModal";
  * never cover the CMS.
  */
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
-  const [headerLinks, exploreLinks, legalLinks, services, contact, socials, tagline, ctaLabel] = await Promise.all([
+  const [headerLinks, exploreLinks, legalLinks, services, contact, socials, tagline, ctaLabel, news, foot] = await Promise.all([
     getMenuLinks("header"),
     getMenuLinks("explore"),
     getMenuLinks("legal"),
@@ -26,6 +26,13 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
     getSocials(),
     getSetting("brand.tagline", "Consultancy. Strategy. Solution."),
     getSetting("header.cta.label", "Start a Conversation"),
+    getNewsCopy(),
+    Promise.all([
+      getSetting("home.footer.blurb", "The strategic partner that turns market noise into a clear competitive advantage."),
+      getSetting("home.footer.newsTitle", "One insight a month"),
+      getSetting("home.footer.newsText", "One strategic insight a month. No noise — we dislike noise more than you do."),
+      getSetting("home.footer.based", "— Based in Dhaka."),
+    ]).then(([blurb, newsTitle, newsText, based]) => ({ blurb, newsTitle, newsText, based })),
   ]);
   return (
     <SoundProvider>
@@ -48,6 +55,8 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         contact={contact}
         socials={socials}
         tagline={tagline}
+        news={news}
+        foot={foot}
       />
       <AnalyticsLoader />
       <AuditTab />
