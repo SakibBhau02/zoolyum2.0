@@ -153,6 +153,7 @@ async function main() {
   }
 
   const SETTINGS: [string, string][] = [
+    ["seo.google_verification", ""],
     ["seo.home.title", "Zoolyum - Consultancy. Strategy. Solution."],
     ["seo.home.description", "The strategic partner that turns market noise into a clear competitive advantage. Brand strategy & digital innovation in Dhaka, Bangladesh."],
     ["seo.about.title", "About"],

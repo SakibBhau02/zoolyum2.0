@@ -1,8 +1,14 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { logoutAction } from "./actions";
 import { AdminNav } from "./nav";
+
+/** The private CMS must never appear in search results. */
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 export default async function AdminLayout({ children }: { children: React.ReactNode; params: Promise<unknown> }) {
   const pathname = (await headers()).get("x-pathname") ?? "";

@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Inter, Instrument_Serif } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { FirstLoadSplash } from "@/components/layout/FirstLoadSplash";
+import { getSetting, getSocials } from "@/lib/content";
 import { SITE_URL } from "@/lib/data";
 
 const generalSans = localFont({
@@ -57,9 +59,27 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  // Social URLs power sameAs (Organization schema) + GSC token powers the
+  // verification meta tag. Placeholder roots (e.g. https://facebook.com)
+  // are filtered out so only real profiles are claimed.
+  const [socials, googleVerification] = await Promise.all([
+    getSocials(),
+    getSetting("seo.google_verification", ""),
+  ]);
+  const sameAs = Object.values(socials)
+    .map((u) => {
+      const v = (u ?? "").trim();
+      if (!v) return null;
+      try {
+        return new URL(v).pathname.replace(/\/+$/, "") === "" ? null : v;
+      } catch {
+        return null;
+      }
+    })
+    .filter((u): u is string => u !== null);
   return (
     <html
       lang="en"
@@ -67,6 +87,9 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${generalSans.variable} ${inter.variable} ${instrumentSerif.variable}`}
     >
+      {googleVerification.trim() !== "" && (
+        <meta name="google-site-verification" content={googleVerification.trim()} />
+      )}
       <body className="min-h-screen bg-espresso font-body text-ivory antialiased">
         <script
           dangerouslySetInnerHTML={{
@@ -81,9 +104,12 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@graph": [
                 {
-                  "@type": "Organization",
+                  "@type": ["Organization", "ProfessionalService"],
+                  "@id": `${SITE_URL}/#organization`,
                   name: "Zoolyum",
                   url: SITE_URL,
+                  logo: `${SITE_URL}/logo.svg`,
+                  image: `${SITE_URL}/logo.svg`,
                   slogan: "Consultancy. Strategy. Solution.",
                   description:
                     "Strategy-first brand and digital consultancy in Dhaka, Bangladesh. We read the market's pattern, then build the position that holds.",
@@ -93,7 +119,7 @@ export default function RootLayout({
                     addressLocality: "Dhaka",
                     addressCountry: "BD",
                   },
-                  sameAs: [],
+                  sameAs,
                 },
                 {
                   "@type": "WebSite",
@@ -107,6 +133,7 @@ export default function RootLayout({
           }}
         />
         {children}
+        <Analytics />
       </body>
     </html>
   );

@@ -4,7 +4,10 @@ import { SITE_URL } from "@/lib/data";
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
-      { userAgent: "*", allow: "/" },
+      { userAgent: "*", allow: "/", disallow: "/admin" },
+      // Explicitly welcome the major search crawlers.
+      { userAgent: "Googlebot", allow: "/" },
+      { userAgent: "Bingbot", allow: "/" },
       // Explicitly welcome AI answer-engine crawlers (AGEO).
       { userAgent: "GPTBot", allow: "/" },
       { userAgent: "OAI-SearchBot", allow: "/" },

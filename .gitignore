@@ -50,3 +50,5 @@ v[0-9]*.jpeg
 dev-server.err.log
 
 /public/uploads/
+.vercel
+.env*

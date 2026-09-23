@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMeta } from "@/lib/content";
+import { SITE_URL } from "@/lib/data";
 import Link from "next/link";
 import { PageHero } from "@/components/pages/PageHero";
 import { TestimonialWall } from "@/components/pages/TestimonialWall";
@@ -43,7 +44,26 @@ export default async function TestimonialsPage() {
           <Link href="/work" className="btn btn-primary shrink-0">See the work</Link>
         </div>
       </section>
-
+      {/* Review schema mirrors the visible wall. No reviewRating is emitted —
+          we publish no star scores anywhere, and inventing them would be spam. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@graph": testimonials.map((t) => ({
+              "@type": "Review",
+              author: {
+                "@type": "Person",
+                name: t.author,
+                affiliation: { "@type": "Organization", name: t.company },
+              },
+              itemReviewed: { "@type": "Organization", name: "Zoolyum", url: SITE_URL },
+              reviewBody: t.quote,
+            })),
+          }),
+        }}
+      />
     </>
   );
 }

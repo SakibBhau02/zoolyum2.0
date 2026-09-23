@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { SERVICES, PROJECTS, POSTS, POST_UPDATED, SITE_URL } from "@/lib/data";
+import { getProjectSlugs, getServiceSlugs } from "@/lib/content";
 import { prisma } from "@/lib/prisma";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -28,15 +29,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: r.priority,
   }));
 
-  const serviceRoutes: MetadataRoute.Sitemap = SERVICES.map((s) => ({
-    url: `${SITE_URL}/services/${s.slug}`,
+  // DB-first slugs (static TS fallback inside the getters), so CMS-added
+  // services / case studies appear in the sitemap without a redeploy.
+  const [serviceSlugs, projectSlugs] = await Promise.all([getServiceSlugs(), getProjectSlugs()]);
+  const serviceSlugList = serviceSlugs.length > 0 ? serviceSlugs : SERVICES.map((s) => s.slug);
+  const projectSlugList = projectSlugs.length > 0 ? projectSlugs : PROJECTS.map((p) => p.slug);
+
+  const serviceRoutes: MetadataRoute.Sitemap = serviceSlugList.map((slug) => ({
+    url: `${SITE_URL}/services/${slug}`,
     lastModified: now,
     changeFrequency: "monthly",
     priority: 0.9,
   }));
 
-  const workRoutes: MetadataRoute.Sitemap = PROJECTS.map((p) => ({
-    url: `${SITE_URL}/work/${p.slug}`,
+  const workRoutes: MetadataRoute.Sitemap = projectSlugList.map((slug) => ({
+    url: `${SITE_URL}/work/${slug}`,
     lastModified: now,
     changeFrequency: "yearly",
     priority: 0.7,
