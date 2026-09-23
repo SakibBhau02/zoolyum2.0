@@ -65,9 +65,10 @@ export default async function RootLayout({
   // Social URLs power sameAs (Organization schema) + GSC token powers the
   // verification meta tag. Placeholder roots (e.g. https://facebook.com)
   // are filtered out so only real profiles are claimed.
-  const [socials, googleVerification] = await Promise.all([
+  const [socials, googleVerification, pinterestVerification] = await Promise.all([
     getSocials(),
     getSetting("seo.google_verification", ""),
+    getSetting("seo.pinterest_verification", ""),
   ]);
   const sameAs = Object.values(socials)
     .map((u) => {
@@ -89,6 +90,9 @@ export default async function RootLayout({
     >
       {googleVerification.trim() !== "" && (
         <meta name="google-site-verification" content={googleVerification.trim()} />
+      )}
+      {pinterestVerification.trim() !== "" && (
+        <meta name="p:domain_verify" content={pinterestVerification.trim()} />
       )}
       <body className="min-h-screen bg-espresso font-body text-ivory antialiased">
         <script

@@ -4,7 +4,8 @@ import { useActionState } from "react";
 import { saveSettings } from "../actions";
 
 const HELP: Record<string, string> = {
-  "seo.google_verification": "Google Search Console HTML-tag token (the content value only). Empty = no verification tag.",  "analytics.ga4_id": "GA4 Measurement ID, e.g. G-XXXXXXXXXX. Empty = tag disabled.",
+  "seo.google_verification": "Google Search Console HTML-tag token (the content value only). Empty = no verification tag.",
+  "seo.pinterest_verification": "Pinterest domain claim token (the content value only). Empty = no verification tag.",  "analytics.ga4_id": "GA4 Measurement ID, e.g. G-XXXXXXXXXX. Empty = tag disabled.",
   "analytics.gtm_id": "GTM container ID, e.g. GTM-XXXXXXX. When set, GA4 loads through GTM (direct gtag is skipped to avoid double PageViews).",
   "analytics.clarity_id": "Microsoft Clarity project ID. Empty = disabled.",
   "analytics.pixel_id": "Meta Pixel ID (numeric). Enables browser Pixel + dedupes with CAPI via shared event_id.",
