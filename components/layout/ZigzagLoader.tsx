@@ -2,8 +2,7 @@
 
 /**
  * ZigzagLoader - the mark's white signal zigzag, drawing itself.
- * Used as the route-loading state (app/loading.tsx) and as the
- * first-visit splash (FirstLoadSplash).
+ * Used as the route-loading state (app/loading.tsx).
  */
 
 const ZIGZAG = "M 14 40 L 38 16 L 52 36 L 72 10 L 86 34 L 106 20";

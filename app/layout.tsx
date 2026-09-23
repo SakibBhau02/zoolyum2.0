@@ -3,7 +3,6 @@ import localFont from "next/font/local";
 import { Inter, Instrument_Serif } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
-import { FirstLoadSplash } from "@/components/layout/FirstLoadSplash";
 import { getSetting, getSocials } from "@/lib/content";
 import { SITE_URL } from "@/lib/data";
 
@@ -100,7 +99,6 @@ export default async function RootLayout({
             __html: `document.documentElement.classList.add("js")`,
           }}
         />
-        <FirstLoadSplash />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
