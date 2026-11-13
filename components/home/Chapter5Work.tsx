@@ -14,7 +14,7 @@ import { Tilt } from "@/components/ui/Tilt";
  * Featured work as positions held, on a native snap rail with visible
  * controls and a progress thread. Desktop previously pinned this
  * section and scrubbed the rail sideways for ~2.3 viewports of wheel
- * travel — the same scroll-jacking cost as Chapter 3, for a rail that
+ * travel Ã¢â‚¬â€ the same scroll-jacking cost as Chapter 3, for a rail that
  * already worked natively on touch. The reader now keeps full control
  * of vertical position while the rail is something they choose to move.
  */
@@ -43,7 +43,7 @@ export function Chapter5Work({ projects, copy }: { projects: ContentProject[]; c
   return (
     <section
       id="chapter-work"
-      className="relative overflow-hidden py-20 md:py-28"
+      className="relative overflow-hidden py-14 md:py-20"
       aria-label="Ground we've helped clients hold"
     >
       <div className="section-shell relative z-10">
@@ -76,7 +76,7 @@ export function Chapter5Work({ projects, copy }: { projects: ContentProject[]; c
             tabIndex={0}
             role="group"
             aria-label="Selected work"
-            className="mt-14 flex snap-x snap-mandatory gap-6 overflow-x-auto pb-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="mt-10 flex snap-x snap-mandatory gap-6 overflow-x-auto pb-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             {projects.map((project) => (
               <Tilt key={project.slug} className="w-[300px] shrink-0 snap-center md:w-[248px]">
@@ -130,15 +130,15 @@ export function Chapter5Work({ projects, copy }: { projects: ContentProject[]; c
           </div>
 
           {/* Signal Thread progress for the rail */}
-          <div className="mt-6 flex items-center gap-6" aria-hidden="true">
-            <div className="relative h-[2px] flex-1 overflow-hidden bg-olive/25">
+          <div className="mt-6 flex items-center gap-6">
+            <div className="relative h-[2px] flex-1 overflow-hidden bg-olive/25" aria-hidden="true">
               <div
                 ref={fillRef}
                 className="thread h-full w-full origin-left"
                 style={{ transform: "scaleX(0)" }}
               />
             </div>
-            <span className="font-body text-xs tracking-[0.2em] text-ivory/50">
+            <span aria-hidden="true" className="font-body text-xs tracking-[0.2em] text-ivory/60">
               DRAG OR SWIPE
             </span>
             <div className="flex gap-2">

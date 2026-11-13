@@ -30,13 +30,13 @@ function GtmPageViews() {
 
 /**
  * GTM container loader. Disable GTM's default Page View trigger and
- * use the manual page_view event above — App Router client navigation
+ * use the manual page_view event above â€” App Router client navigation
  * has no full page load, so the default trigger double-counts / misses.
  */
 export function GoogleTagManager({ id }: { id: string }) {
   return (
     <>
-      <Script id="gtm-base" strategy="afterInteractive">
+      <Script id="gtm-base" strategy="lazyOnload">
         {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${id}');`}
       </Script>
       <Suspense fallback={null}>

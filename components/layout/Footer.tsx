@@ -197,9 +197,9 @@ export function Footer({
         <div className="section-shell flex flex-col items-center justify-between gap-4 py-6 sm:flex-row">
           <p className="font-display text-sm font-semibold tracking-wide text-ivory">
             {tagline}{" "}
-            <span className="font-normal text-ivory/50">{foot.based}</span>
+            <span className="font-normal text-ivory/65">{foot.based}</span>
           </p>
-          <div className="flex gap-6 font-body text-xs text-ivory/50">
+          <div className="flex gap-6 font-body text-xs text-ivory/65">
             {legal.map((l) => (
               <Link key={l.href} href={l.href} className="inline-flex min-h-[44px] items-center transition-colors hover:text-sienna-bright">
                 {l.label}

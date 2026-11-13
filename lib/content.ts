@@ -323,13 +323,17 @@ export async function getService(slug: string): Promise<ContentService | null> {
   return first(async () => {
     const s = await prisma.service.findUnique({ where: { slug } });
     if (!s) return null;
+    // Raw columns go straight into normService, which coerces every
+    // JSON column with arr(). Pre-mapping them here called .map() on
+    // whatever the column held, so one non-array `story` value threw
+    // and silently dropped the whole service to the TS fallback.
     return normService({
       ...s,
-      proofStat: s.proofStat as { value: string; label: string },
-      deliverables: arr(s.deliverables, String),
-      process: (s.process as { step: string; detail: string }[]).map((x) => ({ ...x })),
-      faqs: (s.faqs as { q: string; a: string }[]).map((x) => ({ ...x })),
-      story: (s.story as { label: string; title: string; body: string }[] | null)?.map((x) => ({ ...x })) ?? null,
+      proofStat: s.proofStat,
+      deliverables: s.deliverables,
+      process: s.process,
+      faqs: s.faqs,
+      story: s.story,
     });
   }, () => {
     const s = SERVICES.find((x) => x.slug === slug);

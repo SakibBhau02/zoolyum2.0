@@ -10,11 +10,11 @@ import { createLead } from "@/app/admin/actions";
 import { fireBrowserLead, newLeadContext } from "@/lib/tracking-client";
 
 /**
- * Chapter 6 â€” What Clients Say.
+ * Chapter 6 Ã¢â‚¬â€ What Clients Say.
  * A Warm Ivory clearing with two always-moving testimonial rivers:
- * one flowing left â†’ right, one right â†’ left. Hover pauses a row;
+ * one flowing left Ã¢â€ â€™ right, one right Ã¢â€ â€™ left. Hover pauses a row;
  * reduced-motion falls back to a static grid. The inline newsletter
- * capture stays â€” "One strategic insight a month. No noise."
+ * capture stays Ã¢â‚¬â€ "One strategic insight a month. No noise."
  */
 export type VoicesCopy = {
   eyebrow: string; title: string; newsEyebrow: string; newsTitle: string; newsLead: string;
@@ -27,7 +27,7 @@ export function Chapter6Voices({ testimonials, copy, news }: { testimonials: Tes
 
   return (
     <section
-      className="section-light relative overflow-hidden py-16 md:py-24"
+      className="section-light relative overflow-hidden py-12 md:py-16"
       aria-label="What clients say"
     >
       <div className="section-shell relative z-10">
@@ -39,8 +39,8 @@ export function Chapter6Voices({ testimonials, copy, news }: { testimonials: Tes
         </Reveal>
       </div>
 
-      {/* The two rivers â€” always moving */}
-      <Reveal delay={100} className="relative z-10 mt-12">
+      {/* The two rivers Ã¢â‚¬â€ always moving */}
+      <Reveal delay={100} className="relative z-10 mt-9">
         <MarqueeRow direction="ltr" duration={52} className="py-3">
           {rowA.map((t) => (
             <TestimonialCard key={`a-${t.company}`} {...t} />
@@ -54,11 +54,11 @@ export function Chapter6Voices({ testimonials, copy, news }: { testimonials: Tes
       </Reveal>
 
       <div className="section-shell relative z-10">
-        {/* Inline newsletter capture â€” sequenced lead point */}
+        {/* Inline newsletter capture Ã¢â‚¬â€ sequenced lead point */}
         <Reveal delay={160}>
           <div
             data-lead-inline
-            className="mt-16 rounded-2xl border border-espresso/10 bg-ivory-deep p-9 md:p-12"
+            className="mt-12 rounded-2xl border border-espresso/10 bg-ivory-deep p-7 md:p-9"
           >
             <div className="grid items-center gap-8 md:grid-cols-2">
               <div>
@@ -75,7 +75,7 @@ export function Chapter6Voices({ testimonials, copy, news }: { testimonials: Tes
           </div>
         </Reveal>
 
-        <HorizonRule className="mt-20 opacity-40" />
+        <HorizonRule className="mt-12 opacity-40" />
       </div>
     </section>
   );
@@ -93,9 +93,9 @@ function TestimonialCard({
   industry: string;
 }) {
   return (
-    <figure className="card-surface-light flex h-full w-[320px] shrink-0 flex-col p-7 md:w-[430px] md:p-8">
+    <figure className="card-surface-light flex h-full w-[320px] shrink-0 flex-col p-6 md:w-[430px] md:p-7">
       <blockquote className="flex-1">
-        <p className="line-clamp-4 font-accent text-[1.0625rem] italic leading-relaxed text-espresso/85 md:text-lg">
+        <p className="line-clamp-3 font-accent text-[1.0625rem] italic leading-relaxed text-espresso/85 md:text-lg">
           &ldquo;{quote}&rdquo;
         </p>
       </blockquote>

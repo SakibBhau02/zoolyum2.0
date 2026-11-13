@@ -52,3 +52,8 @@ dev-server.err.log
 /public/uploads/
 .vercel
 .env*
+
+# local QA artefacts
+.lighthouse-*.json
+*-server.log
+qa-*.jpeg

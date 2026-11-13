@@ -45,7 +45,12 @@ export function Logo({ withTagline = false }: { withTagline?: boolean }) {
   };
 
   return (
-    <Link href="/" onClick={handleClick} aria-label="Zoolyum - home" className="group flex items-center gap-3">
+    <Link
+      href="/"
+      onClick={handleClick}
+      aria-label="Zoolyum, Consultancy. Strategy. Solution. Home"
+      className="group flex items-center gap-3"
+    >
       <span className="flex flex-col">
         <svg
           viewBox="0 0 1485.77 601.04"
@@ -71,7 +76,10 @@ export function Logo({ withTagline = false }: { withTagline?: boolean }) {
         </svg>
       </span>
       {withTagline && (
-        <span className="hidden border-l border-olive/40 pl-3 text-left font-body text-[10px] font-medium leading-snug tracking-[0.14em] text-ivory/50 xl:block">
+        <span
+          aria-hidden="true"
+          className="hidden border-l border-olive/40 pl-3 text-left font-body text-[10px] font-medium leading-snug tracking-[0.14em] text-ivory/60 xl:block"
+        >
           CONSULTANCY.
           <br />
           STRATEGY.

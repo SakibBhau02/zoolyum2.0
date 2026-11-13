@@ -50,7 +50,7 @@ export function Chapter3Method({ copy }: { copy: MethodCopy }) {
 
   return (
     <section
-      className="relative overflow-hidden border-y border-olive/15 bg-umber/40 py-20 md:py-28"
+      className="relative overflow-hidden border-y border-olive/15 bg-umber/40 py-14 md:py-20"
       aria-label="The method"
     >
       <div className="dappled dappled--alt" aria-hidden="true" />
@@ -84,7 +84,7 @@ export function Chapter3Method({ copy }: { copy: MethodCopy }) {
         </div>
 
         {/* The Signal Thread, drawn forward by the rail */}
-        <div className="relative mt-12">
+        <div className="relative mt-10">
           <div
             className="absolute left-0 right-0 top-[11px] hidden h-[2px] overflow-hidden bg-olive/25 md:block"
             aria-hidden="true"
@@ -113,7 +113,7 @@ export function Chapter3Method({ copy }: { copy: MethodCopy }) {
                   aria-hidden="true"
                   className="absolute left-8 top-[7px] hidden h-[10px] w-[10px] rounded-full border-2 border-sienna bg-umber md:block"
                 />
-                <span className="font-display text-4xl font-semibold tracking-tight text-sienna/30">
+                <span className="font-display text-4xl font-semibold tracking-tight text-sienna/90">
                   {stage.num}
                 </span>
                 <h3 className="mt-4 font-display text-2xl font-semibold text-ivory">

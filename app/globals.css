@@ -560,13 +560,15 @@ html[data-reading] .ambient-drift {
    CHAPTER 1 — The Noise (4-beat sequence)
    ============================================================ */
 
-/* First-Read Moment: slower, deliberate hero reveal */
+/* First-Read Moment: deliberate but not slow — this is the LCP
+   hero, so a 900ms fade was pushing Largest Contentful Paint out
+   by most of a second on mobile. */
 .js .first-read {
   opacity: 0;
-  animation: first-read-in 0.7s var(--ease-read) both;
+  animation: first-read-in 0.5s var(--ease-read) both;
 }
 .js .first-read-slow {
-  animation-duration: 900ms;
+  animation-duration: 600ms;
 }
 @keyframes first-read-in {
   from {

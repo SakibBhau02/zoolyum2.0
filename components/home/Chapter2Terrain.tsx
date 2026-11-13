@@ -216,7 +216,7 @@ const READ_NOISE = [
   { text: "next-level", top: "56%", left: "40%", size: "0.9rem", rot: "6deg" },
 ] as const;
 
-const READ_SIGNALS = ["Market Ã¢â‚¬â€ mapped", "Competitors Ã¢â‚¬â€ profiled", "Buyers Ã¢â‚¬â€ heard"] as const;
+const READ_SIGNALS = ["Market ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â mapped", "Competitors ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â profiled", "Buyers ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â heard"] as const;
 
 function ReadCompare() {
   return (
@@ -389,12 +389,12 @@ export function Chapter2Terrain({ copy }: { copy: TaglineCopy }) {
       {/* ============ 2.0 - THE OPENER ============ */}
       <section
         ref={arrivalRef}
-        className="arrival-card relative flex min-h-[72svh] items-center justify-center overflow-hidden bg-espresso"
+        className="arrival-card relative flex items-center justify-center overflow-hidden bg-espresso"
         aria-label="Chapter 02 - The tagline"
       >
         <div className="grain" aria-hidden="true" />
 
-        <div className="section-shell relative z-10 py-20 text-center">
+        <div className="section-shell relative z-10 py-16 text-center md:py-20">
           <p className="ar-label mx-auto flex max-w-lg flex-wrap items-center justify-center gap-3 font-body text-[13px] font-semibold uppercase tracking-[0.08em] text-olive-hi">
             <span aria-hidden="true" className="h-px w-6 shrink-0 bg-sienna" />
             <span>{copy.eyebrow}</span>
@@ -432,10 +432,10 @@ export function Chapter2Terrain({ copy }: { copy: TaglineCopy }) {
       {/* ============ 2.1 - CONSULTANCY / THE READ ============ */}
       <section
         ref={act1Ref}
-        className="act act-01 relative scroll-mt-20 overflow-hidden py-16 md:py-20"
+        className="act act-01 relative scroll-mt-20 overflow-hidden py-12 md:py-14"
         aria-label="Act 01 - Consultancy, the read"
       >
-        <div className="section-shell grid items-center gap-12 lg:grid-cols-12">
+        <div className="section-shell grid items-center gap-10 lg:grid-cols-12">
           <Reveal className="lg:col-span-5">
             <p className="font-body text-[11px] font-semibold uppercase tracking-[0.22em] text-olive-hi">
               {copy.act1step}
@@ -459,12 +459,11 @@ export function Chapter2Terrain({ copy }: { copy: TaglineCopy }) {
       {/* ============ 2.2 - STRATEGY / THE MAP ============ */}
       <section
         ref={act2Ref}
-        className="act act-02 relative overflow-hidden py-16 md:py-20"
+        className="act act-02 relative overflow-hidden py-12 md:py-14"
         aria-label="Act 02 - Strategy, the map"
       >
         <div className="section-shell">
-          <HorizonRule className="mb-14 opacity-40" />
-          <div className="grid items-center gap-12 lg:grid-cols-12">
+          <div className="grid items-center gap-10 lg:grid-cols-12">
             <Reveal className="lg:order-2 lg:col-span-5">
               <p className="font-body text-[11px] font-semibold uppercase tracking-[0.22em] text-olive-hi">
                 {copy.act2step}
@@ -489,12 +488,11 @@ export function Chapter2Terrain({ copy }: { copy: TaglineCopy }) {
       {/* ============ 2.3 - SOLUTION / THE BUILD ============ */}
       <section
         ref={act3Ref}
-        className="act act-03 relative overflow-hidden py-16 md:py-20"
+        className="act act-03 relative overflow-hidden py-12 md:py-14"
         aria-label="Act 03 - Solution, the build"
       >
         <div className="section-shell">
-          <HorizonRule className="mb-14 opacity-40" />
-          <div className="grid items-center gap-12 lg:grid-cols-12">
+          <div className="grid items-center gap-10 lg:grid-cols-12">
             <Reveal className="lg:col-span-5">
               <p className="font-body text-[11px] font-semibold uppercase tracking-[0.22em] text-olive-hi">
                 {copy.act3step}
@@ -519,16 +517,16 @@ export function Chapter2Terrain({ copy }: { copy: TaglineCopy }) {
       {/* ============ 2.4 - THE LOCKUP ============ */}
       <section
         ref={finaleRef}
-        className="lockup relative overflow-hidden pb-20 pt-16 md:pb-24 md:pt-20"
+        className="lockup relative overflow-hidden pb-14 pt-10 md:pb-16 md:pt-12"
         aria-label="The tagline, locked"
       >
         <div className="section-shell">
-          <HorizonRule className="mb-14 opacity-60" />
+          <HorizonRule className="mb-10 opacity-60" />
           <Reveal>
             <p className="eyebrow">{copy.lockupEyebrow}</p>
           </Reveal>
 
-          <div className="mt-10 grid gap-10 md:mt-12 md:grid-cols-3 md:gap-0">
+          <div className="mt-8 grid gap-8 md:mt-10 md:grid-cols-3 md:gap-0">
             {(copy.lockup.length > 0 ? copy.lockup : STAGES).map((s, i) => (
               <div key={s.word} className="flex flex-col items-center">
                 <h3 className="px-6 font-display text-[clamp(1.625rem,3vw,2.5rem)] font-semibold text-ivory">
@@ -554,10 +552,10 @@ export function Chapter2Terrain({ copy }: { copy: TaglineCopy }) {
           </div>
 
           <Reveal delay={120}>
-            <p className="mx-auto mt-10 max-w-xl text-center font-body text-sm leading-relaxed text-ivory/50">
+            <p className="mx-auto mt-8 max-w-xl text-center font-body text-sm leading-relaxed text-ivory/50">
               {copy.lockupNote}
             </p>
-            <div className="mt-6 text-center">
+            <div className="mt-5 text-center">
               <Link
                 href={copy.ctaHref}
                 className="btn-ghost inline-flex items-center whitespace-nowrap font-display text-sm font-semibold text-sienna-bright"

@@ -11,7 +11,7 @@ import { AccentSplit } from "@/components/ui/AccentSplit";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
-/* Marketing-noise fragments — 3 depth layers x 6, no repeats. */
+/* Marketing-noise fragments â€” 3 depth layers x 6, no repeats. */
 const FRAGMENT_LAYERS: { text: string; top: string; left: string; size: string }[][] = [
   [
     { text: "grow fast", top: "8%", left: "6%", size: "0.8125rem" },
@@ -39,7 +39,7 @@ const FRAGMENT_LAYERS: { text: string; top: string; left: string; size: string }
   ],
 ];
 
-/* Abstract, generic brand-mark silhouettes — never real logos. */
+/* Abstract, generic brand-mark silhouettes â€” never real logos. */
 const SILHOUETTES = [
   { cls: "rounded-full", top: "10%", left: "12%", size: 120, rot: 0, delay: "0s" },
   { cls: "rounded-2xl", top: "58%", left: "6%", size: 92, rot: 12, delay: "1.2s" },
@@ -49,7 +49,7 @@ const SILHOUETTES = [
   { cls: "rounded-md", top: "82%", left: "44%", size: 84, rot: -14, delay: "1.6s" },
 ] as const;
 
-/* Network nodes/edges — the market map that emerges in the fog.
+/* Network nodes/edges â€” the market map that emerges in the fog.
    Coordinates mirror the silhouettes on a 1440x900 grid. */
 const NODES = [
   { x: 178, y: 145 },
@@ -73,7 +73,7 @@ const EDGES: [number, number][] = [
 const BEATS = ["STILL", "NOISE", "FOG", "SIGNAL"] as const;
 
 /**
- * Chapter 1 — "The Noise" (spec 09.1), v5.1 edition.
+ * Chapter 1 â€” "The Noise" (spec 09.1), v5.1 edition.
  * A fully choreographed four-beat opening with a live noise meter,
  * beat indicator, network fog, and a comet-led Signal Thread that
  * hands off into the site-wide scroll indicator.
@@ -115,14 +115,14 @@ export function Chapter1Noise({ copy }: { copy: HeroCopy }) {
            meter, beats and signal flag stay in step with the scrubbed
            animation instead of lagging behind it. */
         const syncFrame = (p: number) => {
-          /* Signal flag → scroll indicator handoff */
+          /* Signal flag â†’ scroll indicator handoff */
           if (p > 0.92) {
             document.documentElement.dataset.signal = "on";
           } else {
             delete document.documentElement.dataset.signal;
           }
 
-          /* Market noise meter — rises through 1b/1c, zeroes at 1d */
+          /* Market noise meter â€” rises through 1b/1c, zeroes at 1d */
           let noise = 0;
           if (p <= 0.04) noise = (p / 0.04) * 0.08;
           else if (p < 0.3) noise = 0.08 + ((p - 0.04) / 0.26) * 0.4;
@@ -150,10 +150,10 @@ export function Chapter1Noise({ copy }: { copy: HeroCopy }) {
           scrollTrigger: {
             trigger: seq,
             start: "top top",
-            /* Was +=340% — 3.4 viewports of pinned scroll for three
+            /* Was +=340% â€” 3.4 viewports of pinned scroll for three
                headline crossfades, which is the main reason the page
                felt twice as long as its content. */
-            end: "+=100%",
+            end: "+=85%",
             pin: true,
             /* 1s of catch-up reads as "disconnected", not "premium".
                0.35 keeps a hint of glide while staying responsive. */
@@ -290,12 +290,12 @@ export function Chapter1Noise({ copy }: { copy: HeroCopy }) {
 
   return (
     <div ref={scope}>
-      {/* ============ BEAT 1a — THE HELD BREATH ============ */}
+      {/* ============ BEAT 1a â€” THE HELD BREATH ============ */}
       <StaticHero copy={copy} />
 
-      {/* ============ BEATS 1b-1d — PINNED SEQUENCE ============ */}
+      {/* ============ BEATS 1b-1d â€” PINNED SEQUENCE ============ */}
       <section className="ch1-seq relative h-svh overflow-hidden bg-espresso" aria-label="The noise, the fog, and the signal">
-        {/* Background layers — masked away from the text-safe zone */}
+        {/* Background layers â€” masked away from the text-safe zone */}
         <div className="text-safe-mask absolute inset-0" aria-hidden="true">
           {FRAGMENT_LAYERS.map((layer, i) => (
             <div key={i} className={`frag-layer frag-layer-${i} ambient-drift absolute inset-0 opacity-0`}>
@@ -326,7 +326,7 @@ export function Chapter1Noise({ copy }: { copy: HeroCopy }) {
               />
             ))}
           </div>
-          {/* The market map — nodes and edges emerging through the fog */}
+          {/* The market map â€” nodes and edges emerging through the fog */}
           <div className="network-layer absolute inset-0 opacity-0">
             <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" className="h-full w-full">
               {EDGES.map(([a, b], i) => (
@@ -360,7 +360,7 @@ export function Chapter1Noise({ copy }: { copy: HeroCopy }) {
         <span className="ch1-trail-2 absolute left-0 top-1/2 z-30 -mt-[2px] h-1 w-1 rounded-full bg-sienna-bright opacity-0" aria-hidden="true" />
         <span className="ch1-trail-3 absolute left-0 top-1/2 z-30 -mt-px h-0.5 w-0.5 rounded-full bg-sienna-bright opacity-0" aria-hidden="true" />
 
-        {/* Headlines — one grid cell, crossfaded by scroll */}
+        {/* Headlines â€” one grid cell, crossfaded by scroll */}
         <div className="relative z-20 flex h-full items-center justify-center">
           <div className="section-shell text-center">
             <div className="grid">
@@ -416,7 +416,7 @@ export function Chapter1Noise({ copy }: { copy: HeroCopy }) {
   );
 }
 
-/** Beat 1a — the landing hero: the held breath. */
+/** Beat 1a â€” the landing hero: the held breath. */
 function StaticHero({ copy }: { copy: HeroCopy }) {
   return (
     <section
@@ -433,24 +433,24 @@ function StaticHero({ copy }: { copy: HeroCopy }) {
       </span>
 
       <div className="section-shell relative z-10 py-32 text-center">
-        <p className="first-read eyebrow mx-auto inline-block" style={{ animationDelay: "150ms" }}>
+        <p className="first-read eyebrow mx-auto inline-block" style={{ animationDelay: "0ms" }}>
           {copy.eyebrow}
         </p>
         <h1
           className="first-read first-read-slow mx-auto mt-7 max-w-4xl font-display text-display-1 font-semibold text-ivory"
-          style={{ animationDelay: "500ms" }}
+          style={{ animationDelay: "180ms" }}
         >
           {copy.titleA} <span className="accent-word">{copy.titleAccent}</span> {copy.titleB}
         </h1>
         <p
           className="first-read body-copy mx-auto mt-7 font-body text-lead text-ivory/65"
-          style={{ animationDelay: "850ms" }}
+          style={{ animationDelay: "320ms" }}
         >
           {copy.sub}
         </p>
         <div
           className="first-read mt-11 flex flex-col items-center justify-center gap-4 sm:flex-row"
-          style={{ animationDelay: "1050ms" }}
+          style={{ animationDelay: "440ms" }}
         >
           <LinkButton href={copy.ctaPrimaryHref}>{copy.ctaPrimary}</LinkButton>
           <LinkButton href={copy.ctaSecondaryHref} variant="secondary">
@@ -461,7 +461,7 @@ function StaticHero({ copy }: { copy: HeroCopy }) {
 
       <div
         className="first-read absolute bottom-8 left-1/2 z-10 -translate-x-1/2 text-center"
-        style={{ animationDelay: "1300ms" }}
+        style={{ animationDelay: "620ms" }}
         aria-hidden="true"
       >
         <p className="whitespace-nowrap font-body text-[10px] font-medium tracking-[0.2em] text-ivory/50">
