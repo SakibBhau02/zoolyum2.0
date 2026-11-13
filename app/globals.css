@@ -53,8 +53,30 @@
    BASE
    ============================================================ */
 
+/* Smooth scrolling is owned by Lenis (components/layout/SmoothScroll).
+   A global `scroll-behavior: smooth` here fights Lenis AND GSAP
+   ScrollTrigger's scrub, so it is deliberately not set. Next.js route
+   transitions stay instant via data-scroll-behavior on <html>. */
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
+}
+
+/* --- Lenis --- */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
 }
 
 body {
@@ -316,6 +338,11 @@ html[data-reading] .ambient-drift {
     color 0.3s ease-out,
     background-color 0.3s ease-out,
     border-color 0.3s ease-out;
+}
+.btn:hover,
+.btn:focus-visible {
+  /* Promote only while it actually animates — a permanent
+     will-change on every button creates dozens of idle layers. */
   will-change: transform;
 }
 .btn:active {
@@ -708,14 +735,45 @@ html[data-reading] .ambient-drift {
    v5.1 — AMBIENT MOTION & CINEMATIC LAYERS
    ============================================================ */
 
-/* --- Film grain --- */
+/* --- Route transition: never blank the screen ---
+   The fallback stays invisible for the first ~180ms so a fast
+   navigation resolves without a flash; if it does appear it fades
+   in gently instead of snapping over the page. */
+.route-loading__scrim {
+  opacity: 0;
+  animation: route-scrim-in 0.25s ease-out 0.18s forwards;
+}
+.route-loading__mark {
+  opacity: 0;
+  animation: route-mark-in 0.3s ease-out 0.18s forwards;
+}
+@keyframes route-scrim-in {
+  to {
+    opacity: 1;
+  }
+}
+@keyframes route-mark-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* --- Film grain ---
+   Kept tight to the viewport (inset -8%, not -60%) and its jitter is a
+   2% translate: same film feel, ~1/4 the pixels to repaint. */
 .grain {
   position: absolute;
-  inset: -60%;
+  inset: -8%;
   pointer-events: none;
   opacity: 0.05;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   animation: grain-jitter 0.9s steps(2) infinite;
+  will-change: transform;
 }
 @keyframes grain-jitter {
   0% { transform: translate3d(0, 0, 0); }

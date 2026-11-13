@@ -5,6 +5,9 @@ import { useMediaQuery } from "@/lib/hooks";
 
 const COLORS = ["255, 80, 1", "255, 106, 38", "246, 241, 232"] as const;
 
+/** Target frame budget for the ambient field — deliberately below 60fps. */
+const FRAME_MS = 1000 / 30;
+
 type Mote = {
   x: number;
   y: number;
@@ -21,6 +24,14 @@ type Mote = {
  * fixed canvas: the site is never perfectly still. Particles pause
  * while the reader pauses (data-reading), thin out on mobile, and
  * disappear entirely for reduced-motion users.
+ *
+ * Performance notes (these matter more than they look):
+ *  - No `mix-blend-screen`. A full-viewport blended layer forces the
+ *    compositor to re-blend the whole screen every frame, which is what
+ *    made scrolling feel heavy. The motes are already additive-looking
+ *    at their low alpha, so normal compositing is visually equivalent.
+ *  - Capped at 30fps. Twinkling dust gains nothing from 60.
+ *  - Stops entirely on a hidden tab; skips clearing while paused.
  */
 export function AmbientParticles() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -36,13 +47,15 @@ export function AmbientParticles() {
     let w = 0;
     let h = 0;
     let raf = 0;
+    let last = 0;
+    let pausedFrameDrawn = false;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
     const resize = () => {
       w = window.innerWidth;
       h = window.innerHeight;
-      canvas.width = w * dpr;
-      canvas.height = h * dpr;
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
       canvas.style.width = `${w}px`;
       canvas.style.height = `${h}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -63,9 +76,16 @@ export function AmbientParticles() {
     const isMobile = w < 768;
     const motes: Mote[] = Array.from({ length: isMobile ? 14 : 30 }, spawn);
 
-    const tick = () => {
-      ctx.clearRect(0, 0, w, h);
+    const tick = (now: number) => {
+      raf = requestAnimationFrame(tick);
+      if (now - last < FRAME_MS) return;
+      last = now;
+
       const paused = document.documentElement.hasAttribute("data-reading");
+      if (paused && pausedFrameDrawn) return;
+      pausedFrameDrawn = paused;
+
+      ctx.clearRect(0, 0, w, h);
 
       for (const m of motes) {
         if (!paused) {
@@ -82,14 +102,24 @@ export function AmbientParticles() {
         ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2);
         ctx.fill();
       }
-      raf = requestAnimationFrame(tick);
+    };
+
+    const onVisibility = () => {
+      if (document.hidden) {
+        cancelAnimationFrame(raf);
+      } else {
+        last = 0;
+        raf = requestAnimationFrame(tick);
+      }
     };
 
     raf = requestAnimationFrame(tick);
     window.addEventListener("resize", resize);
+    document.addEventListener("visibilitychange", onVisibility);
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
+      document.removeEventListener("visibilitychange", onVisibility);
     };
   }, [reduced]);
 
@@ -99,7 +129,7 @@ export function AmbientParticles() {
     <canvas
       ref={canvasRef}
       aria-hidden="true"
-      className="pointer-events-none fixed inset-0 z-30 mix-blend-screen"
+      className="pointer-events-none fixed inset-0 z-30"
     />
   );
 }

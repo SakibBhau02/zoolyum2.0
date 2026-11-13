@@ -73,7 +73,7 @@ export default async function ServicesPage() {
                         <p className="font-display text-4xl font-semibold tracking-tight text-sienna tabular-nums">
                           {service.proofStat.value}
                         </p>
-                        <p className="mt-1 max-w-[180px] font-body text-xs leading-relaxed text-ivory/45">
+                        <p className="mt-1 max-w-[180px] font-body text-xs leading-relaxed text-ivory/50">
                           {service.proofStat.label}
                         </p>
                       </div>
@@ -85,7 +85,7 @@ export default async function ServicesPage() {
                     {ACTS.map((act, a) => (
                       <Reveal key={act.key} delay={a * 120}>
                         <div className="card-surface h-full p-7">
-                          <p className="font-body text-[10px] font-semibold uppercase tracking-[0.22em] text-ivory/40">
+                          <p className="font-body text-[10px] font-semibold uppercase tracking-[0.22em] text-ivory/50">
                             {act.label}
                           </p>
                           <p className="mt-1 font-accent text-sm italic text-olive">

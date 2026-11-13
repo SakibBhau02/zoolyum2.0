@@ -109,7 +109,7 @@ export default async function LeadsPage({
       <div className="mt-5 space-y-3">
         {rows.length === 0 && (
           <div className="card-surface p-8 text-center">
-            <p className="font-body text-sm text-ivory/45">No leads match these filters.</p>
+            <p className="font-body text-sm text-ivory/50">No leads match these filters.</p>
             <Link href="/admin/leads" className="mt-3 inline-block font-body text-sm font-semibold text-sienna-bright hover:underline">Clear filters →</Link>
           </div>
         )}
@@ -126,7 +126,7 @@ export default async function LeadsPage({
                     <span className="ml-2 align-middle font-body text-xs text-sienna-bright">{payloadPosition(l.payload)}</span>
                   )}
                 </p>
-                <p className="mt-1 font-body text-xs text-ivory/45">
+                <p className="mt-1 font-body text-xs text-ivory/50">
                   {l.email} · {new Date(l.createdAt).toLocaleString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
                 </p>
               </div>

@@ -65,7 +65,7 @@ function NewsletterForm({ news }: { news: NewsCopy }) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder={news.placeholder}
-            className="w-full bg-transparent px-4 py-3 font-body text-sm text-ivory placeholder:text-ivory/40 focus:outline-none"
+            className="w-full bg-transparent px-4 py-3 font-body text-sm text-ivory placeholder:text-ivory/50 focus:outline-none"
           />
           <button
             type="submit"
@@ -143,7 +143,7 @@ export function Footer({
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="font-body text-sm text-ivory/65 transition-colors hover:text-sienna-bright"
+                  className="inline-flex min-h-[44px] items-center font-body text-sm text-ivory/65 transition-colors hover:text-sienna-bright"
                 >
                   {link.label}
                 </Link>
@@ -159,7 +159,7 @@ export function Footer({
               <li key={service.slug}>
                 <Link
                   href={`/services/${service.slug}`}
-                  className="font-body text-sm text-ivory/65 transition-colors hover:text-sienna-bright"
+                  className="inline-flex min-h-[44px] items-center font-body text-sm text-ivory/65 transition-colors hover:text-sienna-bright"
                 >
                   {service.name}
                 </Link>
@@ -199,9 +199,9 @@ export function Footer({
             {tagline}{" "}
             <span className="font-normal text-ivory/50">{foot.based}</span>
           </p>
-          <div className="flex gap-6 font-body text-xs text-ivory/45">
+          <div className="flex gap-6 font-body text-xs text-ivory/50">
             {legal.map((l) => (
-              <Link key={l.href} href={l.href} className="transition-colors hover:text-sienna-bright">
+              <Link key={l.href} href={l.href} className="inline-flex min-h-[44px] items-center transition-colors hover:text-sienna-bright">
                 {l.label}
               </Link>
             ))}

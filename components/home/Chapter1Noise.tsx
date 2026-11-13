@@ -110,46 +110,55 @@ export function Chapter1Noise({ copy }: { copy: HeroCopy }) {
         const seq = scope.current?.querySelector<HTMLElement>(".ch1-seq");
         if (!seq) return;
 
+        /* One function drives every scroll-linked readout. It is called
+           from the timeline's own onUpdate (not ScrollTrigger's), so the
+           meter, beats and signal flag stay in step with the scrubbed
+           animation instead of lagging behind it. */
+        const syncFrame = (p: number) => {
+          /* Signal flag → scroll indicator handoff */
+          if (p > 0.92) {
+            document.documentElement.dataset.signal = "on";
+          } else {
+            delete document.documentElement.dataset.signal;
+          }
+
+          /* Market noise meter — rises through 1b/1c, zeroes at 1d */
+          let noise = 0;
+          if (p <= 0.04) noise = (p / 0.04) * 0.08;
+          else if (p < 0.3) noise = 0.08 + ((p - 0.04) / 0.26) * 0.4;
+          else if (p < 0.6) noise = 0.48 + ((p - 0.3) / 0.3) * 0.47;
+          else if (p < 0.7) noise = 0.95 * (1 - (p - 0.6) / 0.1);
+          if (noiseFillRef.current) {
+            noiseFillRef.current.style.transform = `scaleX(${Math.max(0, Math.min(1, noise))})`;
+          }
+          if (noiseValueRef.current) {
+            noiseValueRef.current.textContent = `${Math.round(Math.max(0, Math.min(1, noise)) * 100)}%`;
+          }
+
+          /* Beat indicator */
+          const step = p < 0.04 ? 0 : p < 0.3 ? 1 : p < 0.6 ? 2 : 3;
+          const steps = beatsRef.current?.children;
+          if (steps) {
+            for (let i = 0; i < steps.length; i++) {
+              (steps[i] as HTMLElement).dataset.active = i === step ? "true" : "false";
+            }
+          }
+        };
+
         const tl = gsap.timeline({
+          onUpdate: () => syncFrame(tl.progress()),
           scrollTrigger: {
             trigger: seq,
             start: "top top",
-            end: "+=340%",
+            /* Was +=340% — 3.4 viewports of pinned scroll for three
+               headline crossfades, which is the main reason the page
+               felt twice as long as its content. */
+            end: "+=100%",
             pin: true,
-            scrub: 1,
+            /* 1s of catch-up reads as "disconnected", not "premium".
+               0.35 keeps a hint of glide while staying responsive. */
+            scrub: 0.35,
             anticipatePin: 1,
-            onUpdate: (self) => {
-              const p = self.progress;
-
-              /* Signal flag → scroll indicator handoff */
-              if (p > 0.92) {
-                document.documentElement.dataset.signal = "on";
-              } else {
-                delete document.documentElement.dataset.signal;
-              }
-
-              /* Market noise meter — rises through 1b/1c, zeroes at 1d */
-              let noise = 0;
-              if (p <= 0.04) noise = (p / 0.04) * 0.08;
-              else if (p < 0.3) noise = 0.08 + ((p - 0.04) / 0.26) * 0.4;
-              else if (p < 0.6) noise = 0.48 + ((p - 0.3) / 0.3) * 0.47;
-              else if (p < 0.7) noise = 0.95 * (1 - (p - 0.6) / 0.1);
-              if (noiseFillRef.current) {
-                noiseFillRef.current.style.transform = `scaleX(${Math.max(0, Math.min(1, noise))})`;
-              }
-              if (noiseValueRef.current) {
-                noiseValueRef.current.textContent = `${Math.round(Math.max(0, Math.min(1, noise)) * 100)}%`;
-              }
-
-              /* Beat indicator */
-              const step = p < 0.04 ? 0 : p < 0.3 ? 1 : p < 0.6 ? 2 : 3;
-              const steps = beatsRef.current?.children;
-              if (steps) {
-                for (let i = 0; i < steps.length; i++) {
-                  (steps[i] as HTMLElement).dataset.active = i === step ? "true" : "false";
-                }
-              }
-            },
           },
         });
 
@@ -162,8 +171,8 @@ export function Chapter1Noise({ copy }: { copy: HeroCopy }) {
         )
           .fromTo(
             ".ch1-headline[data-beat='b']",
-            { opacity: 0, y: 24, filter: "blur(5px)" },
-            { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.1, ease: "power2.out" },
+            { opacity: 0, y: 24 },
+            { opacity: 1, y: 0, duration: 0.1, ease: "power2.out" },
             0.04
           )
           .to(".frag-layer-0", { yPercent: -10, ease: "none", duration: 1 }, 0)
@@ -171,11 +180,11 @@ export function Chapter1Noise({ copy }: { copy: HeroCopy }) {
           .to(".frag-layer-2", { yPercent: -36, ease: "none", duration: 1 }, 0)
 
         /* --- Beat 1c: the fog thickens --- */
-          .to(".ch1-headline[data-beat='b']", { opacity: 0, y: -24, filter: "blur(5px)", duration: 0.06, ease: "power2.in" }, 0.3)
+          .to(".ch1-headline[data-beat='b']", { opacity: 0, y: -24, duration: 0.06, ease: "power2.in" }, 0.3)
           .fromTo(
             ".ch1-headline[data-beat='c']",
-            { opacity: 0, y: 24, filter: "blur(5px)" },
-            { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.09, ease: "power2.out" },
+            { opacity: 0, y: 24 },
+            { opacity: 1, y: 0, duration: 0.09, ease: "power2.out" },
             0.35
           )
           .fromTo(".silhouette-layer", { opacity: 0 }, { opacity: 1, duration: 0.16, ease: "power1.inOut" }, 0.3)
@@ -185,7 +194,7 @@ export function Chapter1Noise({ copy }: { copy: HeroCopy }) {
           .fromTo(".ch1-vignette", { opacity: 0 }, { opacity: 0.75, duration: 0.22, ease: "none" }, 0.32)
 
         /* --- Beat 1d: the Signal Thread --- */
-          .to(".ch1-headline[data-beat='c']", { opacity: 0, y: -24, filter: "blur(5px)", duration: 0.06, ease: "power2.in" }, 0.6)
+          .to(".ch1-headline[data-beat='c']", { opacity: 0, y: -24, duration: 0.06, ease: "power2.in" }, 0.6)
           .to(".frag-layer", { opacity: 0.05, duration: 0.14, ease: "power1.inOut" }, 0.62)
           .to(".silhouette-layer", { opacity: 0.04, duration: 0.14, ease: "power1.inOut" }, 0.62)
           .to(".network-layer", { opacity: 0.03, duration: 0.14, ease: "power1.inOut" }, 0.62)
@@ -194,8 +203,8 @@ export function Chapter1Noise({ copy }: { copy: HeroCopy }) {
           .to(".ch1-vignette", { opacity: 0.1, duration: 0.14, ease: "none" }, 0.64)
           .fromTo(
             ".ch1-headline[data-beat='d']",
-            { opacity: 0, y: 20, filter: "blur(6px)" },
-            { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.08, ease: "power2.out" },
+            { opacity: 0, y: 20 },
+            { opacity: 1, y: 0, duration: 0.08, ease: "power2.out" },
             0.68
           )
           /* The decisive stroke, led by a comet with a particle trail */
@@ -373,7 +382,7 @@ export function Chapter1Noise({ copy }: { copy: HeroCopy }) {
         {/* Market noise meter */}
         <div className="absolute bottom-8 left-6 z-20 hidden w-44 md:block" aria-hidden="true">
           <div className="flex items-baseline justify-between">
-            <span className="font-body text-[10px] font-semibold tracking-[0.22em] text-ivory/40">
+            <span className="font-body text-[10px] font-semibold tracking-[0.22em] text-ivory/50">
               {copy.meter}
             </span>
             <span ref={noiseValueRef} className="font-display text-xs font-semibold tabular-nums text-sienna-bright">
@@ -455,7 +464,7 @@ function StaticHero({ copy }: { copy: HeroCopy }) {
         style={{ animationDelay: "1300ms" }}
         aria-hidden="true"
       >
-        <p className="font-body text-[11px] font-medium tracking-[0.26em] text-ivory/35">
+        <p className="whitespace-nowrap font-body text-[10px] font-medium tracking-[0.2em] text-ivory/50">
           {copy.hint}
         </p>
       </div>

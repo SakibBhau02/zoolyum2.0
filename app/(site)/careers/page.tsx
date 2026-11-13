@@ -151,7 +151,7 @@ export default async function CareersPage() {
                     </span>
                     <div>
                       <p className="font-body text-sm font-medium text-ivory/85">{m.name}</p>
-                      <p className="font-body text-xs text-ivory/40">{m.role}</p>
+                      <p className="font-body text-xs text-ivory/50">{m.role}</p>
                     </div>
                   </li>
                 ))}

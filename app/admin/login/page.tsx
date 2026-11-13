@@ -19,7 +19,7 @@ export default async function AdminLoginPage({
         <div className="mt-7">
           <LoginForm next={next ?? "/admin"} />
         </div>
-        <p className="mt-6 text-center font-body text-xs text-ivory/35">
+        <p className="mt-6 text-center font-body text-xs text-ivory/50">
           Studio members only · <Link href="/" className="text-sienna-bright hover:underline">Back to site</Link>
         </p>
       </div>

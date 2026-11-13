@@ -108,7 +108,7 @@ function TopicMenu({
             transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
             className="absolute left-0 top-full z-30 mt-3 w-64 rounded-xl border border-olive/30 bg-umber p-1.5 shadow-[0_24px_60px_-24px_rgba(0,0,0,0.7)]"
           >
-            <p className="px-3.5 pb-1.5 pt-2.5 font-body text-[10px] font-semibold uppercase tracking-[0.2em] text-ivory/35">
+            <p className="px-3.5 pb-1.5 pt-2.5 font-body text-[10px] font-semibold uppercase tracking-[0.2em] text-ivory/50">
               Filter by topic
             </p>
             <ul className="pb-1">
@@ -133,7 +133,7 @@ function TopicMenu({
                         <span className={`h-1.5 w-1.5 rounded-full ${active ? "bg-sienna-bright" : "bg-olive/50"}`} />
                         {t.name === "All" ? "All topics" : t.name}
                       </span>
-                      <span className="font-display text-[11px] font-semibold tabular-nums text-ivory/35">
+                      <span className="font-display text-[11px] font-semibold tabular-nums text-ivory/50">
                         {t.count}
                       </span>
                     </button>
@@ -181,7 +181,7 @@ export function BlogList({ posts }: { posts: ContentPost[] }) {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <TopicMenu topics={topics} filter={filter} onSelect={setFilter} />
-        <p className="font-body text-xs uppercase tracking-[0.18em] text-ivory/40" aria-live="polite">
+        <p className="font-body text-xs uppercase tracking-[0.18em] text-ivory/50" aria-live="polite">
           {visible.length} article{visible.length === 1 ? "" : "s"}
           {filter !== "All" ? " - " + filter : ""}
         </p>
@@ -223,7 +223,7 @@ export function BlogList({ posts }: { posts: ContentPost[] }) {
                 </span>
                 <div>
                   <p className="font-body text-sm font-medium text-ivory/80">{featured.author}</p>
-                  <p className="font-body text-xs text-ivory/40">
+                  <p className="font-body text-xs text-ivory/50">
                     {formatDate(featured.date)} - {featured.readTime} read
                   </p>
                 </div>
@@ -269,8 +269,8 @@ export function BlogList({ posts }: { posts: ContentPost[] }) {
                     {post.excerpt}
                   </p>
                   <div className="mt-5 flex items-center justify-between gap-3 border-t border-olive/20 pt-4">
-                    <span className="truncate font-body text-xs text-ivory/45">{post.author}</span>
-                    <span className="shrink-0 font-body text-xs text-ivory/40">{formatDate(post.date)} - {post.readTime}</span>
+                    <span className="truncate font-body text-xs text-ivory/50">{post.author}</span>
+                    <span className="shrink-0 font-body text-xs text-ivory/50">{formatDate(post.date)} - {post.readTime}</span>
                   </div>
                 </div>
               </Link>
@@ -280,7 +280,7 @@ export function BlogList({ posts }: { posts: ContentPost[] }) {
       </motion.div>
 
       {visible.length === 0 && (
-        <p className="mt-16 text-center font-accent text-xl italic text-ivory/45">
+        <p className="mt-16 text-center font-accent text-xl italic text-ivory/50">
           Nothing here yet - but the market keeps writing material.
         </p>
       )}

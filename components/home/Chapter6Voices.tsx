@@ -10,11 +10,11 @@ import { createLead } from "@/app/admin/actions";
 import { fireBrowserLead, newLeadContext } from "@/lib/tracking-client";
 
 /**
- * Chapter 6 — What Clients Say.
+ * Chapter 6 â€” What Clients Say.
  * A Warm Ivory clearing with two always-moving testimonial rivers:
- * one flowing left → right, one right → left. Hover pauses a row;
+ * one flowing left â†’ right, one right â†’ left. Hover pauses a row;
  * reduced-motion falls back to a static grid. The inline newsletter
- * capture stays — "One strategic insight a month. No noise."
+ * capture stays â€” "One strategic insight a month. No noise."
  */
 export type VoicesCopy = {
   eyebrow: string; title: string; newsEyebrow: string; newsTitle: string; newsLead: string;
@@ -27,7 +27,7 @@ export function Chapter6Voices({ testimonials, copy, news }: { testimonials: Tes
 
   return (
     <section
-      className="section-light relative overflow-hidden py-24 md:py-32"
+      className="section-light relative overflow-hidden py-16 md:py-24"
       aria-label="What clients say"
     >
       <div className="section-shell relative z-10">
@@ -39,7 +39,7 @@ export function Chapter6Voices({ testimonials, copy, news }: { testimonials: Tes
         </Reveal>
       </div>
 
-      {/* The two rivers — always moving */}
+      {/* The two rivers â€” always moving */}
       <Reveal delay={100} className="relative z-10 mt-12">
         <MarqueeRow direction="ltr" duration={52} className="py-3">
           {rowA.map((t) => (
@@ -54,7 +54,7 @@ export function Chapter6Voices({ testimonials, copy, news }: { testimonials: Tes
       </Reveal>
 
       <div className="section-shell relative z-10">
-        {/* Inline newsletter capture — sequenced lead point */}
+        {/* Inline newsletter capture â€” sequenced lead point */}
         <Reveal delay={160}>
           <div
             data-lead-inline

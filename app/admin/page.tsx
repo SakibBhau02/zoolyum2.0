@@ -77,13 +77,13 @@ export default async function AdminDashboard() {
             <Link href="/admin/leads" className="font-body text-sm text-sienna-bright hover:underline">Inbox →</Link>
           </div>
           {recentLeads.length === 0 ? (
-            <p className="mt-4 font-body text-sm text-ivory/45">No submissions yet.</p>
+            <p className="mt-4 font-body text-sm text-ivory/50">No submissions yet.</p>
           ) : (
             <ul className="mt-4 space-y-3">
               {recentLeads.map((l) => (
                 <li key={l.id} className="flex flex-wrap items-center justify-between gap-2 border-t border-olive/15 pt-3 font-body text-sm">
-                  <span className="text-ivory/80">{l.name ?? l.email} <span className="text-ivory/40">· {l.kind}</span></span>
-                  <span className="text-xs text-ivory/40">{new Date(l.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}{l.read ? "" : " · unread"}</span>
+                  <span className="text-ivory/80">{l.name ?? l.email} <span className="text-ivory/50">· {l.kind}</span></span>
+                  <span className="text-xs text-ivory/50">{new Date(l.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}{l.read ? "" : " · unread"}</span>
                 </li>
               ))}
             </ul>
@@ -95,13 +95,13 @@ export default async function AdminDashboard() {
             <Link href="/admin/posts" className="font-body text-sm text-sienna-bright hover:underline">All posts →</Link>
           </div>
           {recentPosts.length === 0 ? (
-            <p className="mt-4 font-body text-sm text-ivory/45">Nothing yet.</p>
+            <p className="mt-4 font-body text-sm text-ivory/50">Nothing yet.</p>
           ) : (
             <ul className="mt-4 space-y-3">
               {recentPosts.map((p) => (
                 <li key={p.id} className="flex flex-wrap items-center justify-between gap-2 border-t border-olive/15 pt-3 font-body text-sm">
                   <Link href={`/admin/posts/${p.id}`} className="text-ivory/80 hover:text-sienna-bright">{p.title}</Link>
-                  <span className="flex items-center gap-2 text-xs text-ivory/40">
+                  <span className="flex items-center gap-2 text-xs text-ivory/50">
                     <span className={`h-1.5 w-1.5 rounded-full ${p.published ? "bg-emerald-400" : "bg-amber-400"}`} aria-hidden="true" />
                     {p.published ? "live" : "draft"}
                   </span>
@@ -111,7 +111,7 @@ export default async function AdminDashboard() {
           )}
         </div>
       </div>
-      <p className="mt-6 font-body text-xs text-ivory/35">Collections: {COLLECTION_KEYS.map((k) => COLLECTIONS[k].label).join(" · ")}</p>
+      <p className="mt-6 font-body text-xs text-ivory/50">Collections: {COLLECTION_KEYS.map((k) => COLLECTIONS[k].label).join(" · ")}</p>
     </div>
   );
 }

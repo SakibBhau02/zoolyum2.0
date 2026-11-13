@@ -61,11 +61,11 @@ export default async function BlogPage() {
                   <Field name="email" label="Email address" type="email" placeholder="you@company.com" required />
                   <SubmitButton label="Get the Letter" />
                 </FormShell>
-                <p className="mt-4 font-body text-xs text-ivory/35">
+                <p className="mt-4 font-body text-xs text-ivory/50">
                   One email a month. Unsubscribe anytime.
                 </p>
               </div>
-              <p className="mt-6 font-body text-sm text-ivory/45">
+              <p className="mt-6 font-body text-sm text-ivory/50">
                 Prefer the full archive?{" "}
                 <Link href="/newsletter" className="font-medium text-sienna-bright underline decoration-sienna/40 underline-offset-4 hover:decoration-sienna-bright">
                   Browse the Zoolyum Letter

@@ -73,7 +73,7 @@ export default async function EditorPage({
       .catch(() => [] as string[]);
     return (
       <div>
-        <nav aria-label="Breadcrumb" className="mb-4 flex items-center gap-2 font-body text-xs text-ivory/40">
+        <nav aria-label="Breadcrumb" className="mb-4 flex items-center gap-2 font-body text-xs text-ivory/50">
           <Link href="/admin" className="transition-colors hover:text-sienna-bright">Admin</Link>
           <span aria-hidden="true">/</span>
           <Link href="/admin/projects" className="transition-colors hover:text-sienna-bright">Work / Case Studies</Link>
@@ -108,7 +108,7 @@ export default async function EditorPage({
       .catch(() => [] as { name: string; role: string }[]);
     return (
       <div>
-        <nav aria-label="Breadcrumb" className="mb-4 flex items-center gap-2 font-body text-xs text-ivory/40">
+        <nav aria-label="Breadcrumb" className="mb-4 flex items-center gap-2 font-body text-xs text-ivory/50">
           <Link href="/admin" className="transition-colors hover:text-sienna-bright">Admin</Link>
           <span aria-hidden="true">/</span>
           <Link href="/admin/posts" className="transition-colors hover:text-sienna-bright">Blog Posts</Link>
@@ -138,7 +138,7 @@ export default async function EditorPage({
   }
   return (
     <div>
-      <nav aria-label="Breadcrumb" className="mb-4 flex items-center gap-2 font-body text-xs text-ivory/40">
+      <nav aria-label="Breadcrumb" className="mb-4 flex items-center gap-2 font-body text-xs text-ivory/50">
         <Link href="/admin" className="transition-colors hover:text-sienna-bright">Admin</Link>
         <span aria-hidden="true">/</span>
         <a href={`/admin/${collection}`} className="transition-colors hover:text-sienna-bright">{def.label}</a>

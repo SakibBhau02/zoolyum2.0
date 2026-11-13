@@ -207,14 +207,14 @@ export function PostEditor({
 
   const CheckGroup = ({ title, items }: { title: string; items: Check[] }) => (
     <div>
-      <p className="mb-3 font-body text-[11px] font-semibold uppercase tracking-[0.18em] text-ivory/40">{title}</p>
+      <p className="mb-3 font-body text-[11px] font-semibold uppercase tracking-[0.18em] text-ivory/50">{title}</p>
       <ul className="space-y-2.5">
         {items.map((c) => (
           <li key={c.label} className="flex items-start gap-2.5">
             <span className="mt-1"><Dot level={c.level} /></span>
             <span>
               <span className="block font-body text-[13px] font-semibold text-ivory/85">{c.label}</span>
-              <span className="block font-body text-xs text-ivory/45">{c.detail}</span>
+              <span className="block font-body text-xs text-ivory/50">{c.detail}</span>
             </span>
           </li>
         ))}
@@ -228,7 +228,7 @@ export function PostEditor({
         <span className={"rounded-full px-3 py-1 font-body text-xs font-semibold " + (published ? "bg-emerald-400/15 text-emerald-300" : "bg-amber-400/15 text-amber-300")}>
           {published ? "Published" : "Draft"}
         </span>
-        <span className="font-body text-xs text-ivory/45">{bodyWords} words · auto read time {autoRead}</span>
+        <span className="font-body text-xs text-ivory/50">{bodyWords} words · auto read time {autoRead}</span>
         <span className="ml-auto flex items-center gap-2">
           {viewHref && !isNew && (
             <a href={viewHref} target="_blank" rel="noreferrer" className="btn btn-secondary !px-4 !py-2 !text-xs">
@@ -306,7 +306,7 @@ export function PostEditor({
                 + Add paragraph
               </button>
             </div>
-            <p className="mt-2 font-body text-xs text-ivory/35">H2 marks a section heading - sections power the table of contents, the pull-quote slot and image placement. Image N sits under section N.</p>
+            <p className="mt-2 font-body text-xs text-ivory/50">H2 marks a section heading - sections power the table of contents, the pull-quote slot and image placement. Image N sits under section N.</p>
             <div className="mt-4 space-y-3">
               {paras.map((p, i) => {
                 const isHead = heads[i] === true;
@@ -339,7 +339,7 @@ export function PostEditor({
 
           <div className={cardCls}>
             <p className={cardTitleCls}>Inline images</p>
-            <p className="mt-1.5 font-body text-xs text-ivory/35">Image N appears under section N, with its caption.</p>
+            <p className="mt-1.5 font-body text-xs text-ivory/50">Image N appears under section N, with its caption.</p>
             <div className="mt-4">
               <ImageRows name="images" initial={initial.images ?? ""} secondKey="caption" secondLabel="Caption" onValue={setImagesJson} />
             </div>
@@ -362,7 +362,7 @@ export function PostEditor({
 
           <div className={cardCls}>
             <p className={cardTitleCls}>FAQs</p>
-            <p className="mt-1.5 font-body text-xs text-ivory/35">Answered on the page and emitted as FAQ schema for Google results.</p>
+            <p className="mt-1.5 font-body text-xs text-ivory/50">Answered on the page and emitted as FAQ schema for Google results.</p>
             <div className="mt-4">
               <FaqEditor name="faqs" initial={initial.faqs ?? ""} onValue={setFaqsJson} />
             </div>
@@ -422,13 +422,13 @@ export function PostEditor({
           <div className={cardCls}>
             <p className={cardTitleCls}>Focus keyword</p>
             <input value={focusKw} onChange={(e) => setFocusKw(e.target.value)} placeholder="e.g. brand positioning" className={fieldCls + " mt-4"} />
-            <p className="mt-2 font-body text-xs text-ivory/35">Drives the checklist below. Not saved - the first keyword line is the stored one.</p>
+            <p className="mt-2 font-body text-xs text-ivory/50">Drives the checklist below. Not saved - the first keyword line is the stored one.</p>
           </div>
 
           <div className={cardCls}>
             <p className={cardTitleCls}>Search preview</p>
             <div className="mt-4 rounded-xl border border-olive/25 bg-espresso/60 p-4">
-              <p className="truncate font-body text-[13px] text-ivory/45">{siteUrl.replace(/\/$/, "")}/blog/{slug !== "" ? slug : "…"}</p>
+              <p className="truncate font-body text-[13px] text-ivory/50">{siteUrl.replace(/\/$/, "")}/blog/{slug !== "" ? slug : "…"}</p>
               <p className="mt-1 font-body text-base leading-snug text-[#8ab4f8]">{title !== "" ? title : "Untitled post"}</p>
               <p className="mt-1 line-clamp-2 font-body text-[13px] leading-relaxed text-ivory/55">{excerpt !== "" ? excerpt : "Write an excerpt - it shows here and in every share card."}</p>
             </div>

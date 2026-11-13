@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from "motion/react";
 import type { MenuLinkItem } from "@/lib/content";
 import { Logo } from "./Logo";
 import { useSound } from "./SoundProvider";
+import { lockScroll, unlockScroll } from "@/lib/smooth-scroll";
 
 function SoundToggle() {
   const { enabled, toggle } = useSound();
@@ -68,9 +69,10 @@ export function Header({ links, ctaLabel, tagline }: { links: MenuLinkItem[]; ct
 
 
   useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "";
+    if (menuOpen) lockScroll();
+    else unlockScroll();
     return () => {
-      document.body.style.overflow = "";
+      unlockScroll();
     };
   }, [menuOpen]);
 
@@ -106,12 +108,17 @@ export function Header({ links, ctaLabel, tagline }: { links: MenuLinkItem[]; ct
 
           <div className="flex items-center gap-3">
             <SoundToggle />
-            <Link
-              href="/contact"
-              className="btn btn-primary hidden !px-5 !py-2.5 !text-[13px] md:inline-flex"
-            >
-              {ctaLabel}
-            </Link>
+            {/* Wrapper carries the responsive display: .btn sets
+                display:inline-flex from globals.css, which would beat a
+                `hidden` utility on the button itself. */}
+            <span className="hidden md:inline-flex">
+              <Link
+                href="/contact"
+                className="btn btn-primary !px-5 !py-2.5 !text-[13px] whitespace-nowrap"
+              >
+                {ctaLabel}
+              </Link>
+            </span>
             <button
               type="button"
               aria-expanded={menuOpen}
@@ -175,7 +182,7 @@ export function Header({ links, ctaLabel, tagline }: { links: MenuLinkItem[]; ct
             </nav>
             <motion.p
               variants={linkVariants}
-              className="px-8 pb-10 font-body text-sm text-ivory/45"
+              className="px-8 pb-10 font-body text-sm text-ivory/50"
             >
               {tagline} - Based in Dhaka.
             </motion.p>

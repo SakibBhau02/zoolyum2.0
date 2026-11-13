@@ -84,7 +84,7 @@ export default function AboutPage() {
                 <span className="block font-display text-sm font-semibold text-ivory">
                   The Zoolyum principle
                 </span>
-                <span className="mt-1 block font-body text-xs tracking-wide text-ivory/45">
+                <span className="mt-1 block font-body text-xs tracking-wide text-ivory/50">
                   Written on the studio wall since day one
                 </span>
               </figcaption>
@@ -179,7 +179,7 @@ export default function AboutPage() {
                     <h3 className="font-display text-[15px] font-semibold leading-snug text-ivory">
                       {award.title}
                     </h3>
-                    <p className="mt-1.5 font-body text-xs tracking-wide text-ivory/45">
+                    <p className="mt-1.5 font-body text-xs tracking-wide text-ivory/50">
                       {award.org}
                     </p>
                   </div>

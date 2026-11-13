@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { lockScroll, unlockScroll } from "@/lib/smooth-scroll";
 
 /**
  * BlogFigure - an inline article image with caption and a
@@ -24,10 +25,10 @@ export function BlogFigure({
       if (e.key === "Escape") setZoom(false);
     };
     window.addEventListener("keydown", onKey);
-    document.body.style.overflow = "hidden";
+    lockScroll();
     return () => {
       window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = "";
+      unlockScroll();
     };
   }, [zoom]);
 
@@ -49,7 +50,7 @@ export function BlogFigure({
           className="w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
         />
       </button>
-      <figcaption className="mt-3 flex items-start gap-3 font-body text-[13px] leading-relaxed text-ivory/45">
+      <figcaption className="mt-3 flex items-start gap-3 font-body text-[13px] leading-relaxed text-ivory/50">
         <span aria-hidden="true" className="mt-2 h-px w-5 shrink-0 bg-sienna" />
         {caption}
       </figcaption>
@@ -81,7 +82,7 @@ export function BlogFigure({
               unoptimized
               className="max-h-[82vh] w-auto max-w-full rounded-xl border border-olive/30 object-contain"
             />
-            <figcaption className="mt-4 text-center font-body text-xs tracking-[0.16em] text-ivory/45">
+            <figcaption className="mt-4 text-center font-body text-xs tracking-[0.16em] text-ivory/50">
               {caption}
             </figcaption>
           </figure>

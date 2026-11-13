@@ -128,7 +128,7 @@ function rowFromJson(v: unknown, fields: SubField[]): Record<string, string> {
 }
 
 const rowCls = "rounded-xl border border-olive/25 bg-espresso/60 p-4";
-const subLabelCls = "mb-1.5 block font-body text-[11px] font-semibold uppercase tracking-[0.14em] text-ivory/45";
+const subLabelCls = "mb-1.5 block font-body text-[11px] font-semibold uppercase tracking-[0.14em] text-ivory/50";
 const subInputCls = "w-full rounded-lg border border-olive/35 bg-espresso px-3.5 py-2 font-body text-sm text-ivory focus:border-sienna-bright/70 focus:outline-none";
 const addBtnCls = "rounded-lg border border-dashed border-olive/40 px-3.5 py-2 font-body text-xs font-semibold text-ivory/60 transition-colors hover:border-sienna-bright/60 hover:text-sienna-bright";
 const rmBtnCls = "rounded-lg border border-red-400/30 px-3 py-1.5 font-body text-xs text-red-300/80 transition-colors hover:bg-red-500/10 hover:text-red-300";
@@ -344,7 +344,7 @@ export function MediaPicker({ open, onClose, onPick }: { open: boolean; onClose:
             <p role="alert" className="font-body text-xs text-red-300">Could not load the media library.</p>
           )}
           {!failed && files.length === 0 && (
-            <p className="font-body text-sm text-ivory/45">No uploads yet - upload one above.</p>
+            <p className="font-body text-sm text-ivory/50">No uploads yet - upload one above.</p>
           )}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {files.map((f) => (
@@ -361,7 +361,7 @@ export function MediaPicker({ open, onClose, onPick }: { open: boolean; onClose:
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={f.url} alt={f.alt ?? ""} loading="lazy" className="h-24 w-full object-cover" />
                 ) : (
-                  <div className="flex h-24 items-center justify-center font-body text-xs text-ivory/40">File</div>
+                  <div className="flex h-24 items-center justify-center font-body text-xs text-ivory/50">File</div>
                 )}
                 <span className="block truncate px-2.5 py-2 font-mono text-[11px] text-ivory/60">{f.url}</span>
               </button>
@@ -725,7 +725,7 @@ export function EditorForm({
             <FieldInput field={f} initial={initial[f.name] ?? ""} />
           </div>
           {f.help && (
-            <p className="mt-1.5 font-body text-xs text-ivory/35">{f.help}</p>
+            <p className="mt-1.5 font-body text-xs text-ivory/50">{f.help}</p>
           )}
         </div>
       ))}

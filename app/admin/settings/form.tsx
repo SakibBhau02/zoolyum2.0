@@ -20,7 +20,7 @@ const HELP: Record<string, string> = {
 function FieldHelp({ k }: { k: string }) {
   const h = HELP[k];
   if (!h) return null;
-  return <p className="mb-2 font-body text-xs leading-relaxed text-ivory/40">{h}</p>;
+  return <p className="mb-2 font-body text-xs leading-relaxed text-ivory/50">{h}</p>;
 }
 
 export function SettingsForm({
@@ -40,13 +40,13 @@ export function SettingsForm({
           g.items.length > 0 && (
             <div key={g.title} className="card-surface p-6">
               <h2 className="font-display text-lg font-semibold text-ivory">{g.title}</h2>
-              {g.hint && <p className="mt-2 max-w-2xl font-body text-xs leading-relaxed text-ivory/45">{g.hint}</p>}
+              {g.hint && <p className="mt-2 max-w-2xl font-body text-xs leading-relaxed text-ivory/50">{g.hint}</p>}
               <div className="mt-5 space-y-5">
                 {g.items.map((s) => (
                   <div key={s.key}>
                     <label htmlFor={`s-${s.key}`} className="mb-2 block font-mono text-xs text-sienna-bright">
                       {s.key}
-                      {isSecret(s.key) && <span className="ml-2 text-ivory/40">· server-only, never rendered</span>}
+                      {isSecret(s.key) && <span className="ml-2 text-ivory/50">· server-only, never rendered</span>}
                     </label>
                     <FieldHelp k={s.key} />
                     {isSecret(s.key) && !long(s.value) ? (

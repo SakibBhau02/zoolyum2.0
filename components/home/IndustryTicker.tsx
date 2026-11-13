@@ -15,7 +15,7 @@ export async function IndustryTicker() {
       <MarqueeRow direction="rtl" duration={44} pauseOnHover={false}>
         {items.map((item) => (
           <span key={item} className="flex shrink-0 items-center gap-6 pr-6">
-            <span className="whitespace-nowrap font-display text-sm font-semibold tracking-[0.18em] text-ivory/45">
+            <span className="whitespace-nowrap font-display text-sm font-semibold tracking-[0.18em] text-ivory/50">
               {item.toUpperCase()}
             </span>
             <span className="block h-1 w-1 rounded-full bg-sienna/70" />

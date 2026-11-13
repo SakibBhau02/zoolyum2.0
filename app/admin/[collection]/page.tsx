@@ -54,7 +54,7 @@ export default async function CollectionListPage({
     : all;
   return (
     <div>
-      <nav aria-label="Breadcrumb" className="mb-4 flex items-center gap-2 font-body text-xs text-ivory/40">
+      <nav aria-label="Breadcrumb" className="mb-4 flex items-center gap-2 font-body text-xs text-ivory/50">
         <Link href="/admin" className="transition-colors hover:text-sienna-bright">Admin</Link>
         <span aria-hidden="true">/</span>
         <span className="text-ivory/70">{def.label}</span>
@@ -84,7 +84,7 @@ export default async function CollectionListPage({
       <div className="mt-5 space-y-3">
         {rows.length === 0 && (
           <div className="card-surface p-8 text-center">
-            <p className="font-body text-sm text-ivory/45">{query ? `No results for "${query}".` : "Nothing here yet."}</p>
+            <p className="font-body text-sm text-ivory/50">{query ? `No results for "${query}".` : "Nothing here yet."}</p>
             {!query && (
               <Link href={`/admin/${key}/new`} className="mt-4 inline-block font-body text-sm font-semibold text-sienna-bright hover:underline">
                 Create the first {def.singular.toLowerCase()} →
@@ -117,7 +117,7 @@ export default async function CollectionListPage({
                       {applicantCounts[String(r.title ?? "")] ?? 0} applicant{(applicantCounts[String(r.title ?? "")] ?? 0) === 1 ? "" : "s"} →
                     </a>
                   )}
-                  <p className="mt-1 truncate font-body text-xs text-ivory/45">
+                  <p className="mt-1 truncate font-body text-xs text-ivory/50">
                     {def.columns.slice(1).map((c) => String(r[c] ?? "")).filter(Boolean).join(" · ")}
                   </p>
                 </div>

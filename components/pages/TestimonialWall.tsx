@@ -70,7 +70,7 @@ export function TestimonialWall({ testimonials }: { testimonials: TestimonialIte
                   <span className="block font-display text-sm font-semibold text-ivory">
                     {testimonial.author}, {testimonial.company}
                   </span>
-                  <span className="mt-0.5 block font-body text-xs tracking-wide text-ivory/45">
+                  <span className="mt-0.5 block font-body text-xs tracking-wide text-ivory/50">
                     {testimonial.industry}
                   </span>
                 </span>

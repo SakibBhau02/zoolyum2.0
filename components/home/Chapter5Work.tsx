@@ -1,29 +1,26 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, type ReactNode } from "react";
 import Link from "next/link";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
 import type { ContentProject } from "@/lib/content";
 import { Reveal } from "@/components/ui/Reveal";
 import { ConfidenceIndicator } from "@/components/ui/metrics";
 import { AccentSplit } from "@/components/ui/AccentSplit";
 import { Tilt } from "@/components/ui/Tilt";
 
-gsap.registerPlugin(ScrollTrigger, useGSAP);
-
 /**
  * Chapter 5 - Ground We've Helped Clients Hold.
- * Featured work as positions held. Desktop: the section pins and
- * the rail traverses as the reader scrolls - five to seven
- * positions in view at once, the Signal Thread measuring progress.
- * Mobile / reduced motion: native snap scrolling, no scroll-jacking.
+ *
+ * Featured work as positions held, on a native snap rail with visible
+ * controls and a progress thread. Desktop previously pinned this
+ * section and scrubbed the rail sideways for ~2.3 viewports of wheel
+ * travel — the same scroll-jacking cost as Chapter 3, for a rail that
+ * already worked natively on touch. The reader now keeps full control
+ * of vertical position while the rail is something they choose to move.
  */
 export type WorkCopy = { eyebrow: string; title: string; lead: string; cta: string; href: string; nextTitle: string; nextText: string; nextCta: string; nextHref: string };
 
 export function Chapter5Work({ projects, copy }: { projects: ContentProject[]; copy: WorkCopy }) {
-  const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLDivElement>(null);
 
@@ -32,61 +29,21 @@ export function Chapter5Work({ projects, copy }: { projects: ContentProject[]; c
     const fill = fillRef.current;
     if (!track || !fill) return;
     const max = track.scrollWidth - track.clientWidth;
-    const p = max > 0 ? track.scrollLeft / max : 0;
-    fill.style.transform = `scaleX(${p})`;
+    fill.style.transform = `scaleX(${max > 0 ? track.scrollLeft / max : 0})`;
   };
 
-  useGSAP(
-    () => {
-      const mm = gsap.matchMedia();
-
-      mm.add(
-        "(min-width: 1024px) and (prefers-reduced-motion: no-preference)",
-        () => {
-          const section = sectionRef.current;
-          const track = trackRef.current;
-          const fill = fillRef.current;
-          if (!section || !track) return;
-
-          gsap.set(track, { overflowX: "visible" });
-          const distance = () =>
-            Math.max(0, track.scrollWidth - window.innerWidth + 96);
-
-          const tween = gsap.to(track, {
-            x: () => -distance(),
-            ease: "none",
-            scrollTrigger: {
-              trigger: section,
-              start: "top top",
-              end: () => `+=${distance() + window.innerHeight * 0.35}`,
-              pin: true,
-              scrub: 1,
-              anticipatePin: 1,
-              invalidateOnRefresh: true,
-              onUpdate: (self) => {
-                if (fill) fill.style.transform = `scaleX(${self.progress})`;
-              },
-            },
-          });
-
-          return () => {
-            tween.scrollTrigger?.kill();
-            tween.kill();
-            gsap.set(track, { clearProps: "all" });
-          };
-        },
-      );
-
-      return () => mm.revert();
-    },
-    { scope: sectionRef },
-  );
+  const nudge = (dir: 1 | -1) => {
+    const track = trackRef.current;
+    if (!track) return;
+    const card = track.firstElementChild as HTMLElement | null;
+    const step = card ? card.getBoundingClientRect().width + 24 : track.clientWidth * 0.8;
+    track.scrollBy({ left: dir * step, behavior: "smooth" });
+  };
 
   return (
     <section
       id="chapter-work"
-      ref={sectionRef}
-      className="relative overflow-hidden py-24 md:py-32"
+      className="relative overflow-hidden py-20 md:py-28"
       aria-label="Ground we've helped clients hold"
     >
       <div className="section-shell relative z-10">
@@ -101,7 +58,7 @@ export function Chapter5Work({ projects, copy }: { projects: ContentProject[]; c
                 {copy.lead}
               </p>
             </div>
-            <Link href={copy.href} className="btn-ghost font-display text-sm font-semibold text-sienna-bright">
+            <Link href={copy.href} className="btn-ghost inline-flex shrink-0 items-center whitespace-nowrap font-display text-sm font-semibold text-sienna-bright">
               {copy.cta}
               <svg viewBox="0 0 20 20" className="ml-2 h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
                 <path d="M4 10h12m0 0-5-5m5 5-5 5" strokeLinecap="round" strokeLinejoin="round" />
@@ -111,12 +68,14 @@ export function Chapter5Work({ projects, copy }: { projects: ContentProject[]; c
         </Reveal>
       </div>
 
-      {/* Desktop: pinned traverse. Mobile: native snap scroll. */}
       <Reveal delay={120}>
         <div className="section-shell relative z-10">
           <div
             ref={trackRef}
             onScroll={onScroll}
+            tabIndex={0}
+            role="group"
+            aria-label="Selected work"
             className="mt-14 flex snap-x snap-mandatory gap-6 overflow-x-auto pb-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             {projects.map((project) => (
@@ -170,8 +129,8 @@ export function Chapter5Work({ projects, copy }: { projects: ContentProject[]; c
             </div>
           </div>
 
-          {/* Signal Thread progress for the traverse */}
-          <div className="mt-8 hidden items-center gap-6 lg:flex" aria-hidden="true">
+          {/* Signal Thread progress for the rail */}
+          <div className="mt-6 flex items-center gap-6" aria-hidden="true">
             <div className="relative h-[2px] flex-1 overflow-hidden bg-olive/25">
               <div
                 ref={fillRef}
@@ -179,12 +138,52 @@ export function Chapter5Work({ projects, copy }: { projects: ContentProject[]; c
                 style={{ transform: "scaleX(0)" }}
               />
             </div>
-            <span className="font-body text-xs tracking-[0.2em] text-ivory/35">
-              KEEP SCROLLING
+            <span className="font-body text-xs tracking-[0.2em] text-ivory/50">
+              DRAG OR SWIPE
             </span>
+            <div className="flex gap-2">
+              <RailButton label="Previous projects" onClick={() => nudge(-1)}>
+                <path d="M12 10H4m0 0 4-4m-4 4 4 4" />
+              </RailButton>
+              <RailButton label="Next projects" onClick={() => nudge(1)}>
+                <path d="M4 10h12m0 0-5-5m5 5-5 5" />
+              </RailButton>
+            </div>
           </div>
         </div>
       </Reveal>
     </section>
+  );
+}
+
+function RailButton({
+  label,
+  onClick,
+  children,
+}: {
+  label: string;
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      onClick={onClick}
+      className="flex h-11 w-11 items-center justify-center rounded-full border border-olive/35 text-ivory/70 transition-colors duration-300 hover:border-sienna-bright/60 hover:text-sienna-bright"
+    >
+      <svg
+        viewBox="0 0 20 20"
+        className="h-4 w-4"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        {children}
+      </svg>
+    </button>
   );
 }

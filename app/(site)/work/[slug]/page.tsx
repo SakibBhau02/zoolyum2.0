@@ -156,7 +156,7 @@ export default async function CaseStudyPage({
           <dl className="mt-10 grid grid-cols-3 gap-6 border-t border-olive/15 pt-7" aria-label="Headline outcomes">
             {project.stats.map((s) => (
               <div key={s.label} className="flex flex-col">
-                <dt className="order-2 mt-1.5 block font-body text-[11px] uppercase tracking-[0.16em] text-ivory/40">
+                <dt className="order-2 mt-1.5 block font-body text-[11px] uppercase tracking-[0.16em] text-ivory/50">
                   {s.label}
                 </dt>
                 <dd className="order-1 font-display text-2xl font-semibold text-sienna-bright tabular-nums md:text-4xl">
@@ -190,7 +190,7 @@ export default async function CaseStudyPage({
                   { k: w["work.case.rowDisciplines"], v: project.services.join(" + ") },
                 ].map((row) => (
                   <div key={row.k}>
-                    <p className="font-body text-[11px] font-semibold uppercase tracking-[0.2em] text-ivory/40">
+                    <p className="font-body text-[11px] font-semibold uppercase tracking-[0.2em] text-ivory/50">
                       {row.k}
                     </p>
                     <p className="mt-2 font-display text-lg font-medium text-ivory">{row.v}</p>
@@ -215,7 +215,7 @@ export default async function CaseStudyPage({
               <h2 className="mt-5 font-display text-display-2 font-semibold leading-tight text-ivory">
                 {project.challenge}
               </h2>
-              <p className="mt-6 font-body text-sm tracking-wide text-ivory/40">
+              <p className="mt-6 font-body text-sm tracking-wide text-ivory/50">
                 {w["work.case.problemNote"]}
               </p>
             </div>
@@ -488,7 +488,7 @@ export default async function CaseStudyPage({
       {/* ---- Next case study: keep the loop ---- */}
       <section className="relative overflow-hidden py-14" aria-label="Next case study">
         <div className="section-shell">
-          <p className="font-body text-sm text-ivory/45">{w["work.case.nextLabel"]}</p>
+          <p className="font-body text-sm text-ivory/50">{w["work.case.nextLabel"]}</p>
           <Link href={`/work/${nextProject.slug}`} className="group mt-4 block">
             <div className="card-surface flex flex-col gap-6 p-7 md:flex-row md:items-center md:justify-between md:p-8">
               <div className="flex items-center gap-6">
@@ -498,7 +498,7 @@ export default async function CaseStudyPage({
                   </span>
                 </div>
                 <div>
-                  <p className="font-body text-xs uppercase tracking-widest text-ivory/45">
+                  <p className="font-body text-xs uppercase tracking-widest text-ivory/50">
                     {nextProject.industry}
                   </p>
                   <h3 className="mt-1 font-display text-2xl font-semibold text-ivory transition-colors duration-300 group-hover:text-sienna-bright">
@@ -515,7 +515,7 @@ export default async function CaseStudyPage({
                     <p className="font-display text-3xl font-semibold text-sienna tabular-nums">
                       {nextProject.stats[0].value}
                     </p>
-                    <p className="font-body text-xs text-ivory/45">
+                    <p className="font-body text-xs text-ivory/50">
                       {nextProject.stats[0].label.toLowerCase()}
                     </p>
                   </div>
@@ -534,7 +534,7 @@ export default async function CaseStudyPage({
         <div className="flex items-center gap-3">
           <div className="min-w-0 flex-1">
             <p className="truncate font-display text-sm font-semibold text-ivory">{project.result}</p>
-            <p className="font-body text-[11px] text-ivory/45">Want this for your brand?</p>
+            <p className="font-body text-[11px] text-ivory/50">Want this for your brand?</p>
           </div>
           <Link href="/contact" className="btn btn-primary shrink-0 !px-5 !py-2.5 !text-[13px]">
             Start a Conversation

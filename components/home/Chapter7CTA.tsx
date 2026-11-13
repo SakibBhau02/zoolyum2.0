@@ -4,7 +4,7 @@ import { AccentSplit } from "@/components/ui/AccentSplit";
 import { getSetting } from "@/lib/content";
 
 /**
- * Chapter 7 — Let's Read Your Market Together.
+ * Chapter 7 â€” Let's Read Your Market Together.
  * The quiet finale: a soft Terrain Gradient ground, the closing
  * line of the brief, and two considered CTAs.
  */
@@ -23,7 +23,7 @@ export async function Chapter7CTA() {
       className="terrain-gradient-soft relative overflow-hidden"
       aria-label="Let's read your market together"
     >
-      <div className="section-shell relative z-10 py-28 text-center md:py-36">
+      <div className="section-shell relative z-10 py-20 text-center md:py-28">
         <Reveal>
           <p className="eyebrow mx-auto inline-block">{eyebrow}</p>
           <h2 className="mx-auto mt-6 max-w-4xl font-display text-display-1 font-semibold text-ivory">

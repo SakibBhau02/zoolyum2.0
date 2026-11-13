@@ -365,7 +365,7 @@ export default async function ServiceDetailPage({
       {/* ---- Next service ---- */}
       <section className="relative overflow-hidden border-t border-olive/15 py-14" aria-label="Next service">
         <div className="section-shell flex flex-wrap items-center justify-between gap-6">
-          <p className="font-body text-sm text-ivory/45">Next service</p>
+          <p className="font-body text-sm text-ivory/50">Next service</p>
           <Link href={`/services/${next.slug}`} className="group flex items-center gap-4 text-right">
             <span className="font-display text-2xl font-semibold text-ivory transition-colors duration-300 group-hover:text-sienna-bright md:text-3xl">
               {next.name}

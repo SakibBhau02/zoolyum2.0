@@ -43,7 +43,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </aside>
         <div className="min-w-0 flex-1">
           <div className="mb-6 flex items-center justify-end gap-2 border-b border-olive/15 pb-4">
-            <span className="mr-auto hidden items-center gap-2 font-body text-xs text-ivory/40 sm:flex" title={online ? "Database connected" : "Database unreachable - showing fallback data"}>
+            <span className="mr-auto hidden items-center gap-2 font-body text-xs text-ivory/50 sm:flex" title={online ? "Database connected" : "Database unreachable - showing fallback data"}>
               <span className={`h-2 w-2 rounded-full ${online ? "bg-emerald-400" : "bg-red-400"}`} aria-hidden="true" />
               {online ? "DB connected" : "DB offline"}
             </span>

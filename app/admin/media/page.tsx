@@ -17,7 +17,7 @@ export default async function MediaPage() {
       </div>
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {files.length === 0 && (
-          <p className="font-body text-sm text-ivory/45">No uploads yet.</p>
+          <p className="font-body text-sm text-ivory/50">No uploads yet.</p>
         )}
         {files.map((f) => (
           <div key={f.id} className="card-surface overflow-hidden">
@@ -27,8 +27,8 @@ export default async function MediaPage() {
             )}
             <div className="space-y-2 p-4">
               <p className="truncate font-mono text-xs text-ivory/60" title={f.url}>{f.url}</p>
-              <p className="truncate font-body text-xs text-ivory/45" title={f.alt ?? ""}>{f.alt ? `Alt: ${f.alt}` : "No alt text"}</p>
-              <p className="font-body text-xs text-ivory/40">{kb(f.size)}{f.width ? ` · ${f.width}x${f.height}` : ""}</p>
+              <p className="truncate font-body text-xs text-ivory/50" title={f.alt ?? ""}>{f.alt ? `Alt: ${f.alt}` : "No alt text"}</p>
+              <p className="font-body text-xs text-ivory/50">{kb(f.size)}{f.width ? ` · ${f.width}x${f.height}` : ""}</p>
               <div className="flex gap-2">
                 <CopyButton text={f.url} />
                 <MediaDeleteButton id={f.id} />

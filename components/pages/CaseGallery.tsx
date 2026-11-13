@@ -1,21 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import Image from "next/image";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
 import { useMediaQuery } from "@/lib/hooks";
 import { youtubeEmbed, youtubeThumb } from "@/lib/text";
-
-gsap.registerPlugin(ScrollTrigger, useGSAP);
+import { lockScroll, unlockScroll } from "@/lib/smooth-scroll";
 
 /**
  * CaseGallery - the case study's visual frames.
- * 3+ images: desktop pins and traverses horizontally on scroll;
- * mobile / reduced motion uses native snap scrolling. Hovering a
- * frame grows it slightly; clicking opens the lightbox with
- * arrow-key navigation.
+ * 3+ images scroll on a native snap rail with arrow controls;
+ * fewer than 3 render as a grid. Hovering a frame grows it slightly;
+ * clicking opens the lightbox with arrow-key navigation.
+ *
+ * The desktop pin + horizontal scrub this used to run added ~2 extra
+ * viewports of wheel travel to every case study for the same rail.
  */
 export type GalleryMedia = { src: string; alt: string; kind: "image" | "youtube"; youtubeId?: string };
 
@@ -28,53 +26,17 @@ export function CaseGallery({
   client: string;
   labels: { eyebrow: string; titleA: string; titleB: string; note: string };
 }) {
-  const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const [lightbox, setLightbox] = useState<number | null>(null);
   const reduced = useMediaQuery("(prefers-reduced-motion: reduce)");
 
-  useGSAP(
-    () => {
-      if (images.length < 3) return;
-      const mm = gsap.matchMedia();
-
-      mm.add(
-        "(min-width: 1024px) and (prefers-reduced-motion: no-preference)",
-        () => {
-          const section = sectionRef.current;
-          const track = trackRef.current;
-          if (!section || !track) return;
-
-          gsap.set(track, { overflowX: "visible" });
-          const distance = () =>
-            Math.max(0, track.scrollWidth - window.innerWidth + 96);
-
-          const tween = gsap.to(track, {
-            x: () => -distance(),
-            ease: "none",
-            scrollTrigger: {
-              trigger: section,
-              start: "top top",
-              end: () => `+=${distance() + window.innerHeight * 0.35}`,
-              pin: true,
-              scrub: 1,
-              anticipatePin: 1,
-              invalidateOnRefresh: true,
-            },
-          });
-
-          return () => {
-            tween.scrollTrigger?.kill();
-            tween.kill();
-            gsap.set(track, { clearProps: "all" });
-          };
-        },
-      );
-
-      return () => mm.revert();
-    },
-    { scope: sectionRef },
-  );
+  const nudge = (dir: 1 | -1) => {
+    const track = trackRef.current;
+    if (!track) return;
+    const first = track.firstElementChild as HTMLElement | null;
+    const step = first ? first.getBoundingClientRect().width + 24 : track.clientWidth * 0.8;
+    track.scrollBy({ left: dir * step, behavior: "smooth" });
+  };
 
   // Lightbox: keyboard navigation + scroll lock
   const close = useCallback(() => setLightbox(null), []);
@@ -94,10 +56,10 @@ export function CaseGallery({
       if (e.key === "ArrowLeft") step(-1);
     };
     window.addEventListener("keydown", onKey);
-    document.body.style.overflow = "hidden";
+    lockScroll();
     return () => {
       window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = "";
+      unlockScroll();
     };
   }, [lightbox, close, step]);
 
@@ -161,10 +123,9 @@ export function CaseGallery({
 
   return (
     <section
-      ref={sectionRef}
       id="frames"
       aria-label={`${client} - the work in frames`}
-      className="relative scroll-mt-32 overflow-hidden py-20 md:py-28"
+      className="relative scroll-mt-32 overflow-hidden py-16 md:py-24"
     >
       <div className="section-shell">
         <div className="flex flex-wrap items-end justify-between gap-6">
@@ -178,9 +139,19 @@ export function CaseGallery({
             </p>
           </div>
           {isTraverse && (
-            <p className="hidden font-body text-xs tracking-[0.2em] text-ivory/35 lg:block">
-              {reduced ? "SWIPE THE STRIP" : "KEEP SCROLLING"}
-            </p>
+            <div className="flex items-center gap-4">
+              <p className="hidden font-body text-xs tracking-[0.2em] text-ivory/50 lg:block">
+                {reduced ? "SWIPE THE STRIP" : "DRAG OR SWIPE"}
+              </p>
+              <div className="hidden gap-2 md:flex">
+                <RailButton label="Previous frames" onClick={() => nudge(-1)}>
+                  <path d="M12 10H4m0 0 4-4m-4 4 4 4" />
+                </RailButton>
+                <RailButton label="Next frames" onClick={() => nudge(1)}>
+                  <path d="M4 10h12m0 0-5-5m5 5-5 5" />
+                </RailButton>
+              </div>
+            </div>
           )}
         </div>
       </div>
@@ -188,6 +159,9 @@ export function CaseGallery({
       {isTraverse ? (
         <div
           ref={trackRef}
+          tabIndex={0}
+          role="group"
+          aria-label="Case study frames"
           className="mt-12 flex snap-x snap-mandatory gap-6 overflow-x-auto px-6 pb-4 [-ms-overflow-style:none] [scrollbar-width:none] md:px-10 [&::-webkit-scrollbar]:hidden lg:px-14"
         >
           {images.map((img, i) => frame(img, i, (i + 1) % 4 === 0))}
@@ -246,7 +220,7 @@ export function CaseGallery({
               className="max-h-[78vh] w-auto max-w-full rounded-xl border border-olive/30 object-contain"
             />
             )}
-            <figcaption className="mt-4 text-center font-body text-xs tracking-[0.2em] text-ivory/45">
+            <figcaption className="mt-4 text-center font-body text-xs tracking-[0.2em] text-ivory/50">
               {client.toUpperCase()} - FRAME {String(lightbox + 1).padStart(2, "0")} / {String(images.length).padStart(2, "0")}
             </figcaption>
           </figure>
@@ -263,5 +237,37 @@ export function CaseGallery({
         </div>
       )}
     </section>
+  );
+}
+
+function RailButton({
+  label,
+  onClick,
+  children,
+}: {
+  label: string;
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      onClick={onClick}
+      className="flex h-11 w-11 items-center justify-center rounded-full border border-olive/40 text-ivory/70 transition-colors duration-300 hover:border-sienna-bright/60 hover:text-sienna-bright"
+    >
+      <svg
+        viewBox="0 0 20 20"
+        className="h-4 w-4"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        {children}
+      </svg>
+    </button>
   );
 }

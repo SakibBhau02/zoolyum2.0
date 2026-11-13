@@ -11,15 +11,15 @@ export type ResultsCopy = {
 };
 
 /**
- * Chapter 4 — The Results.
+ * Chapter 4 Ã¢â‚¬â€ The Results.
  * Proof, stated plainly: stat counters on Deep Umber with Sienna
- * numerals. Slow count-up, no flash — precision over spectacle.
+ * numerals. Slow count-up, no flash Ã¢â‚¬â€ precision over spectacle.
  */
 export function Chapter4Results({ copy }: { copy: ResultsCopy }) {
   return (
     <section
       id="chapter-results"
-      className="relative overflow-hidden bg-umber py-24 md:py-32"
+      className="relative overflow-hidden bg-umber py-16 md:py-24"
       aria-label="The results"
     >
       <div className="dappled" aria-hidden="true" />
@@ -35,7 +35,7 @@ export function Chapter4Results({ copy }: { copy: ResultsCopy }) {
           </p>
         </Reveal>
 
-        <div className="mt-16 grid grid-cols-2 gap-x-8 gap-y-12 md:mt-20 lg:grid-cols-4">
+        <div className="mt-12 grid grid-cols-2 gap-x-8 gap-y-10 md:mt-14 lg:grid-cols-4">
           {copy.stats.map((stat) => (
             <StatCounter
               key={stat.label}

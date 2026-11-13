@@ -10,7 +10,7 @@ export default async function HomeAdminPage() {
   for (const r of rows) initial[r.key] = r.value;
   return (
     <div>
-      <nav aria-label="Breadcrumb" className="mb-4 flex items-center gap-2 font-body text-xs text-ivory/40">
+      <nav aria-label="Breadcrumb" className="mb-4 flex items-center gap-2 font-body text-xs text-ivory/50">
         <Link href="/admin" className="transition-colors hover:text-sienna-bright">Admin</Link>
         <span aria-hidden="true">/</span>
         <span className="text-ivory/70">Homepage</span>

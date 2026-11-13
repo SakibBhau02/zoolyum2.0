@@ -74,7 +74,7 @@ export default async function NewsletterPage() {
               </FormShell>
               <ul className="mt-7 flex flex-wrap gap-x-6 gap-y-2 border-t border-olive/20 pt-5" aria-label="Our promise">
                 {["One email a month", "No spam, ever", "Unsubscribe anytime"].map((t) => (
-                  <li key={t} className="flex items-center gap-2 font-body text-xs text-ivory/45">
+                  <li key={t} className="flex items-center gap-2 font-body text-xs text-ivory/50">
                     <svg viewBox="0 0 16 16" className="h-3.5 w-3.5 shrink-0 text-sienna" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
                       <path d="m3 8.5 3.5 3.5L13 5" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
@@ -87,7 +87,7 @@ export default async function NewsletterPage() {
 
           <Reveal delay={130} className="lg:col-span-5">
             <div className="flex h-full flex-col gap-4">
-              <p className="font-body text-[11px] font-semibold uppercase tracking-[0.22em] text-ivory/40">
+              <p className="font-body text-[11px] font-semibold uppercase tracking-[0.22em] text-ivory/50">
                 Every issue carries
               </p>
               {benefits.map((benefit: { title: string; detail: string }, i: number) => (
@@ -137,7 +137,7 @@ export default async function NewsletterPage() {
                   <p className="truncate font-body text-sm font-medium text-ivory/85">
                     The Zoolyum Letter #12 - Why discount brands disappear
                   </p>
-                  <p className="font-body text-xs text-ivory/40">From: Zoolyum · Monthly · 4 min read</p>
+                  <p className="font-body text-xs text-ivory/50">From: Zoolyum · Monthly · 4 min read</p>
                 </div>
               </div>
               <ol className="space-y-1 p-3 md:p-4">
@@ -189,7 +189,7 @@ export default async function NewsletterPage() {
                   <p className="body-copy mt-3 line-clamp-2 font-body text-[13px] leading-relaxed text-ivory/50">
                     {post.excerpt}
                   </p>
-                  <p className="mt-5 flex items-center justify-between border-t border-olive/20 pt-4 font-body text-xs text-ivory/40">
+                  <p className="mt-5 flex items-center justify-between border-t border-olive/20 pt-4 font-body text-xs text-ivory/50">
                     <span>{formatDate(post.date)} - {post.readTime} read</span>
                     <svg viewBox="0 0 20 20" className="h-4 w-4 text-sienna-bright transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
                       <path d="M4 10h12m0 0-5-5m5 5-5 5" strokeLinecap="round" strokeLinejoin="round" />

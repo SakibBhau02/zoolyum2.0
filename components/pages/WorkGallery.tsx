@@ -110,7 +110,7 @@ export function WorkGallery({ projects, ui }: { projects: ContentProject[]; ui: 
           />
           <span className="truncate">{label === "All" ? "All work" : label}</span>
         </span>
-        <span className="font-display text-[11px] font-semibold tabular-nums text-ivory/35">
+        <span className="font-display text-[11px] font-semibold tabular-nums text-ivory/50">
           {label === "All" ? projects.length : countFor(label)}
         </span>
       </button>
@@ -133,7 +133,7 @@ export function WorkGallery({ projects, ui }: { projects: ContentProject[]; ui: 
                 : "border-olive/35 text-ivory/70 hover:border-sienna-bright/50 hover:text-sienna-bright"
             }`}
           >
-            <span className="font-body text-[11px] font-semibold uppercase tracking-[0.18em] text-ivory/40">
+            <span className="font-body text-[11px] font-semibold uppercase tracking-[0.18em] text-ivory/50">
               {ui.filter}
             </span>
             <span className="font-display text-[13px] font-semibold tracking-wide">
@@ -158,13 +158,13 @@ export function WorkGallery({ projects, ui }: { projects: ContentProject[]; ui: 
                 {menuItem("All")}
                 <div className="mt-2 grid grid-cols-2 gap-x-2 border-t border-olive/15 pt-2">
                   <div>
-                    <p className="px-3 pb-1 pt-2 font-body text-[10px] font-semibold uppercase tracking-[0.2em] text-ivory/35">
+                    <p className="px-3 pb-1 pt-2 font-body text-[10px] font-semibold uppercase tracking-[0.2em] text-ivory/50">
                       {ui.industry}
                     </p>
                     {industries.map(menuItem)}
                   </div>
                   <div>
-                    <p className="px-3 pb-1 pt-2 font-body text-[10px] font-semibold uppercase tracking-[0.2em] text-ivory/35">
+                    <p className="px-3 pb-1 pt-2 font-body text-[10px] font-semibold uppercase tracking-[0.2em] text-ivory/50">
                       {ui.service}
                     </p>
                     {services.map(menuItem)}
@@ -176,7 +176,7 @@ export function WorkGallery({ projects, ui }: { projects: ContentProject[]; ui: 
         </div>
 
         <p
-          className="font-body text-xs uppercase tracking-[0.18em] text-ivory/40"
+          className="font-body text-xs uppercase tracking-[0.18em] text-ivory/50"
           aria-live="polite"
         >
           {ui.showingA} {visible.length} {ui.showingB} {projects.length} {ui.showingC}
@@ -231,7 +231,7 @@ export function WorkGallery({ projects, ui }: { projects: ContentProject[]; ui: 
                     {featured.services.map((s) => (
                       <span
                         key={s}
-                        className="rounded-full border border-olive/25 px-2.5 py-1 font-body text-[10px] font-semibold uppercase tracking-wider text-ivory/45"
+                        className="rounded-full border border-olive/25 px-2.5 py-1 font-body text-[10px] font-semibold uppercase tracking-wider text-ivory/50"
                       >
                         {s}
                       </span>
@@ -246,7 +246,7 @@ export function WorkGallery({ projects, ui }: { projects: ContentProject[]; ui: 
                     <p className="font-display text-lg font-semibold text-ivory/90 tabular-nums">
                       {stat.value}
                     </p>
-                    <p className="mt-0.5 font-body text-[11px] leading-snug text-ivory/45">
+                    <p className="mt-0.5 font-body text-[11px] leading-snug text-ivory/50">
                       {stat.label}
                     </p>
                   </div>
@@ -254,7 +254,7 @@ export function WorkGallery({ projects, ui }: { projects: ContentProject[]; ui: 
               </div>
 
               <div className="mt-8 flex items-center justify-between border-t border-olive/20 pt-6">
-                <span className="font-body text-xs text-ivory/40">
+                <span className="font-body text-xs text-ivory/50">
                   {featured.timeline} {ui.engagement}
                 </span>
                 <span className="inline-flex items-center gap-2 font-display text-sm font-semibold text-sienna-bright">
@@ -324,7 +324,7 @@ export function WorkGallery({ projects, ui }: { projects: ContentProject[]; ui: 
                           {project.services.map((s) => (
                             <span
                               key={s}
-                              className="rounded-full border border-olive/25 px-2.5 py-1 font-body text-[10px] font-semibold uppercase tracking-wider text-ivory/45"
+                              className="rounded-full border border-olive/25 px-2.5 py-1 font-body text-[10px] font-semibold uppercase tracking-wider text-ivory/50"
                             >
                               {s}
                             </span>
@@ -340,14 +340,14 @@ export function WorkGallery({ projects, ui }: { projects: ContentProject[]; ui: 
                             <p className="font-display text-lg font-semibold text-ivory/90 tabular-nums">
                               {stat.value}
                             </p>
-                            <p className="mt-0.5 font-body text-[11px] leading-snug text-ivory/45">
+                            <p className="mt-0.5 font-body text-[11px] leading-snug text-ivory/50">
                               {stat.label}
                             </p>
                           </div>
                         ))}
                       </div>
                       <div className="mt-5 flex items-center justify-between border-t border-olive/20 pt-5">
-                        <span className="font-body text-xs text-ivory/40">
+                        <span className="font-body text-xs text-ivory/50">
                           {project.timeline} {ui.engagement}
                         </span>
                         <span className="inline-flex items-center gap-2 font-display text-sm font-semibold text-sienna-bright">
@@ -367,7 +367,7 @@ export function WorkGallery({ projects, ui }: { projects: ContentProject[]; ui: 
       </motion.div>
 
       {visible.length === 0 && (
-        <p className="mt-16 text-center font-accent text-xl italic text-ivory/45">
+        <p className="mt-16 text-center font-accent text-xl italic text-ivory/50">
           {ui.empty}
         </p>
       )}

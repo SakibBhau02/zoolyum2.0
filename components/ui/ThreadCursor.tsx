@@ -23,8 +23,10 @@ export function ThreadCursor() {
     let tx = -100;
     let ty = -100;
     let angle = 90;
+    let shownAngle = 90;
     let raf = 0;
     let visible = false;
+    let dirty = true;
 
     const onMove = (e: MouseEvent) => {
       tx = e.clientX;
@@ -38,6 +40,7 @@ export function ThreadCursor() {
         "a, button, [role='button'], input, textarea, select, label, summary"
       );
       el.dataset.hover = hovering ? "true" : "false";
+      kick();
     };
 
     const onDown = () => {
@@ -49,6 +52,15 @@ export function ThreadCursor() {
     const onLeave = () => {
       visible = false;
       el.style.opacity = "0";
+    };
+
+    /* The loop only runs while the mark is actually travelling or
+       rotating. Idle pages get zero cursor work — previously this was a
+       permanent rAF that also invalidated a CSS variable every frame. */
+    const kick = () => {
+      if (raf) return;
+      dirty = true;
+      raf = requestAnimationFrame(render);
     };
 
     const render = () => {
@@ -66,11 +78,20 @@ export function ThreadCursor() {
           while (delta > 180) delta -= 360;
           while (delta < -180) delta += 360;
           angle += delta * 0.12;
+          dirty = true;
         }
       }
+
       el.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-      el.style.setProperty("--angle", `${reduced ? 0 : angle}deg`);
-      raf = requestAnimationFrame(render);
+      if (Math.abs(angle - shownAngle) > 0.25) {
+        el.style.setProperty("--angle", `${reduced ? 0 : angle}deg`);
+        shownAngle = angle;
+      }
+
+      const settled =
+        Math.abs(tx - x) < 0.4 && Math.abs(ty - y) < 0.4 && !dirty;
+      dirty = false;
+      raf = settled ? 0 : requestAnimationFrame(render);
     };
 
     window.addEventListener("mousemove", onMove, { passive: true });

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useMediaQuery } from "@/lib/hooks";
+import { lockScroll, unlockScroll } from "@/lib/smooth-scroll";
 
 const SHOWN_KEY = "zyl-exit-shown";
 const EXCLUDED_PATHS = ["/contact", "/resources"];
@@ -50,9 +51,10 @@ export function ExitIntentModal() {
   }, [desktop, excluded, pathname]);
 
   useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
+    if (open) lockScroll();
+    else unlockScroll();
     return () => {
-      document.body.style.overflow = "";
+      unlockScroll();
     };
   }, [open]);
 
@@ -77,7 +79,7 @@ export function ExitIntentModal() {
           type="button"
           onClick={() => setOpen(false)}
           aria-label="Close"
-          className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full text-ivory/40 transition-colors hover:text-ivory"
+          className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full text-ivory/50 transition-colors hover:text-ivory"
         >
           <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
             <path d="M3 3l10 10M13 3L3 13" strokeLinecap="round" />
@@ -117,7 +119,7 @@ export function ExitIntentModal() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Your work email"
-                className="w-full rounded-lg border border-olive/35 bg-espresso px-4 py-3 font-body text-sm text-ivory placeholder:text-ivory/40 transition-colors focus:border-sienna-bright/70 focus:outline-none"
+                className="w-full rounded-lg border border-olive/35 bg-espresso px-4 py-3 font-body text-sm text-ivory placeholder:text-ivory/50 transition-colors focus:border-sienna-bright/70 focus:outline-none"
               />
               <button type="submit" className="btn btn-primary shrink-0 !px-5 !text-sm">
                 Send it

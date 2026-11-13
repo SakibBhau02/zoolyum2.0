@@ -99,7 +99,7 @@ export function AuditTab() {
         type="button"
         onClick={dismiss}
         aria-label="Dismiss offer"
-        className="absolute right-4 top-4 flex h-7 w-7 items-center justify-center rounded-full text-ivory/40 transition-colors hover:text-ivory"
+        className="absolute right-4 top-4 flex h-7 w-7 items-center justify-center rounded-full text-ivory/50 transition-colors hover:text-ivory"
       >
         <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
           <path d="M3 3l10 10M13 3L3 13" strokeLinecap="round" />

@@ -2,6 +2,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { TerrainScrollIndicator } from "@/components/layout/TerrainScrollIndicator";
 import { ReadingPause } from "@/components/layout/ReadingPause";
+import { SmoothScroll } from "@/components/layout/SmoothScroll";
 import { ThreadCursor } from "@/components/ui/ThreadCursor";
 import { AmbientParticles } from "@/components/ui/AmbientParticles";
 import { SignalFlash } from "@/components/ui/SignalFlash";
@@ -36,6 +37,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
   ]);
   return (
     <SoundProvider>
+      <SmoothScroll />
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:rounded-md focus:bg-sienna-bright focus:px-4 focus:py-2 focus:font-display focus:font-semibold focus:text-espresso"

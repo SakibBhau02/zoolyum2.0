@@ -35,7 +35,7 @@ const miniLabelCls =
   "mb-2 block font-body text-xs font-semibold uppercase tracking-[0.16em] text-ivory/50";
 const cardCls = "card-surface p-6 md:p-7";
 const cardTitleCls = "font-display text-base font-semibold text-ivory";
-const secNote = "mt-2 font-body text-xs leading-relaxed text-ivory/40";
+const secNote = "mt-2 font-body text-xs leading-relaxed text-ivory/50";
 const iconBtnCls =
   "rounded-lg border border-olive/35 px-2.5 py-1.5 font-body text-xs text-ivory/60 transition-colors hover:border-sienna-bright/60 hover:text-sienna-bright disabled:opacity-30";
 const rowCls = "rounded-xl border border-olive/25 bg-espresso/60 p-4";
@@ -43,7 +43,7 @@ const subInputCls =
   "w-full rounded-lg border border-olive/35 bg-espresso px-3.5 py-2 font-body text-sm text-ivory focus:border-sienna-bright/70 focus:outline-none";
 const addBtnCls =
   "rounded-lg border border-dashed border-olive/40 px-3.5 py-2 font-body text-xs font-semibold text-ivory/60 transition-colors hover:border-sienna-bright/60 hover:text-sienna-bright";
-const subLabelCls = "mb-1.5 block font-body text-[11px] font-semibold uppercase tracking-[0.14em] text-ivory/45";
+const subLabelCls = "mb-1.5 block font-body text-[11px] font-semibold uppercase tracking-[0.14em] text-ivory/50";
 const rmBtnCls = "rounded-lg border border-red-400/30 px-3 py-1.5 font-body text-xs text-red-300/80 transition-colors hover:bg-red-500/10 hover:text-red-300";
 const ghostBtnCls = "shrink-0 rounded-lg border border-olive/35 px-3.5 py-2 font-body text-xs font-semibold text-ivory/70 transition-colors hover:border-sienna-bright/60 hover:text-sienna-bright";
 
@@ -419,7 +419,7 @@ export function ProjectEditor({
             <div className="mt-4">
               <label htmlFor="pj-services" className={miniLabelCls}>Services (one per line)</label>
               <textarea id="pj-services" name="services" value={servicesText} onChange={(e) => setServicesText(e.target.value)} rows={3} placeholder={"Brand Strategy\nDigital Design"} className={fieldCls} />
-              <p className="mt-1.5 font-body text-xs text-ivory/35">Known services: {servicesList.slice(0, 8).join(" · ")}{servicesList.length > 8 ? " · …" : ""}</p>
+              <p className="mt-1.5 font-body text-xs text-ivory/50">Known services: {servicesList.slice(0, 8).join(" · ")}{servicesList.length > 8 ? " · …" : ""}</p>
             </div>
           </div>
 
@@ -532,7 +532,7 @@ export function ProjectEditor({
                   <span className="mt-1"><Dot level={c.level} /></span>
                   <span>
                     <span className="block font-body text-[13px] font-semibold text-ivory/85">{c.label}</span>
-                    <span className="block font-body text-xs text-ivory/45">{c.detail}</span>
+                    <span className="block font-body text-xs text-ivory/50">{c.detail}</span>
                   </span>
                 </li>
               ))}

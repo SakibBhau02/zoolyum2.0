@@ -14,22 +14,22 @@ const miniLabelCls =
   "mb-2 block font-body text-xs font-semibold uppercase tracking-[0.16em] text-ivory/50";
 const cardCls = "card-surface p-6 md:p-7";
 const secTitleCls = "font-display text-lg font-semibold text-ivory";
-const secNoteCls = "mt-1.5 font-body text-xs leading-relaxed text-ivory/40";
+const secNoteCls = "mt-1.5 font-body text-xs leading-relaxed text-ivory/50";
 const iconBtnCls =
   "rounded-lg border border-olive/35 px-2.5 py-1.5 font-body text-xs text-ivory/60 transition-colors hover:border-sienna-bright/60 hover:text-sienna-bright disabled:opacity-30";
 const rowCls = "rounded-xl border border-olive/25 bg-espresso/60 p-4";
 const subLabelCls =
-  "mb-1.5 block font-body text-[11px] font-semibold uppercase tracking-[0.14em] text-ivory/45";
+  "mb-1.5 block font-body text-[11px] font-semibold uppercase tracking-[0.14em] text-ivory/50";
 const subInputCls =
   "w-full rounded-lg border border-olive/35 bg-espresso px-3.5 py-2 font-body text-sm text-ivory focus:border-sienna-bright/70 focus:outline-none";
 const addBtnCls =
   "rounded-lg border border-dashed border-olive/40 px-3.5 py-2 font-body text-xs font-semibold text-ivory/60 transition-colors hover:border-sienna-bright/60 hover:text-sienna-bright";
 
 function Counter({ n, max }: { n: number; max?: number }) {
-  if (max === undefined) return <span className="font-body text-[11px] text-ivory/35">{n}</span>;
+  if (max === undefined) return <span className="font-body text-[11px] text-ivory/50">{n}</span>;
   const over = n > max;
   return (
-    <span className={"font-body text-[11px] " + (over ? "font-semibold text-red-300" : "text-ivory/35")}>
+    <span className={"font-body text-[11px] " + (over ? "font-semibold text-red-300" : "text-ivory/50")}>
       {n}/{max}{over ? " - over limit" : ""}
     </span>
   );
@@ -63,7 +63,7 @@ function TextField({ f, value, onChange }: { f: F; value: string; onChange: (v: 
           className={fieldCls + (f.kind === "url" ? " font-mono !text-[13px]" : "")}
         />
       )}
-      {f.help && <p className="mt-1.5 font-body text-xs text-ivory/35">{f.help}</p>}
+      {f.help && <p className="mt-1.5 font-body text-xs text-ivory/50">{f.help}</p>}
     </div>
   );
 }
@@ -241,7 +241,7 @@ function TickerEditor({ initial }: { initial: string }) {
         rows={6}
         className={fieldCls}
       />
-      <p className="mt-1.5 font-body text-xs text-ivory/35">One item per line, in display order.</p>
+      <p className="mt-1.5 font-body text-xs text-ivory/50">One item per line, in display order.</p>
       <input type="hidden" name="s:home.ticker" value={JSON.stringify(toLines(text))} />
     </div>
   );
@@ -499,7 +499,7 @@ export function HomeEditor({ initial }: { initial: Record<string, string> }) {
       </Section>
       <Section title="5 · Selected work" note="Cards come from published case studies. Manage them under Content - Work. Only the frame copy lives here.">
         {fields(WORK)}
-        <p className="font-body text-xs text-ivory/40">
+        <p className="font-body text-xs text-ivory/50">
           Cards: <Link href="/admin/projects" className="text-sienna-bright hover:underline">Work / Case Studies</Link>
           {" · "}Testimonials live under <Link href="/admin/testimonials" className="text-sienna-bright hover:underline">Testimonials</Link>.
         </p>
@@ -519,7 +519,7 @@ export function HomeEditor({ initial }: { initial: Record<string, string> }) {
       </Section>
       <Section title="10 · Footer extras" note="Links, contact and socials live in their own admin areas (Navigation Links, Site settings). Only footer-only copy lives here.">
         {fields(FOOT)}
-        <p className="font-body text-xs text-ivory/40">
+        <p className="font-body text-xs text-ivory/50">
           Navigation: <Link href="/admin/menulinks" className="text-sienna-bright hover:underline">Navigation Links</Link>
           {" · "}Contact, socials, SEO: <Link href="/admin/settings" className="text-sienna-bright hover:underline">Site settings</Link>.
         </p>

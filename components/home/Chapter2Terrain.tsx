@@ -216,7 +216,7 @@ const READ_NOISE = [
   { text: "next-level", top: "56%", left: "40%", size: "0.9rem", rot: "6deg" },
 ] as const;
 
-const READ_SIGNALS = ["Market — mapped", "Competitors — profiled", "Buyers — heard"] as const;
+const READ_SIGNALS = ["Market Ã¢â‚¬â€ mapped", "Competitors Ã¢â‚¬â€ profiled", "Buyers Ã¢â‚¬â€ heard"] as const;
 
 function ReadCompare() {
   return (
@@ -258,7 +258,7 @@ function ReadCompare() {
           }
         />
       </div>
-      <p className="mt-3.5 flex flex-wrap items-center gap-2.5 font-body text-xs leading-relaxed text-ivory/40">
+      <p className="mt-3.5 flex flex-wrap items-center gap-2.5 font-body text-xs leading-relaxed text-ivory/50">
         <span className="rounded-full border border-sienna/40 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-sienna-bright">
           Live
         </span>
@@ -304,7 +304,7 @@ function MapCompare() {
           }
         />
       </div>
-      <p className="mt-3.5 font-body text-xs leading-relaxed text-ivory/40">
+      <p className="mt-3.5 font-body text-xs leading-relaxed text-ivory/50">
         Everyone clusters where the noise is loudest. The defensible position is the open ground.
       </p>
     </div>
@@ -354,7 +354,7 @@ function BuildCompare() {
           }
         />
       </div>
-      <p className="mt-3.5 font-body text-xs leading-relaxed text-ivory/40">
+      <p className="mt-3.5 font-body text-xs leading-relaxed text-ivory/50">
         Five disciplines, one assembled system &mdash; built in sequence, never in isolation.
       </p>
     </div>
@@ -389,12 +389,12 @@ export function Chapter2Terrain({ copy }: { copy: TaglineCopy }) {
       {/* ============ 2.0 - THE OPENER ============ */}
       <section
         ref={arrivalRef}
-        className="arrival-card relative flex min-h-svh items-center justify-center overflow-hidden bg-espresso"
+        className="arrival-card relative flex min-h-[72svh] items-center justify-center overflow-hidden bg-espresso"
         aria-label="Chapter 02 - The tagline"
       >
         <div className="grain" aria-hidden="true" />
 
-        <div className="section-shell relative z-10 py-28 text-center">
+        <div className="section-shell relative z-10 py-20 text-center">
           <p className="ar-label mx-auto flex max-w-lg flex-wrap items-center justify-center gap-3 font-body text-[13px] font-semibold uppercase tracking-[0.08em] text-olive-hi">
             <span aria-hidden="true" className="h-px w-6 shrink-0 bg-sienna" />
             <span>{copy.eyebrow}</span>
@@ -432,7 +432,7 @@ export function Chapter2Terrain({ copy }: { copy: TaglineCopy }) {
       {/* ============ 2.1 - CONSULTANCY / THE READ ============ */}
       <section
         ref={act1Ref}
-        className="act act-01 relative scroll-mt-20 overflow-hidden py-24 md:py-28"
+        className="act act-01 relative scroll-mt-20 overflow-hidden py-16 md:py-20"
         aria-label="Act 01 - Consultancy, the read"
       >
         <div className="section-shell grid items-center gap-12 lg:grid-cols-12">
@@ -459,7 +459,7 @@ export function Chapter2Terrain({ copy }: { copy: TaglineCopy }) {
       {/* ============ 2.2 - STRATEGY / THE MAP ============ */}
       <section
         ref={act2Ref}
-        className="act act-02 relative overflow-hidden py-24 md:py-28"
+        className="act act-02 relative overflow-hidden py-16 md:py-20"
         aria-label="Act 02 - Strategy, the map"
       >
         <div className="section-shell">
@@ -489,7 +489,7 @@ export function Chapter2Terrain({ copy }: { copy: TaglineCopy }) {
       {/* ============ 2.3 - SOLUTION / THE BUILD ============ */}
       <section
         ref={act3Ref}
-        className="act act-03 relative overflow-hidden py-24 md:py-28"
+        className="act act-03 relative overflow-hidden py-16 md:py-20"
         aria-label="Act 03 - Solution, the build"
       >
         <div className="section-shell">
@@ -519,7 +519,7 @@ export function Chapter2Terrain({ copy }: { copy: TaglineCopy }) {
       {/* ============ 2.4 - THE LOCKUP ============ */}
       <section
         ref={finaleRef}
-        className="lockup relative overflow-hidden pb-28 pt-24 md:pb-32"
+        className="lockup relative overflow-hidden pb-20 pt-16 md:pb-24 md:pt-20"
         aria-label="The tagline, locked"
       >
         <div className="section-shell">
@@ -560,7 +560,7 @@ export function Chapter2Terrain({ copy }: { copy: TaglineCopy }) {
             <div className="mt-6 text-center">
               <Link
                 href={copy.ctaHref}
-                className="btn-ghost inline-flex font-display text-sm font-semibold text-sienna-bright"
+                className="btn-ghost inline-flex items-center whitespace-nowrap font-display text-sm font-semibold text-sienna-bright"
               >
                 {copy.cta}
                 <svg viewBox="0 0 20 20" className="ml-2 h-4 w-4 transition-transform duration-300 hover:translate-x-1" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">

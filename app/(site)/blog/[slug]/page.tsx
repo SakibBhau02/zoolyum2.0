@@ -149,7 +149,7 @@ export default async function BlogPostPage({
         <div className="grain" aria-hidden="true" />
         <div className="section-shell relative">
           <nav aria-label="Breadcrumb" className="mb-8">
-            <ol className="flex flex-wrap items-center gap-2 font-body text-xs tracking-wide text-ivory/40">
+            <ol className="flex flex-wrap items-center gap-2 font-body text-xs tracking-wide text-ivory/50">
               <li><Link href="/" className="transition-colors hover:text-sienna-bright">Home</Link></li>
               <li aria-hidden="true">/</li>
               <li><Link href="/blog" className="transition-colors hover:text-sienna-bright">Insights</Link></li>
@@ -160,7 +160,7 @@ export default async function BlogPostPage({
 
           <div className="max-w-3xl">
             <Reveal>
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 font-body text-xs tracking-wide text-ivory/45">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 font-body text-xs tracking-wide text-ivory/50">
                 <Link
                   href="/blog"
                   className="rounded-full border border-sienna-bright/60 bg-sienna/10 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-sienna-bright transition-colors duration-200 hover:bg-sienna-bright hover:text-espresso"
@@ -187,7 +187,7 @@ export default async function BlogPostPage({
                   </span>
                   <div>
                     <p className="font-body text-sm font-medium text-ivory/85"><Link href="/team" className="transition-colors hover:text-sienna-bright">{post.author}</Link></p>
-                    <p className="font-body text-xs text-ivory/40">{post.authorRole}, Zoolyum</p>
+                    <p className="font-body text-xs text-ivory/50">{post.authorRole}, Zoolyum</p>
                   </div>
                 </div>
                 <ShareButtons title={post.title} />
@@ -418,7 +418,7 @@ export default async function BlogPostPage({
               <path d="M16 10H4m0 0 5-5m-5 5 5 5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
             <div className="min-w-0">
-              <p className="font-body text-[11px] uppercase tracking-widest text-ivory/40">Previous</p>
+              <p className="font-body text-[11px] uppercase tracking-widest text-ivory/50">Previous</p>
               <p className="mt-1 truncate font-display text-lg font-semibold text-ivory transition-colors duration-300 group-hover:text-sienna-bright">
                 {prev.title}
               </p>
@@ -426,7 +426,7 @@ export default async function BlogPostPage({
           </Link>
           <Link href={`/blog/${next.slug}`} className="card-surface group flex items-center justify-end gap-5 p-6 text-right">
             <div className="min-w-0">
-              <p className="font-body text-[11px] uppercase tracking-widest text-ivory/40">Next</p>
+              <p className="font-body text-[11px] uppercase tracking-widest text-ivory/50">Next</p>
               <p className="mt-1 truncate font-display text-lg font-semibold text-ivory transition-colors duration-300 group-hover:text-sienna-bright">
                 {next.title}
               </p>
@@ -476,7 +476,7 @@ export default async function BlogPostPage({
                   <h3 className="mt-3 line-clamp-2 flex-1 font-display text-lg font-semibold leading-snug text-ivory transition-colors duration-300 group-hover:text-sienna-bright">
                     {rel.title}
                   </h3>
-                  <p className="mt-4 font-body text-xs text-ivory/40">
+                  <p className="mt-4 font-body text-xs text-ivory/50">
                     {rel.author} - {rel.readTime} read
                   </p>
                 </div>

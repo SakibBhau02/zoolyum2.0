@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 
 /**
@@ -9,56 +9,82 @@ import { usePathname } from "next/navigation";
  * Terrain Gradient as the user scrolls. On the homepage it
  * waits for the Signal Thread handoff at the end of Chapter 1;
  * everywhere else it is present from the start.
+ *
+ * Everything here writes straight to the DOM. An earlier version kept
+ * progress in React state, which meant a full component re-render on
+ * every scroll frame — the single largest main-thread cost on the page.
  */
 export function TerrainScrollIndicator() {
   const pathname = usePathname();
   const isHome = pathname === "/";
-  const [progress, setProgress] = useState(0);
-  const [signalOn, setSignalOn] = useState(!isHome);
+  const shellRef = useRef<HTMLDivElement>(null);
+  const fillRef = useRef<HTMLDivElement>(null);
   const ticking = useRef(false);
+  const maxScroll = useRef(0);
 
   useEffect(() => {
-    requestAnimationFrame(() => {
-      setSignalOn(!isHome || document.documentElement.dataset.signal === "on");
-    });
-  }, [isHome, pathname]);
+    const measure = () => {
+      maxScroll.current = Math.max(
+        0,
+        document.documentElement.scrollHeight - window.innerHeight
+      );
+    };
 
-  useEffect(() => {
     const update = () => {
-      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
-      setProgress(scrollable > 0 ? Math.min(1, window.scrollY / scrollable) : 0);
-      if (isHome) {
-        setSignalOn(document.documentElement.dataset.signal === "on");
-      }
       ticking.current = false;
+      const progress =
+        maxScroll.current > 0
+          ? Math.min(1, Math.max(0, window.scrollY / maxScroll.current))
+          : 0;
+
+      if (fillRef.current) {
+        fillRef.current.style.transform = `scaleX(${progress})`;
+      }
+      if (isHome && shellRef.current) {
+        shellRef.current.style.opacity =
+          document.documentElement.dataset.signal === "on" ? "1" : "0";
+      }
     };
 
     const onScroll = () => {
-      if (!ticking.current) {
-        ticking.current = true;
-        requestAnimationFrame(update);
-      }
+      if (ticking.current) return;
+      ticking.current = true;
+      requestAnimationFrame(update);
     };
 
+    // Pinned sections (and fonts) change the scrollable height after
+    // mount, so track it with a ResizeObserver instead of reading
+    // scrollHeight on every frame.
+    const ro = new ResizeObserver(() => {
+      measure();
+      onScroll();
+    });
+    ro.observe(document.documentElement);
+
+    measure();
     requestAnimationFrame(update);
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
+
     return () => {
+      ro.disconnect();
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
-  }, [isHome]);
+  }, [isHome, pathname]);
 
   return (
     <div
+      ref={shellRef}
       aria-hidden="true"
       className={`fixed inset-x-0 top-0 z-[70] h-[3px] bg-espresso/40 transition-opacity duration-700 ${
-        signalOn ? "opacity-100" : "opacity-0"
+        isHome ? "opacity-0" : "opacity-100"
       }`}
     >
       <div
+        ref={fillRef}
         className="terrain-gradient h-full origin-left rounded-r-full"
-        style={{ transform: `scaleX(${progress})` }}
+        style={{ transform: "scaleX(0)" }}
       />
     </div>
   );

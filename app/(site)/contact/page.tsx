@@ -180,7 +180,7 @@ export default async function ContactPage() {
                 <blockquote className="font-body text-[15px] leading-relaxed text-ivory/70">
                   &ldquo;{quote.quote}&rdquo;
                 </blockquote>
-                <figcaption className="mt-3 font-body text-xs uppercase tracking-[0.18em] text-ivory/40">
+                <figcaption className="mt-3 font-body text-xs uppercase tracking-[0.18em] text-ivory/50">
                   {quote.author} &middot; {quote.company}
                 </figcaption>
               </figure>
