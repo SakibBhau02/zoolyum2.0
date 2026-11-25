@@ -29,6 +29,18 @@ export type PrivateSavedFile = {
 const PRIVATE_R2_PREFIX = "r2private:";
 const PRIVATE_LOCAL_PREFIX = "localprivate:";
 
+/**
+ * The private bucket is part of this deployment's infrastructure, so it has a
+ * default. An explicit env var still wins (e.g. a staging bucket). This keeps
+ * admin CV downloads working on deploys that were created before the env var
+ * was added to Vercel.
+ */
+const DEFAULT_PRIVATE_BUCKET = "zoolyum-private";
+
+function privateBucket(): string {
+  return process.env.R2_PRIVATE_BUCKET?.trim() || (process.env.R2_ACCOUNT_ID ? DEFAULT_PRIVATE_BUCKET : "");
+}
+
 function safeName(filename: string) {
   return filename.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 180) || "attachment";
 }
@@ -48,7 +60,7 @@ function r2Client() {
 }
 
 export function privateStorageConfigured(): boolean {
-  if (process.env.R2_PRIVATE_BUCKET?.trim()) return true;
+  if (privateBucket()) return true;
   return (process.env.STORAGE_DRIVER ?? "local") !== "r2";
 }
 
@@ -59,7 +71,7 @@ export async function savePrivateFile(
 ): Promise<PrivateSavedFile> {
   const name = safeName(filename);
   const key = `careers/${Date.now()}-${randomUUID().slice(0, 8)}-${name}`;
-  const bucket = process.env.R2_PRIVATE_BUCKET?.trim();
+  const bucket = privateBucket();
 
   if (bucket) {
     const s3 = r2Client();
@@ -97,7 +109,7 @@ export type PrivateReadResult = {
 
 export async function readPrivateFile(key: string): Promise<PrivateReadResult | null> {
   if (key.startsWith(PRIVATE_R2_PREFIX)) {
-    const bucket = process.env.R2_PRIVATE_BUCKET?.trim();
+    const bucket = privateBucket();
     if (!bucket) return null;
     const objectKey = key.slice(PRIVATE_R2_PREFIX.length);
     const s3 = r2Client();
@@ -129,7 +141,7 @@ export async function readPrivateFile(key: string): Promise<PrivateReadResult | 
 export async function deletePrivateFile(key: string): Promise<void> {
   try {
     if (key.startsWith(PRIVATE_R2_PREFIX)) {
-      const bucket = process.env.R2_PRIVATE_BUCKET?.trim();
+      const bucket = privateBucket();
       if (!bucket) return;
       const s3 = r2Client();
       await s3.send(new DeleteObjectCommand({ Bucket: bucket, Key: key.slice(PRIVATE_R2_PREFIX.length) }));
