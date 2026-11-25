@@ -1,4 +1,11 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+import { NotFoundBeacon } from "@/components/seo/NotFoundBeacon";
+
+export const metadata: Metadata = {
+  title: "Page not found",
+  robots: { index: false, follow: true },
+};
 
 /**
  * Custom 404 — understated, per spec 09.11.
@@ -6,6 +13,7 @@ import Link from "next/link";
 export default function NotFound() {
   return (
     <section className="relative flex min-h-svh items-center justify-center overflow-hidden">
+      <NotFoundBeacon />
       <div className="dappled" aria-hidden="true" />
       <div className="section-shell relative z-10 py-32 text-center">
         <p className="font-display text-[7rem] font-semibold leading-none tracking-tight text-sienna/15 md:text-[10rem]">
@@ -14,7 +22,7 @@ export default function NotFound() {
         <h1 className="mx-auto -mt-4 max-w-2xl font-display text-display-3 font-semibold text-ivory md:-mt-8">
           This page isn&apos;t part of the pattern we mapped.
         </h1>
-        <p className="mx-auto mt-5 max-w-md font-accent text-xl italic leading-relaxed text-ivory/55">
+        <p className="mx-auto mt-5 max-w-md font-accent text-xl italic leading-relaxed text-ivory/70">
           Let&apos;s get you back on the path.
         </p>
         <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">

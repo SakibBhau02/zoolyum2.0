@@ -25,7 +25,6 @@ function publicUrl(key: string) {
   const base = (process.env.R2_PUBLIC_URL ?? "").replace(/\/$/, "");
   if (base) return `${base}/${key}`;
   const accountId = process.env.R2_ACCOUNT_ID ?? "";
-  const bucket = process.env.R2_BUCKET ?? "";
   return `https://pub-${accountId}.r2.dev/${key}`;
 }
 
@@ -34,7 +33,17 @@ export async function saveR2(data: Buffer, filename: string, mime: string): Prom
   if (!bucket) throw new Error("R2_BUCKET is not set.");
   const safe = filename.replace(/[^a-zA-Z0-9._-]/g, "_");
   const key = `uploads/${Date.now()}-${randomUUID().slice(0, 8)}-${safe}`;
-  await s3.send(new PutObjectCommand({ Bucket: bucket, Key: key, Body: data, ContentType: mime }));
+  await s3.send(
+    new PutObjectCommand({
+      Bucket: bucket,
+      Key: key,
+      Body: data,
+      ContentType: mime,
+      // An SVG opened directly can execute script on the storage origin.
+      // Force a download for it; raster images keep inline rendering.
+      ...(mime === "image/svg+xml" ? { ContentDisposition: `attachment; filename="${safe}"` } : {}),
+    }),
+  );
   return { key: `r2:${key}`, url: publicUrl(key), mime, size: data.length };
 }
 

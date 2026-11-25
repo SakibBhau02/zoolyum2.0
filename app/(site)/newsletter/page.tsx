@@ -1,5 +1,7 @@
+import { jsonLdHtml } from "@/lib/seo";
 import type { Metadata } from "next";
 import { pageMeta } from "@/lib/content";
+import { PageSchema } from "@/components/seo/PageSchema";
 import Link from "next/link";
 import { PageHero } from "@/components/pages/PageHero";
 import { Reveal } from "@/components/ui/Reveal";
@@ -47,7 +49,7 @@ export default async function NewsletterPage() {
         title={
           <>
             One strategic insight a month.{" "}
-            <span className="text-ivory/55">No noise.</span>
+            <span className="text-ivory/70">No noise.</span>
           </>
         }
         lead="The same discipline we bring to client work, compressed into an email. Reading time: four minutes. Everything else: nothing."
@@ -62,7 +64,7 @@ export default async function NewsletterPage() {
               <h2 className="font-display text-2xl font-semibold text-ivory">
                 Join the list
               </h2>
-              <p className="body-copy mt-2 font-body text-sm text-ivory/50">
+              <p className="body-copy mt-2 font-body text-sm text-ivory/66">
                 One email a month. Unsubscribe in one click, forever.
               </p>
               <FormShell className="mt-8 space-y-5" leadKind="newsletter">
@@ -70,11 +72,11 @@ export default async function NewsletterPage() {
                   <Field label="First name" name="firstname" required />
                   <Field label="Work email" name="email" type="email" required />
                 </div>
-                <SubmitButton label="Get the Letter" />
+                <SubmitButton label="Get the Letter" doneLabel="You're on the list. First insight arrives next month." />
               </FormShell>
               <ul className="mt-7 flex flex-wrap gap-x-6 gap-y-2 border-t border-olive/20 pt-5" aria-label="Our promise">
                 {["One email a month", "No spam, ever", "Unsubscribe anytime"].map((t) => (
-                  <li key={t} className="flex items-center gap-2 font-body text-xs text-ivory/50">
+                  <li key={t} className="flex items-center gap-2 font-body text-xs text-ivory/66">
                     <svg viewBox="0 0 16 16" className="h-3.5 w-3.5 shrink-0 text-sienna" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
                       <path d="m3 8.5 3.5 3.5L13 5" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
@@ -87,7 +89,7 @@ export default async function NewsletterPage() {
 
           <Reveal delay={130} className="lg:col-span-5">
             <div className="flex h-full flex-col gap-4">
-              <p className="font-body text-[11px] font-semibold uppercase tracking-[0.22em] text-ivory/50">
+              <p className="font-body text-[11px] font-semibold uppercase tracking-[0.22em] text-ivory/66">
                 Every issue carries
               </p>
               {benefits.map((benefit: { title: string; detail: string }, i: number) => (
@@ -99,7 +101,7 @@ export default async function NewsletterPage() {
                     <h3 className="font-display text-base font-semibold text-ivory">
                       {benefit.title}
                     </h3>
-                    <p className="body-copy mt-1.5 font-body text-sm leading-relaxed text-ivory/55">
+                    <p className="body-copy mt-1.5 font-body text-sm leading-relaxed text-ivory/70">
                       {benefit.detail}
                     </p>
                   </div>
@@ -137,7 +139,7 @@ export default async function NewsletterPage() {
                   <p className="truncate font-body text-sm font-medium text-ivory/85">
                     The Zoolyum Letter #12 - Why discount brands disappear
                   </p>
-                  <p className="font-body text-xs text-ivory/50">From: Zoolyum · Monthly · 4 min read</p>
+                  <p className="font-body text-xs text-ivory/66">From: Zoolyum · Monthly · 4 min read</p>
                 </div>
               </div>
               <ol className="space-y-1 p-3 md:p-4">
@@ -150,7 +152,7 @@ export default async function NewsletterPage() {
                     <span className="font-display text-sm font-semibold text-sienna tabular-nums" aria-hidden="true">{row.n}</span>
                     <div>
                       <p className="font-display text-base font-semibold text-ivory">{row.t}</p>
-                      <p className="body-copy mt-1 font-body text-sm leading-relaxed text-ivory/55">{row.d}</p>
+                      <p className="body-copy mt-1 font-body text-sm leading-relaxed text-ivory/70">{row.d}</p>
                     </div>
                   </li>
                 ))}
@@ -186,10 +188,10 @@ export default async function NewsletterPage() {
                   <h3 className="mt-3 line-clamp-3 flex-1 font-display text-lg font-semibold leading-snug text-ivory transition-colors duration-300 group-hover:text-sienna-bright">
                     {post.title}
                   </h3>
-                  <p className="body-copy mt-3 line-clamp-2 font-body text-[13px] leading-relaxed text-ivory/50">
+                  <p className="body-copy mt-3 line-clamp-2 font-body text-[13px] leading-relaxed text-ivory/66">
                     {post.excerpt}
                   </p>
-                  <p className="mt-5 flex items-center justify-between border-t border-olive/20 pt-4 font-body text-xs text-ivory/50">
+                  <p className="mt-5 flex items-center justify-between border-t border-olive/20 pt-4 font-body text-xs text-ivory/66">
                     <span>{formatDate(post.date)} - {post.readTime} read</span>
                     <svg viewBox="0 0 20 20" className="h-4 w-4 text-sienna-bright transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
                       <path d="M4 10h12m0 0-5-5m5 5-5 5" strokeLinecap="round" strokeLinejoin="round" />
@@ -213,7 +215,7 @@ export default async function NewsletterPage() {
               <p className="mt-5 font-accent text-2xl italic leading-snug text-ivory/85">
                 &ldquo;I write what I would send a founder friend - no fluff, no funnelspeak.&rdquo;
               </p>
-              <p className="mt-4 font-body text-sm text-ivory/50">
+              <p className="mt-4 font-body text-sm text-ivory/66">
                 <span className="font-medium text-ivory/80">Sakib Chowdhury</span> - Founder &amp; Creative Director, Zoolyum
               </p>
             </div>
@@ -280,7 +282,7 @@ export default async function NewsletterPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: jsonLdHtml({
             "@context": "https://schema.org",
             "@type": "FAQPage",
             mainEntity: letterFaqs.map((f: { q: string; a: string }) => ({
@@ -291,6 +293,7 @@ export default async function NewsletterPage() {
           }),
         }}
       />
+      <PageSchema route="newsletter" path="/newsletter" label="Newsletter" type="CollectionPage" />
     </>
   );
 }

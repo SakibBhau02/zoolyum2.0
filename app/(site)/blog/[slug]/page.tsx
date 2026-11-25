@@ -8,7 +8,9 @@ import { JourneyRail } from "@/components/pages/JourneyRail";
 import { BlogFigure } from "@/components/pages/BlogFigure";
 import { ShareButtons } from "@/components/pages/ShareButtons";
 import { SITE_URL } from "@/lib/data";
-import { getPostSlugs, getPost, getPosts, getPostBody, getPostExtras } from "@/lib/content";
+import { OG_IMAGE, indexableRobots, jsonLdHtml, noindexRobots } from "@/lib/seo";
+import { clampMeta } from "@/lib/text";
+import { getPostSlugs, getPost, getPosts, getPostBody, getPostExtras, getSeoOverride } from "@/lib/content";
 
 export async function generateStaticParams() {
   return (await getPostSlugs()).map((slug) => ({ slug }));
@@ -25,30 +27,39 @@ export async function generateMetadata({
   const url = `${SITE_URL}/blog/${post.slug}`;
   const { updated: modUpdated } = await getPostExtras(slug);
   const modified = modUpdated ?? post.date;
+  const override = await getSeoOverride(`/blog/${post.slug}`);
+  const title = override?.title || post.title;
+  const description = override?.description || clampMeta(post.excerpt);
   return {
-    title: post.title,
-    description: post.excerpt,
-    keywords: [...post.keywords],
+    title: override?.title ? { absolute: override.title } : post.title,
+    description,
+    keywords: override?.keywords.length ? override.keywords : [...post.keywords],
     authors: [{ name: post.author }],
-    alternates: { canonical: url },
+    robots: override?.noindex ? noindexRobots : indexableRobots,
+    alternates: {
+      canonical: override?.canonical || url,
+      types: { "application/rss+xml": `${SITE_URL}/feed.xml` },
+    },
     openGraph: {
-      title: post.title,
-      description: post.excerpt,
+      title,
+      description: override?.description || clampMeta(post.excerpt),
       url,
       siteName: "Zoolyum",
+      locale: "en_US",
       type: "article",
       publishedTime: post.date,
       modifiedTime: modified,
       authors: [post.author],
       section: post.category,
       tags: [...post.keywords],
-      images: [{ url: `${url}/opengraph-image`, width: 1200, height: 630, alt: post.title }],
+      ...(override?.ogImage
+        ? { images: [{ url: override.ogImage, width: 1200, height: 630, alt: post.title }] }
+        : {}),
     },
     twitter: {
       card: "summary_large_image",
-      title: post.title,
-      description: post.excerpt,
-      images: [`${url}/opengraph-image`],
+      title,
+      description: override?.description || clampMeta(post.excerpt),
     },
   };
 }
@@ -74,7 +85,6 @@ export default async function BlogPostPage({
   const { faqs, updated: exUpdated, sections } = await getPostExtras(post.slug);
   const updated = exUpdated ?? post.date;
   const revised = updated !== post.date;
-  const wordCount = body.join(" ").split(/\s+/).filter(Boolean).length;
 
   const all = await getPosts();
   const idx = all.findIndex((p) => p.slug === post.slug);
@@ -95,16 +105,18 @@ export default async function BlogPostPage({
         description: post.excerpt,
         datePublished: post.date,
         dateModified: updated,
-        wordCount,
         author: { "@type": "Person", name: post.author, jobTitle: post.authorRole, url: `${SITE_URL}/team` },
         publisher: {
           "@type": "Organization",
           name: "Zoolyum",
           url: SITE_URL,
-          logo: `${SITE_URL}/logo.svg`,
+          logo: `${SITE_URL}/icon.png`,
         },
         mainEntityOfPage: `${SITE_URL}/blog/${post.slug}`,
-        image: `${SITE_URL}${post.cover}`,
+        // SVG cover first (visually correct), plus the raster OG card so
+        // Raster card first — Google's Article rich result ignores SVG. The
+        // editorial cover stays as a secondary image.
+        image: [OG_IMAGE, ...(post.cover ? [`${SITE_URL}${post.cover}`] : [])],
         articleSection: post.category,
         keywords: post.keywords.join(", "),
         inLanguage: "en",
@@ -149,7 +161,7 @@ export default async function BlogPostPage({
         <div className="grain" aria-hidden="true" />
         <div className="section-shell relative">
           <nav aria-label="Breadcrumb" className="mb-8">
-            <ol className="flex flex-wrap items-center gap-2 font-body text-xs tracking-wide text-ivory/50">
+            <ol className="flex flex-wrap items-center gap-2 font-body text-xs tracking-wide text-ivory/66">
               <li><Link href="/" className="transition-colors hover:text-sienna-bright">Home</Link></li>
               <li aria-hidden="true">/</li>
               <li><Link href="/blog" className="transition-colors hover:text-sienna-bright">Insights</Link></li>
@@ -160,7 +172,7 @@ export default async function BlogPostPage({
 
           <div className="max-w-3xl">
             <Reveal>
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 font-body text-xs tracking-wide text-ivory/50">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 font-body text-xs tracking-wide text-ivory/66">
                 <Link
                   href="/blog"
                   className="rounded-full border border-sienna-bright/60 bg-sienna/10 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-sienna-bright transition-colors duration-200 hover:bg-sienna-bright hover:text-espresso"
@@ -187,7 +199,7 @@ export default async function BlogPostPage({
                   </span>
                   <div>
                     <p className="font-body text-sm font-medium text-ivory/85"><Link href="/team" className="transition-colors hover:text-sienna-bright">{post.author}</Link></p>
-                    <p className="font-body text-xs text-ivory/50">{post.authorRole}, Zoolyum</p>
+                    <p className="font-body text-xs text-ivory/66">{post.authorRole}, Zoolyum</p>
                   </div>
                 </div>
                 <ShareButtons title={post.title} />
@@ -327,7 +339,7 @@ export default async function BlogPostPage({
                 <div>
                   <p className="eyebrow">Written by</p>
                   <p className="mt-2 font-display text-xl font-semibold text-ivory"><Link href="/team" className="transition-colors hover:text-sienna-bright">{post.author}</Link></p>
-                  <p className="body-copy mt-1 font-body text-sm leading-relaxed text-ivory/50">
+                  <p className="body-copy mt-1 font-body text-sm leading-relaxed text-ivory/66">
                     {post.authorRole} at Zoolyum - running the engagements these
                     insights come from.
                   </p>
@@ -383,7 +395,7 @@ export default async function BlogPostPage({
                   {post.keywords.map((k) => (
                     <span
                       key={k}
-                      className="rounded-full border border-olive/35 px-3 py-1.5 font-body text-xs text-ivory/55"
+                      className="rounded-full border border-olive/35 px-3 py-1.5 font-body text-xs text-ivory/70"
                     >
                       {k}
                     </span>
@@ -395,7 +407,7 @@ export default async function BlogPostPage({
                 <p className="font-display text-lg font-semibold leading-snug text-ivory">
                   Facing this problem?
                 </p>
-                <p className="mt-2 font-body text-[13px] leading-relaxed text-ivory/55">
+                <p className="mt-2 font-body text-[13px] leading-relaxed text-ivory/70">
                   One conversation maps where your brand stands.
                 </p>
                 <Link
@@ -418,7 +430,7 @@ export default async function BlogPostPage({
               <path d="M16 10H4m0 0 5-5m-5 5 5 5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
             <div className="min-w-0">
-              <p className="font-body text-[11px] uppercase tracking-widest text-ivory/50">Previous</p>
+              <p className="font-body text-[11px] uppercase tracking-widest text-ivory/66">Previous</p>
               <p className="mt-1 truncate font-display text-lg font-semibold text-ivory transition-colors duration-300 group-hover:text-sienna-bright">
                 {prev.title}
               </p>
@@ -426,7 +438,7 @@ export default async function BlogPostPage({
           </Link>
           <Link href={`/blog/${next.slug}`} className="card-surface group flex items-center justify-end gap-5 p-6 text-right">
             <div className="min-w-0">
-              <p className="font-body text-[11px] uppercase tracking-widest text-ivory/50">Next</p>
+              <p className="font-body text-[11px] uppercase tracking-widest text-ivory/66">Next</p>
               <p className="mt-1 truncate font-display text-lg font-semibold text-ivory transition-colors duration-300 group-hover:text-sienna-bright">
                 {next.title}
               </p>
@@ -476,7 +488,7 @@ export default async function BlogPostPage({
                   <h3 className="mt-3 line-clamp-2 flex-1 font-display text-lg font-semibold leading-snug text-ivory transition-colors duration-300 group-hover:text-sienna-bright">
                     {rel.title}
                   </h3>
-                  <p className="mt-4 font-body text-xs text-ivory/50">
+                  <p className="mt-4 font-body text-xs text-ivory/66">
                     {rel.author} - {rel.readTime} read
                   </p>
                 </div>
@@ -488,7 +500,7 @@ export default async function BlogPostPage({
 
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(jsonLd) }}
       />
     </>
   );

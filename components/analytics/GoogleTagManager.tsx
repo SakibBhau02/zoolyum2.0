@@ -20,6 +20,9 @@ function GtmPageViews() {
       (window as unknown as { dataLayer?: unknown[] }).dataLayer?.push({
         event: "page_view",
         page,
+        // GA4 tags inside GTM read these, not `page`.
+        page_location: window.location.href,
+        page_title: document.title,
       });
     } catch {
       /* analytics must never break navigation */

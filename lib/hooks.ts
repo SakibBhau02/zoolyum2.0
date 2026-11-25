@@ -35,7 +35,12 @@ export function useMediaQuery(query: string): boolean {
   );
 
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    // Defer to the next frame: the first render must match the server, and a
+    // synchronous setState inside an effect triggers a cascading render.
+    const id = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
 
   return mounted ? matches : false;
 }

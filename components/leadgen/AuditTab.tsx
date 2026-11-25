@@ -90,31 +90,35 @@ export function AuditTab() {
   };
 
   return (
-    <aside
-      role="complementary"
-      aria-label="Free brand audit offer"
-      className="card-surface fixed bottom-6 right-6 z-40 w-[280px] p-6 shadow-[0_24px_60px_-24px_rgba(0,0,0,0.7)]"
-    >
-      <button
-        type="button"
-        onClick={dismiss}
-        aria-label="Dismiss offer"
-        className="absolute right-4 top-4 flex h-7 w-7 items-center justify-center rounded-full text-ivory/50 transition-colors hover:text-ivory"
+    // The positioning lives on a wrapper: .card-surface sets position:relative
+    // itself, which would beat a `fixed` utility on the same element.
+    <div className="fixed bottom-6 right-6 z-40 w-[280px]">
+      <aside
+        role="complementary"
+        aria-label="Free brand audit offer"
+        className="card-surface p-6 shadow-[0_24px_60px_-24px_rgba(0,0,0,0.7)]"
       >
-        <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-          <path d="M3 3l10 10M13 3L3 13" strokeLinecap="round" />
-        </svg>
-      </button>
-      <p className="font-display text-lg font-semibold leading-snug text-ivory">
-        Get a Free Brand Audit
-      </p>
-      <p className="body-copy mt-2 font-body text-[13px] leading-relaxed text-ivory/55">
-        27 questions to find where your brand is invisible. Ten minutes,
-        zero fluff.
-      </p>
-      <Link href="/resources" className="btn btn-primary mt-5 w-full !px-4 !py-2.5 !text-[13px]">
-        Get the checklist
-      </Link>
-    </aside>
+        <button
+          type="button"
+          onClick={dismiss}
+          aria-label="Dismiss offer"
+          className="absolute right-4 top-4 flex h-7 w-7 items-center justify-center rounded-full text-ivory/66 transition-colors hover:text-ivory"
+        >
+          <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <path d="M3 3l10 10M13 3L3 13" strokeLinecap="round" />
+          </svg>
+        </button>
+        <p className="font-display text-lg font-semibold leading-snug text-ivory">
+          Get a Free Brand Audit
+        </p>
+        <p className="body-copy mt-2 font-body text-[13px] leading-relaxed text-ivory/70">
+          27 questions to find where your brand is invisible. Ten minutes,
+          zero fluff.
+        </p>
+        <Link href="/resources" className="btn btn-primary mt-5 w-full !px-4 !py-2.5 !text-[13px]">
+          Get the checklist
+        </Link>
+      </aside>
+    </div>
   );
 }

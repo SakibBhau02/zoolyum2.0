@@ -168,7 +168,7 @@ function WizField({
     error ? "border-sienna-bright/70" : "border-olive/35"
   } bg-espresso px-4 pt-6 pb-2.5 font-body text-[15px] text-ivory placeholder:text-transparent focus:placeholder:text-ivory/30 transition-colors duration-300 focus:border-sienna-bright/70 focus:outline-none`;
   const labelClasses =
-    "pointer-events-none absolute left-4 top-2 font-body text-[11px] font-semibold uppercase tracking-[0.14em] text-ivory/50 transition-all duration-300 peer-placeholder-shown:top-4.5 peer-placeholder-shown:text-sm peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-placeholder-shown:text-ivory/50 peer-focus:top-2 peer-focus:text-[11px] peer-focus:uppercase peer-focus:tracking-[0.14em] peer-focus:text-sienna-bright";
+    "pointer-events-none absolute left-4 top-2 font-body text-[11px] font-semibold uppercase tracking-[0.14em] text-ivory/66 transition-all duration-300 peer-placeholder-shown:top-4.5 peer-placeholder-shown:text-sm peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-placeholder-shown:text-ivory/66 peer-focus:top-2 peer-focus:text-[11px] peer-focus:uppercase peer-focus:tracking-[0.14em] peer-focus:text-sienna-bright";
   return (
     <div className={className}>
       <div className="relative">
@@ -220,7 +220,7 @@ function ReviewChip({ label, onEdit }: { label: string; onEdit: () => void }) {
       className="group inline-flex items-center gap-2 rounded-full border border-olive/35 bg-espresso/60 py-1.5 pl-4 pr-2.5 font-body text-xs text-ivory/70 transition-colors duration-300 hover:border-sienna/60 hover:text-ivory"
     >
       {label}
-      <svg viewBox="0 0 16 16" className="h-3 w-3 text-ivory/50 transition-colors duration-300 group-hover:text-sienna-bright" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+      <svg viewBox="0 0 16 16" className="h-3 w-3 text-ivory/66 transition-colors duration-300 group-hover:text-sienna-bright" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
         <path d="M10.5 3.5l2 2L6 12l-3 1 1-3 6.5-6.5z" strokeLinejoin="round" />
       </svg>
     </button>
@@ -284,6 +284,9 @@ export function ContactWizard({ contactEmail, services }: { contactEmail: string
   const [errors, setErrors] = useState<Partial<Record<keyof WizardData, string>>>({});
   const [shakeKey, setShakeKey] = useState(0);
   const [done, setDone] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const trapRef = useRef<HTMLInputElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const successRef = useRef<HTMLHeadingElement>(null);
   const navigatedRef = useRef(false);
@@ -328,7 +331,14 @@ export function ContactWizard({ contactEmail, services }: { contactEmail: string
       setStep((s) => s + 1);
     } else {
       click();
+      // Bot check: a real visitor never sees or fills this field.
+      if ((trapRef.current?.value ?? "").trim() !== "") {
+        setDone(true);
+        return;
+      }
       const ctx = newLeadContext();
+      setBusy(true);
+      setSubmitError("");
       createLead("contact", {
         service: data.service,
         budget: data.budget,
@@ -339,10 +349,17 @@ export function ContactWizard({ contactEmail, services }: { contactEmail: string
         message: data.message,
       }, ctx)
         .then((r) => {
-          if (r.ok) fireBrowserLead("contact", ctx);
+          if (r.ok) {
+            fireBrowserLead("contact", ctx);
+            setDone(true);
+          } else {
+            setSubmitError(r.error ?? "Something went wrong. Please try again, or email hello@zoolyum.com.");
+          }
         })
-        .catch(() => {});
-      setDone(true);
+        .catch(() => {
+          setSubmitError("Something went wrong. Please try again, or email hello@zoolyum.com.");
+        })
+        .finally(() => setBusy(false));
     }
   };
 
@@ -392,12 +409,12 @@ export function ContactWizard({ contactEmail, services }: { contactEmail: string
                 <li key={s.title} className="rounded-xl border border-olive/25 bg-espresso/60 p-4 text-left">
                   <span className="font-display text-xs font-bold text-sienna-bright tabular-nums">0{i + 1}</span>
                   <p className="mt-2 font-display text-sm font-semibold text-ivory">{s.title}</p>
-                  <p className="mt-1 font-body text-xs leading-relaxed text-ivory/50">{s.body}</p>
+                  <p className="mt-1 font-body text-xs leading-relaxed text-ivory/66">{s.body}</p>
                 </li>
               ))}
             </ol>
           </div>
-          <p className="mt-8 text-center font-body text-sm text-ivory/50">
+          <p className="mt-8 text-center font-body text-sm text-ivory/66">
             Impatient? Write to us directly -{" "}
             <a href={`mailto:${contactEmail}`} className="font-semibold text-sienna-bright hover:underline">
               {contactEmail}
@@ -423,12 +440,12 @@ export function ContactWizard({ contactEmail, services }: { contactEmail: string
           </div>
           <span
             aria-hidden="true"
-            className="shrink-0 rounded-full border border-olive/30 px-3 py-1 font-display text-xs font-semibold tracking-[0.18em] text-ivory/50 tabular-nums"
+            className="shrink-0 rounded-full border border-olive/30 px-3 py-1 font-display text-xs font-semibold tracking-[0.18em] text-ivory/66 tabular-nums"
           >
             {String(step + 1).padStart(2, "0")}/04
           </span>
         </div>
-        <p className="mt-2 font-body text-sm text-ivory/50">{STEP_SUB[step]}</p>
+        <p className="mt-2 font-body text-sm text-ivory/66">{STEP_SUB[step]}</p>
 
         <div className="mt-7">
           <ProgressRail filled={step} />
@@ -467,7 +484,7 @@ export function ContactWizard({ contactEmail, services }: { contactEmail: string
                         </span>
                         <span className="pr-6">
                           <span className="block font-display text-[15px] font-semibold text-ivory">{opt.name}</span>
-                          <span className="mt-0.5 block font-body text-xs leading-relaxed text-ivory/50">{opt.tagline}</span>
+                          <span className="mt-0.5 block font-body text-xs leading-relaxed text-ivory/66">{opt.tagline}</span>
                         </span>
                         <span
                           aria-hidden="true"
@@ -507,7 +524,7 @@ export function ContactWizard({ contactEmail, services }: { contactEmail: string
                       >
                         <span>
                           <span className="block font-display text-[15px] font-semibold text-ivory">{b.label}</span>
-                          <span className="mt-0.5 block font-body text-xs text-ivory/50">{b.hint}</span>
+                          <span className="mt-0.5 block font-body text-xs text-ivory/66">{b.hint}</span>
                         </span>
                         <span
                           aria-hidden="true"
@@ -572,7 +589,7 @@ export function ContactWizard({ contactEmail, services }: { contactEmail: string
             {step === 3 && (
               <div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-body text-xs uppercase tracking-[0.14em] text-ivory/50">Your picks</span>
+                  <span className="font-body text-xs uppercase tracking-[0.14em] text-ivory/66">Your picks</span>
                   <ReviewChip label={data.service} onEdit={() => jump(0)} />
                   <ReviewChip label={data.budget} onEdit={() => jump(1)} />
                 </div>
@@ -600,11 +617,11 @@ export function ContactWizard({ contactEmail, services }: { contactEmail: string
               Back
             </button>
           ) : (
-            <p className="max-w-[16rem] font-body text-xs leading-relaxed text-ivory/50">
+            <p className="max-w-[16rem] font-body text-xs leading-relaxed text-ivory/66">
               Your details stay private - no lists, no spam, no sharing.
             </p>
           )}
-          <button type="submit" className="btn btn-primary min-w-[190px]">
+          <button type="submit" disabled={busy} className="btn btn-primary min-w-[190px] disabled:opacity-70">
             {step < 3 ? (
               <>
                 Continue
@@ -622,6 +639,20 @@ export function ContactWizard({ contactEmail, services }: { contactEmail: string
             )}
           </button>
         </div>
+        <input
+          ref={trapRef}
+          type="text"
+          name="_hp"
+          tabIndex={-1}
+          autoComplete="off"
+          aria-hidden="true"
+          style={{ position: "absolute", left: "-9999px", width: 1, height: 1, opacity: 0 }}
+        />
+        {submitError !== "" && (
+          <p role="alert" className="mt-4 font-body text-sm text-sienna-bright">
+            {submitError}
+          </p>
+        )}
       </div>
     </form>
   );

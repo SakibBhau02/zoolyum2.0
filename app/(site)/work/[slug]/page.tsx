@@ -7,7 +7,9 @@ import { JourneyRail } from "@/components/pages/JourneyRail";
 import { CaseStat } from "@/components/pages/CaseStat";
 import { CaseGallery } from "@/components/pages/CaseGallery";
 import { SITE_URL } from "@/lib/data";
-import { getProjectSlugs, getProject, getProjects, getServices, getWorkCopy } from "@/lib/content";
+import { OG_IMAGE, indexableRobots, jsonLdHtml, noindexRobots } from "@/lib/seo";
+import { clampMeta } from "@/lib/text";
+import { getProjectSlugs, getProject, getProjects, getServices, getWorkCopy, getSeoOverride } from "@/lib/content";
 
 export async function generateStaticParams() {
   return (await getProjectSlugs()).map((slug) => ({ slug }));
@@ -22,24 +24,31 @@ export async function generateMetadata({
   const project = await getProject(slug);
   if (!project) return {};
   const url = `${SITE_URL}/work/${project.slug}`;
+  const description = clampMeta(`${project.title}. ${project.challenge} Outcome: ${project.result}.`);
+  const override = await getSeoOverride(`/work/${project.slug}`);
+  const title = override?.title || `${project.client}: ${project.result}`;
+  const desc = override?.description || description;
   return {
-    title: `${project.client}: ${project.result}`,
-    description: `${project.title}. ${project.challenge} Outcome: ${project.result}.`,
-    keywords: [project.industry, "case study", ...project.services],
-    alternates: { canonical: url },
+    title: override?.title ? { absolute: override.title } : title,
+    description: desc,
+    keywords: override?.keywords.length ? override.keywords : [project.industry, "case study", ...project.services],
+    robots: override?.noindex ? noindexRobots : indexableRobots,
+    alternates: { canonical: override?.canonical || url },
     openGraph: {
       title: `${project.client} - ${project.result} | Zoolyum`,
-      description: `${project.title}. Outcome: ${project.result}.`,
+      description: desc,
       url,
       siteName: "Zoolyum",
+      locale: "en_US",
       type: "article",
-      images: [{ url: `${url}/opengraph-image`, width: 1200, height: 630, alt: `${project.client} - ${project.title}` }],
+      ...(override?.ogImage
+        ? { images: [{ url: override.ogImage, width: 1200, height: 630, alt: `${project.client} case study` }] }
+        : {}),
     },
     twitter: {
       card: "summary_large_image",
-      title: `${project.client} - ${project.result}`,
+      title,
       description: project.title,
-      images: [`${url}/opengraph-image`],
     },
   };
 }
@@ -101,10 +110,19 @@ export default async function CaseStudyPage({
         headline: `${project.client} - ${project.title}`,
         description: meta?.overview ?? project.challenge,
         about: `${project.industry} - ${project.services.join(", ")}`,
-        ...(project.updatedAt !== "" ? { dateModified: project.updatedAt } : {}),
+        // Article rich results want a publication date; the CMS only tracks an
+        // updated timestamp, so use it for both rather than emitting an invalid.
+        ...(project.updatedAt !== ""
+          ? { datePublished: project.updatedAt, dateModified: project.updatedAt }
+          : {}),
         wordCount,
         url: `${SITE_URL}/work/${project.slug}`,
-        image: `${SITE_URL}${ogImage?.src ?? ""}`,
+        // Raster card first: Google's Article rich result ignores SVG images.
+        // `new URL(src, SITE_URL)` also keeps CMS-supplied absolute R2 URLs valid.
+        image: [
+          OG_IMAGE,
+          ...(ogImage?.src ? [new URL(ogImage.src, SITE_URL).href] : []),
+        ],
         author: { "@type": "Organization", name: "Zoolyum", url: SITE_URL },
         publisher: { "@type": "Organization", name: "Zoolyum", url: SITE_URL },
       },
@@ -156,7 +174,7 @@ export default async function CaseStudyPage({
           <dl className="mt-10 grid grid-cols-3 gap-6 border-t border-olive/15 pt-7" aria-label="Headline outcomes">
             {project.stats.map((s) => (
               <div key={s.label} className="flex flex-col">
-                <dt className="order-2 mt-1.5 block font-body text-[11px] uppercase tracking-[0.16em] text-ivory/50">
+                <dt className="order-2 mt-1.5 block font-body text-[11px] uppercase tracking-[0.16em] text-ivory/66">
                   {s.label}
                 </dt>
                 <dd className="order-1 font-display text-2xl font-semibold text-sienna-bright tabular-nums md:text-4xl">
@@ -182,7 +200,7 @@ export default async function CaseStudyPage({
                   {meta.overview}
                 </p>
               )}
-              <div className="mt-7 grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
+              <dl className="mt-7 grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
                 {[
                   { k: w["work.case.rowClient"], v: project.client },
                   { k: w["work.case.rowIndustry"], v: project.industry },
@@ -190,13 +208,21 @@ export default async function CaseStudyPage({
                   { k: w["work.case.rowDisciplines"], v: project.services.join(" + ") },
                 ].map((row) => (
                   <div key={row.k}>
-                    <p className="font-body text-[11px] font-semibold uppercase tracking-[0.2em] text-ivory/50">
+                    <dt className="font-body text-[11px] font-semibold uppercase tracking-[0.2em] text-ivory/66">
                       {row.k}
-                    </p>
-                    <p className="mt-2 font-display text-lg font-medium text-ivory">{row.v}</p>
+                    </dt>
+                    <dd className="mt-2 font-display text-lg font-medium text-ivory">{row.v}</dd>
                   </div>
                 ))}
-              </div>
+              </dl>
+              {/* The quotable outcome: this is the sentence an answer engine
+                  lifts when someone asks "what did Zoolyum do for X". */}
+              <dl className="mt-7 border-t border-olive/20 pt-5">
+                <dt className="font-body text-[10.5px] font-semibold uppercase tracking-[0.2em] text-ivory/55">
+                  Outcome
+                </dt>
+                <dd className="mt-1.5 font-display text-2xl font-semibold text-sienna-bright">{project.result}</dd>
+              </dl>
             </div>
           </Reveal>
         </div>
@@ -215,7 +241,7 @@ export default async function CaseStudyPage({
               <h2 className="mt-5 font-display text-display-2 font-semibold leading-tight text-ivory">
                 {project.challenge}
               </h2>
-              <p className="mt-6 font-body text-sm tracking-wide text-ivory/50">
+              <p className="mt-6 font-body text-sm tracking-wide text-ivory/66">
                 {w["work.case.problemNote"]}
               </p>
             </div>
@@ -225,13 +251,13 @@ export default async function CaseStudyPage({
               {meta.obstacles.map((o, i) => (
                 <Reveal key={o.title} delay={i * 90}>
                   <div className="card-surface h-full p-6">
-                    <p className="font-display text-sm font-semibold text-sienna tabular-nums" aria-hidden="true">
+                    <p className="font-display text-sm font-semibold text-sienna-bright tabular-nums" aria-hidden="true">
                       {String(i + 1).padStart(2, "0")}
                     </p>
                     <h3 className="mt-3 font-display text-lg font-semibold leading-snug text-ivory">
                       {o.title}
                     </h3>
-                    <p className="mt-2.5 font-body text-sm leading-relaxed text-ivory/55">
+                    <p className="mt-2.5 font-body text-sm leading-relaxed text-ivory/70">
                       {o.how}
                     </p>
                   </div>
@@ -255,7 +281,7 @@ export default async function CaseStudyPage({
               <div className="lg:col-span-4">
                 <p className="eyebrow">{w["work.case.solutionEyebrow"]}</p>
                 <h2 className="mt-4 font-display text-display-3 font-semibold text-ivory">
-                  {w["work.case.solutionTitleA"]} <span className="text-ivory/55">{w["work.case.solutionTitleB"]}</span>
+                  {w["work.case.solutionTitleA"]} <span className="text-ivory/70">{w["work.case.solutionTitleB"]}</span>
                 </h2>
               </div>
               <p className="body-copy font-body text-lead leading-relaxed text-ivory/80 lg:col-span-8">
@@ -338,7 +364,7 @@ export default async function CaseStudyPage({
             <Reveal>
               <p className="eyebrow">{w["work.case.toolboxEyebrow"]}</p>
               <h2 className="mt-4 font-display text-display-3 font-semibold text-ivory">
-                {w["work.case.toolboxTitleA"]} <span className="text-ivory/55">{w["work.case.toolboxTitleB"]}</span>
+                {w["work.case.toolboxTitleA"]} <span className="text-ivory/70">{w["work.case.toolboxTitleB"]}</span>
               </h2>
             </Reveal>
             <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -426,7 +452,7 @@ export default async function CaseStudyPage({
               <Reveal>
                 <p className="eyebrow">{w["work.case.faqEyebrow"]}</p>
                 <h2 className="mt-4 font-display text-display-3 font-semibold text-ivory">
-                  {w["work.case.faqTitleA"]} <span className="text-ivory/55">{w["work.case.faqTitleB"]}</span>
+                  {w["work.case.faqTitleA"]} <span className="text-ivory/70">{w["work.case.faqTitleB"]}</span>
                 </h2>
               </Reveal>
               <div className="mt-8 space-y-3">
@@ -488,7 +514,7 @@ export default async function CaseStudyPage({
       {/* ---- Next case study: keep the loop ---- */}
       <section className="relative overflow-hidden py-14" aria-label="Next case study">
         <div className="section-shell">
-          <p className="font-body text-sm text-ivory/50">{w["work.case.nextLabel"]}</p>
+          <p className="font-body text-sm text-ivory/66">{w["work.case.nextLabel"]}</p>
           <Link href={`/work/${nextProject.slug}`} className="group mt-4 block">
             <div className="card-surface flex flex-col gap-6 p-7 md:flex-row md:items-center md:justify-between md:p-8">
               <div className="flex items-center gap-6">
@@ -498,13 +524,13 @@ export default async function CaseStudyPage({
                   </span>
                 </div>
                 <div>
-                  <p className="font-body text-xs uppercase tracking-widest text-ivory/50">
+                  <p className="font-body text-xs uppercase tracking-widest text-ivory/66">
                     {nextProject.industry}
                   </p>
                   <h3 className="mt-1 font-display text-2xl font-semibold text-ivory transition-colors duration-300 group-hover:text-sienna-bright">
                     {nextProject.client}
                   </h3>
-                  <p className="body-copy mt-1 font-body text-sm text-ivory/55">
+                  <p className="body-copy mt-1 font-body text-sm text-ivory/70">
                     {nextProject.title}
                   </p>
                 </div>
@@ -515,7 +541,7 @@ export default async function CaseStudyPage({
                     <p className="font-display text-3xl font-semibold text-sienna tabular-nums">
                       {nextProject.stats[0].value}
                     </p>
-                    <p className="font-body text-xs text-ivory/50">
+                    <p className="font-body text-xs text-ivory/66">
                       {nextProject.stats[0].label.toLowerCase()}
                     </p>
                   </div>
@@ -534,7 +560,7 @@ export default async function CaseStudyPage({
         <div className="flex items-center gap-3">
           <div className="min-w-0 flex-1">
             <p className="truncate font-display text-sm font-semibold text-ivory">{project.result}</p>
-            <p className="font-body text-[11px] text-ivory/50">Want this for your brand?</p>
+            <p className="font-body text-[11px] text-ivory/66">Want this for your brand?</p>
           </div>
           <Link href="/contact" className="btn btn-primary shrink-0 !px-5 !py-2.5 !text-[13px]">
             Start a Conversation
@@ -544,7 +570,7 @@ export default async function CaseStudyPage({
 
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(jsonLd) }}
       />
     </>
   );

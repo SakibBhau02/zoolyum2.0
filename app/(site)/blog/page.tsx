@@ -1,5 +1,7 @@
+import { jsonLdHtml } from "@/lib/seo";
 import type { Metadata } from "next";
 import { pageMeta } from "@/lib/content";
+import { PageSchema } from "@/components/seo/PageSchema";
 import Link from "next/link";
 import { PageHero } from "@/components/pages/PageHero";
 import { Reveal } from "@/components/ui/Reveal";
@@ -9,7 +11,7 @@ import { SITE_URL } from "@/lib/data";
 import { getPosts } from "@/lib/content";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return pageMeta("blog", {
+  const meta = await pageMeta("blog", {
     title: "Insights - Strategy, Branding & Market Notes from Dhaka",
     description: "Field notes from the market: branding, positioning, growth marketing, design, and Bangladesh market trends - written by the strategists running the engagements, not by a content farm.",
     canonical: "/blog",
@@ -17,6 +19,13 @@ export async function generateMetadata(): Promise<Metadata> {
     ogDescription: "Strategy, design, and market truth for people who read to lead.",
     card: "summary",
   });
+  return {
+    ...meta,
+    alternates: {
+      ...meta.alternates,
+      types: { "application/rss+xml": `${SITE_URL}/feed.xml` },
+    },
+  };
 }
 
 export default async function BlogPage() {
@@ -50,7 +59,7 @@ export default async function BlogPage() {
             <div className="mx-auto max-w-2xl text-center">
               <span className="thread mx-auto mb-8 block w-16" aria-hidden="true" />
               <h2 className="font-display text-display-2 font-semibold text-ivory">
-                One insight a month. <span className="text-ivory/55">No noise.</span>
+                One insight a month. <span className="text-ivory/70">No noise.</span>
               </h2>
               <p className="body-copy mx-auto mt-5 font-body text-lead text-ivory/60">
                 The same discipline we bring to client work, compressed into an
@@ -59,13 +68,13 @@ export default async function BlogPage() {
               <div className="mx-auto mt-10 max-w-xl" data-lead-inline>
                 <FormShell leadKind="newsletter">
                   <Field name="email" label="Email address" type="email" placeholder="you@company.com" required />
-                  <SubmitButton label="Get the Letter" />
+                  <SubmitButton label="Get the Letter" doneLabel="You're on the list. First insight arrives next month." />
                 </FormShell>
-                <p className="mt-4 font-body text-xs text-ivory/50">
+                <p className="mt-4 font-body text-xs text-ivory/66">
                   One email a month. Unsubscribe anytime.
                 </p>
               </div>
-              <p className="mt-6 font-body text-sm text-ivory/50">
+              <p className="mt-6 font-body text-sm text-ivory/66">
                 Prefer the full archive?{" "}
                 <Link href="/newsletter" className="font-medium text-sienna-bright underline decoration-sienna/40 underline-offset-4 hover:decoration-sienna-bright">
                   Browse the Zoolyum Letter
@@ -79,7 +88,7 @@ export default async function BlogPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: jsonLdHtml({
             "@context": "https://schema.org",
             "@type": "Blog",
             name: "Zoolyum Insights",
@@ -97,6 +106,7 @@ export default async function BlogPage() {
           }),
         }}
       />
+      <PageSchema route="blog" path="/blog" label="Insights" type="CollectionPage" />
     </>
   );
 }

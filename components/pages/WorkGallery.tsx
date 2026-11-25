@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { AnimatePresence, motion } from "motion/react";
 import type { ContentProject } from "@/lib/content";
 import { Tilt } from "@/components/ui/Tilt";
 
@@ -50,6 +49,29 @@ export function WorkGallery({ projects, ui }: { projects: ContentProject[]; ui: 
     () => Array.from(new Set(projects.flatMap((p) => p.services))),
     [projects],
   );
+
+  // Filters are shareable and survive Back/Forward. Kept in the URL with
+  // replaceState (no history spam) and restored on mount/popstate.
+  useEffect(() => {
+    const apply = () => {
+      const selected = new URLSearchParams(window.location.search).get("filter");
+      const valid = selected && (industries.includes(selected) || services.includes(selected));
+      setFilter(valid ? (selected as string) : "All");
+    };
+    apply();
+    window.addEventListener("popstate", apply);
+    return () => window.removeEventListener("popstate", apply);
+  }, [industries, services]);
+
+  const chooseFilter = (label: string) => {
+    setFilter(label);
+    setOpen(false);
+    const url = new URL(window.location.href);
+    if (label === "All") url.searchParams.delete("filter");
+    else url.searchParams.set("filter", label);
+    window.history.replaceState(null, "", url);
+  };
+
   const countFor = (name: string) =>
     projects.filter((p) => p.industry === name || p.services.includes(name))
       .length;
@@ -91,10 +113,7 @@ export function WorkGallery({ projects, ui }: { projects: ContentProject[]; ui: 
         type="button"
         role="menuitemradio"
         aria-checked={selected}
-        onClick={() => {
-          setFilter(label);
-          setOpen(false);
-        }}
+        onClick={() => chooseFilter(label)}
         className={`flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left font-body text-[13px] transition-colors duration-200 ${
           selected
             ? "bg-sienna/15 text-sienna-bright"
@@ -110,7 +129,7 @@ export function WorkGallery({ projects, ui }: { projects: ContentProject[]; ui: 
           />
           <span className="truncate">{label === "All" ? "All work" : label}</span>
         </span>
-        <span className="font-display text-[11px] font-semibold tabular-nums text-ivory/50">
+        <span className="font-display text-[11px] font-semibold tabular-nums text-ivory/66">
           {label === "All" ? projects.length : countFor(label)}
         </span>
       </button>
@@ -133,7 +152,7 @@ export function WorkGallery({ projects, ui }: { projects: ContentProject[]; ui: 
                 : "border-olive/35 text-ivory/70 hover:border-sienna-bright/50 hover:text-sienna-bright"
             }`}
           >
-            <span className="font-body text-[11px] font-semibold uppercase tracking-[0.18em] text-ivory/50">
+            <span className="font-body text-[11px] font-semibold uppercase tracking-[0.18em] text-ivory/66">
               {ui.filter}
             </span>
             <span className="font-display text-[13px] font-semibold tracking-wide">
@@ -144,39 +163,33 @@ export function WorkGallery({ projects, ui }: { projects: ContentProject[]; ui: 
             />
           </button>
 
-          <AnimatePresence>
-            {open && (
-              <motion.div
-                role="menu"
-                aria-label={ui.menuLabel}
-                initial={{ opacity: 0, y: -6, scale: 0.98 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -6, scale: 0.98 }}
-                transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-                className="absolute left-0 top-[calc(100%+10px)] z-40 w-[min(26rem,calc(100vw-3rem))] rounded-[0.875rem] border border-olive/25 bg-umber p-3 shadow-[0_24px_60px_-24px_rgba(0,0,0,0.7)]"
-              >
+          {open && (
+            <div
+              role="menu"
+              aria-label={ui.menuLabel}
+              className="menu-pop absolute left-0 top-[calc(100%+10px)] z-40 w-[min(26rem,calc(100vw-3rem))] rounded-[0.875rem] border border-olive/25 bg-umber p-3 shadow-[0_24px_60px_-24px_rgba(0,0,0,0.7)]"
+            >
                 {menuItem("All")}
                 <div className="mt-2 grid grid-cols-2 gap-x-2 border-t border-olive/15 pt-2">
                   <div>
-                    <p className="px-3 pb-1 pt-2 font-body text-[10px] font-semibold uppercase tracking-[0.2em] text-ivory/50">
+                    <p className="px-3 pb-1 pt-2 font-body text-[10px] font-semibold uppercase tracking-[0.2em] text-ivory/66">
                       {ui.industry}
                     </p>
                     {industries.map(menuItem)}
                   </div>
                   <div>
-                    <p className="px-3 pb-1 pt-2 font-body text-[10px] font-semibold uppercase tracking-[0.2em] text-ivory/50">
+                    <p className="px-3 pb-1 pt-2 font-body text-[10px] font-semibold uppercase tracking-[0.2em] text-ivory/66">
                       {ui.service}
                     </p>
                     {services.map(menuItem)}
                   </div>
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+            </div>
+          )}
         </div>
 
         <p
-          className="font-body text-xs uppercase tracking-[0.18em] text-ivory/50"
+          className="font-body text-xs uppercase tracking-[0.18em] text-ivory/66"
           aria-live="polite"
         >
           {ui.showingA} {visible.length} {ui.showingB} {projects.length} {ui.showingC}
@@ -185,7 +198,7 @@ export function WorkGallery({ projects, ui }: { projects: ContentProject[]; ui: 
 
       {/* Featured case - the strongest story gets the most ground */}
       {featured && (
-        <motion.article layout className="mt-10">
+        <article className="card-enter mt-10">
           <Link
             href={`/work/${featured.slug}`}
             className="card-surface group grid overflow-hidden lg:grid-cols-12"
@@ -224,14 +237,14 @@ export function WorkGallery({ projects, ui }: { projects: ContentProject[]; ui: 
               {/* Hover drawer - the challenge and the disciplines */}
               <div className="grid grid-rows-[0fr] opacity-0 transition-all duration-500 ease-read group-hover:grid-rows-[1fr] group-hover:opacity-100 [@media(hover:none)]:grid-rows-[1fr] [@media(hover:none)]:opacity-100">
                 <div className="overflow-hidden">
-                  <p className="mt-4 border-l-2 border-sienna/50 pl-4 font-body text-sm leading-relaxed text-ivory/55">
+                  <p className="mt-4 border-l-2 border-sienna/50 pl-4 font-body text-sm leading-relaxed text-ivory/70">
                     {featured.challenge}
                   </p>
                   <div className="mt-4 flex flex-wrap gap-1.5">
                     {featured.services.map((s) => (
                       <span
                         key={s}
-                        className="rounded-full border border-olive/25 px-2.5 py-1 font-body text-[10px] font-semibold uppercase tracking-wider text-ivory/50"
+                        className="rounded-full border border-olive/25 px-2.5 py-1 font-body text-[10px] font-semibold uppercase tracking-wider text-ivory/66"
                       >
                         {s}
                       </span>
@@ -246,7 +259,7 @@ export function WorkGallery({ projects, ui }: { projects: ContentProject[]; ui: 
                     <p className="font-display text-lg font-semibold text-ivory/90 tabular-nums">
                       {stat.value}
                     </p>
-                    <p className="mt-0.5 font-body text-[11px] leading-snug text-ivory/50">
+                    <p className="mt-0.5 font-body text-[11px] leading-snug text-ivory/66">
                       {stat.label}
                     </p>
                   </div>
@@ -254,7 +267,7 @@ export function WorkGallery({ projects, ui }: { projects: ContentProject[]; ui: 
               </div>
 
               <div className="mt-8 flex items-center justify-between border-t border-olive/20 pt-6">
-                <span className="font-body text-xs text-ivory/50">
+                <span className="font-body text-xs text-ivory/66">
                   {featured.timeline} {ui.engagement}
                 </span>
                 <span className="inline-flex items-center gap-2 font-display text-sm font-semibold text-sienna-bright">
@@ -266,20 +279,12 @@ export function WorkGallery({ projects, ui }: { projects: ContentProject[]; ui: 
               </div>
             </div>
           </Link>
-        </motion.article>
+        </article>
       )}
 
-      <motion.div layout className="mt-7 grid gap-7 md:grid-cols-2">
-        <AnimatePresence mode="popLayout">
-          {rest.map((project) => (
-            <motion.article
-              key={project.slug}
-              layout
-              initial={{ opacity: 0, y: 18 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.97 }}
-              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            >
+      <div className="mt-7 grid gap-7 md:grid-cols-2">
+        {rest.map((project) => (
+            <article key={project.slug} className="card-enter">
               <Tilt className="h-full">
                 <Link
                   href={`/work/${project.slug}`}
@@ -309,7 +314,7 @@ export function WorkGallery({ projects, ui }: { projects: ContentProject[]; ui: 
                     <h3 className="font-display text-2xl font-semibold text-ivory transition-colors duration-300 group-hover:text-sienna-bright">
                       {project.client}
                     </h3>
-                    <p className="body-copy mt-2 font-body text-sm leading-relaxed text-ivory/55">
+                    <p className="body-copy mt-2 font-body text-sm leading-relaxed text-ivory/70">
                       {project.title}
                     </p>
 
@@ -317,14 +322,14 @@ export function WorkGallery({ projects, ui }: { projects: ContentProject[]; ui: 
                         On touch devices it rests open. */}
                     <div className="grid grid-rows-[0fr] opacity-0 transition-all duration-500 ease-read group-hover:grid-rows-[1fr] group-hover:opacity-100 [@media(hover:none)]:grid-rows-[1fr] [@media(hover:none)]:opacity-100">
                       <div className="overflow-hidden">
-                        <p className="mt-4 border-l-2 border-sienna/50 pl-4 font-body text-[13px] leading-relaxed text-ivory/50">
+                        <p className="mt-4 border-l-2 border-sienna/50 pl-4 font-body text-[13px] leading-relaxed text-ivory/66">
                           {project.challenge}
                         </p>
                         <div className="mt-4 flex flex-wrap gap-1.5">
                           {project.services.map((s) => (
                             <span
                               key={s}
-                              className="rounded-full border border-olive/25 px-2.5 py-1 font-body text-[10px] font-semibold uppercase tracking-wider text-ivory/50"
+                              className="rounded-full border border-olive/25 px-2.5 py-1 font-body text-[10px] font-semibold uppercase tracking-wider text-ivory/66"
                             >
                               {s}
                             </span>
@@ -340,14 +345,14 @@ export function WorkGallery({ projects, ui }: { projects: ContentProject[]; ui: 
                             <p className="font-display text-lg font-semibold text-ivory/90 tabular-nums">
                               {stat.value}
                             </p>
-                            <p className="mt-0.5 font-body text-[11px] leading-snug text-ivory/50">
+                            <p className="mt-0.5 font-body text-[11px] leading-snug text-ivory/66">
                               {stat.label}
                             </p>
                           </div>
                         ))}
                       </div>
                       <div className="mt-5 flex items-center justify-between border-t border-olive/20 pt-5">
-                        <span className="font-body text-xs text-ivory/50">
+                        <span className="font-body text-xs text-ivory/66">
                           {project.timeline} {ui.engagement}
                         </span>
                         <span className="inline-flex items-center gap-2 font-display text-sm font-semibold text-sienna-bright">
@@ -361,13 +366,12 @@ export function WorkGallery({ projects, ui }: { projects: ContentProject[]; ui: 
                   </div>
                 </Link>
               </Tilt>
-            </motion.article>
+            </article>
           ))}
-        </AnimatePresence>
-      </motion.div>
+      </div>
 
       {visible.length === 0 && (
-        <p className="mt-16 text-center font-accent text-xl italic text-ivory/50">
+        <p className="mt-16 text-center font-accent text-xl italic text-ivory/66">
           {ui.empty}
         </p>
       )}

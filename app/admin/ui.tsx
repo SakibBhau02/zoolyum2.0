@@ -12,15 +12,30 @@ import {
   deleteLead,
   listMedia,
 } from "./actions";
+import { AutosaveLabel, useAutosave } from "./_ui/use-autosave";
 import type { CollectionKey, FieldDef } from "./config";
 
 export function LoginForm({ next }: { next: string }) {
-  const [state, act] = useActionState(loginAction, { ok: false });
+  const [state, act, pending] = useActionState(loginAction, { ok: false });
   return (
-    <form action={act} className="space-y-5">
+    <form action={act} className="space-y-4">
       <input type="hidden" name="next" value={next} />
       <div>
-        <label htmlFor="admin-password" className="mb-2 block font-body text-xs font-semibold uppercase tracking-[0.16em] text-ivory/50">
+        <label htmlFor="admin-email" className="a-label">
+          Email
+        </label>
+        <input
+          id="admin-email"
+          name="email"
+          type="email"
+          required
+          autoComplete="username"
+          placeholder="you@zoolyum.com"
+          className="a-input"
+        />
+      </div>
+      <div>
+        <label htmlFor="admin-password" className="a-label">
           Password
         </label>
         <input
@@ -29,16 +44,16 @@ export function LoginForm({ next }: { next: string }) {
           type="password"
           required
           autoComplete="current-password"
-          className="w-full rounded-lg border border-olive/35 bg-espresso px-4 py-3 font-body text-[15px] text-ivory focus:border-sienna-bright/70 focus:outline-none"
+          className="a-input"
         />
       </div>
       {state.error && (
-        <p role="alert" className="rounded-lg border border-red-400/40 bg-red-500/10 px-4 py-3 font-body text-sm text-red-300">
+        <p role="alert" className="rounded-[9px] border border-[rgba(242,112,95,0.4)] bg-[rgba(242,112,95,0.08)] px-3.5 py-2.5 text-[12.5px] text-[var(--a-bad)]">
           {state.error}
         </p>
       )}
-      <button type="submit" className="btn btn-primary w-full">
-        Enter admin
+      <button type="submit" disabled={pending} className="a-btn a-btn-primary w-full !py-2.5">
+        {pending ? "Signing in..." : "Sign in"}
       </button>
     </form>
   );
@@ -171,6 +186,15 @@ function EditableRows({
 }) {
   const set = (i: number, key: string, val: string) =>
     onChange(items.map((r, j) => (j === i ? { ...r, [key]: val } : r)));
+
+  const move = (i: number, direction: -1 | 1) => {
+    const target = i + direction;
+    if (target < 0 || target >= items.length) return;
+    const next = [...items];
+    [next[i], next[target]] = [next[target], next[i]];
+    onChange(next);
+  };
+
   return (
     <div className="space-y-3">
       {items.map((row, i) => (
@@ -205,7 +229,26 @@ function EditableRows({
               </div>
             ))}
           </div>
-          <div className="mt-3 flex justify-end">
+          <div className="mt-3 flex items-center justify-end gap-1.5">
+            <span className="a-faint mr-auto text-[10.5px]">#{i + 1}</span>
+            <button
+              type="button"
+              onClick={() => move(i, -1)}
+              disabled={i === 0}
+              aria-label="Move up"
+              className="rounded-lg border border-olive/35 px-2.5 py-1.5 text-[11px] text-ivory/70 transition-colors hover:border-sienna-bright/60 hover:text-sienna-bright disabled:opacity-30"
+            >
+              ↑
+            </button>
+            <button
+              type="button"
+              onClick={() => move(i, 1)}
+              disabled={i === items.length - 1}
+              aria-label="Move down"
+              className="rounded-lg border border-olive/35 px-2.5 py-1.5 text-[11px] text-ivory/70 transition-colors hover:border-sienna-bright/60 hover:text-sienna-bright disabled:opacity-30"
+            >
+              ↓
+            </button>
             <button
               type="button"
               onClick={() => onChange(items.filter((_, j) => j !== i))}
@@ -434,6 +477,11 @@ export function ImageRows({ name, initial, secondKey, secondLabel, onValue }: { 
           if (pick !== null) setItems(items.map((r, j) => (j === pick ? { ...r, src: url } : r)));
         }}
       />
+      {cleaned.length > 0 && cleaned.some((r) => !(r[secondKey] ?? "").trim()) && (
+        <p className="mt-2 text-[11px] text-[var(--a-warn)]">
+          Some images are missing {secondLabel.toLowerCase()} — search engines and screen readers need it.
+        </p>
+      )}
       <input type="hidden" name={name} value={json} />
     </div>
   );
@@ -704,9 +752,11 @@ export function EditorForm({
   viewHref?: string;
 }) {
   const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
   const [state, act, pending] = useActionState(saveItem.bind(null, collection, id), {
     ok: false,
   });
+  const autosave = useAutosave({ formRef, collection, id: Number(id), enabled: id !== "new" });
   useEffect(() => {
     if (state.ok) {
       router.push(`/admin/${collection}`);
@@ -714,7 +764,7 @@ export function EditorForm({
     }
   }, [state.ok, router, collection]);
   return (
-    <form action={act} className="space-y-6">
+    <form ref={formRef} action={act} className="space-y-6">
       {fields.map((f) => (
         <div key={f.name}>
           <label htmlFor={`f-${f.name}`} className="mb-2 block font-body text-xs font-semibold uppercase tracking-[0.16em] text-ivory/50">
@@ -734,15 +784,16 @@ export function EditorForm({
           {state.error}
         </p>
       )}
-      <div className="sticky bottom-4 z-10 flex flex-wrap items-center gap-3 rounded-2xl border border-olive/25 bg-espresso/90 p-4 shadow-[0_16px_40px_-16px_rgba(0,0,0,0.7)] backdrop-blur-md">
-        <button type="submit" disabled={pending} className="btn btn-primary disabled:opacity-50">
+      <div className="sticky bottom-3 z-10 flex flex-wrap items-center gap-2 rounded-[11px] border border-[var(--a-line-strong)] bg-[rgba(34,28,23,0.95)] p-3.5 backdrop-blur-md">
+        <button type="submit" disabled={pending} className="a-btn a-btn-primary">
           {pending ? "Saving..." : id === "new" ? "Create" : "Save changes"}
         </button>
         {viewHref && id !== "new" && (
-          <a href={viewHref} target="_blank" rel="noreferrer" className="btn btn-secondary">
+          <a href={viewHref} target="_blank" rel="noreferrer" className="a-btn">
             View on site
           </a>
         )}
+        <AutosaveLabel state={autosave} />
       </div>
     </form>
   );

@@ -1,5 +1,7 @@
+import { jsonLdHtml } from "@/lib/seo";
 import type { Metadata } from "next";
 import { pageMeta } from "@/lib/content";
+import { PageSchema } from "@/components/seo/PageSchema";
 import Link from "next/link";
 import { PageHero } from "@/components/pages/PageHero";
 import { Reveal } from "@/components/ui/Reveal";
@@ -41,7 +43,7 @@ export default async function WorkPage() {
                 <span className="font-display text-4xl font-semibold tracking-tight text-sienna tabular-nums">
                   {t.value}
                 </span>
-                <span className="max-w-[220px] font-body text-sm leading-snug text-ivory/55">
+                <span className="max-w-[220px] font-body text-sm leading-snug text-ivory/70">
                   {t.label}
                 </span>
               </div>
@@ -104,7 +106,7 @@ export default async function WorkPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: jsonLdHtml({
             "@context": "https://schema.org",
             "@type": "ItemList",
             name: "Zoolyum Case Studies",
@@ -121,6 +123,7 @@ export default async function WorkPage() {
           }),
         }}
       />
+      <PageSchema route="work" path="/work" label="Work" type="CollectionPage" />
     </>
   );
 }

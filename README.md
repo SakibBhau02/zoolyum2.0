@@ -12,7 +12,30 @@ npm run dev      # development
 npm run build    # production build
 npm run start    # serve production build
 npm run lint     # eslint
+npm run typecheck
+npm run smoke    # status/canonical/404/feed/CSP checks against a running build
 ```
+
+### Production & operations
+
+```bash
+npm run db:deploy         # prisma migrate deploy (release step)
+npm run db:reset-admin    # recovery: --email … --password …
+npm run db:prune          # retention: sessions, rate limits, old logs
+npm run db:privatize-leads # migrate legacy public CVs to the private bucket
+```
+
+Required production env beyond `DATABASE_URL` / `ADMIN_PASSWORD` / R2:
+
+- `R2_PRIVATE_BUCKET` — private bucket for candidate CVs (no public access).
+- `RESEND_API_KEY`, `EMAIL_FROM`, `LEAD_NOTIFY_EMAIL` — confirmation + lead
+  notification email. Without them leads are still stored and the UI says
+  “within one working day”.
+- `CRON_SECRET` — authorises `/api/cron/prune` from Vercel Cron.
+
+`scripts/vercel-setup.ps1` sets these, applies migrations, and deploys. CI
+(`.github/workflows/ci.yml`) runs typecheck, lint, migrations and a production
+build against Postgres.
 
 ## The v5.0 concept
 

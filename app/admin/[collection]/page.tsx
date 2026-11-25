@@ -1,26 +1,53 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { requireUser } from "@/lib/auth";
+import { can } from "@/lib/auth";
 import { COLLECTIONS, type CollectionKey } from "../config";
-import { DeleteButton, DuplicateButton } from "../ui";
+import { Badge, PageHeader } from "../_ui/primitives";
+import { Icon } from "../_ui/icons";
+import { CollectionTable, type Row } from "./list-client";
 
-async function fetchRows(key: CollectionKey): Promise<Record<string, unknown>[]> {
-  switch (key) {
-    case "posts":
-      return (await prisma.post.findMany({ orderBy: { date: "desc" } })) as unknown as Record<string, unknown>[];
-    case "projects":
-      return (await prisma.project.findMany({ orderBy: [{ sort: "asc" }, { updatedAt: "desc" }] })) as unknown as Record<string, unknown>[];
-    case "services":
-      return (await prisma.service.findMany()) as unknown as Record<string, unknown>[];
-    case "team":
-      return (await prisma.teamMember.findMany({ orderBy: { sort: "asc" } })) as unknown as Record<string, unknown>[];
-    case "jobs":
-      return (await prisma.job.findMany()) as unknown as Record<string, unknown>[];
-    case "testimonials":
-      return (await prisma.testimonial.findMany({ orderBy: { sort: "asc" } })) as unknown as Record<string, unknown>[];
-    case "menulinks":
-      return (await prisma.menuLink.findMany({ orderBy: { sort: "asc" } })) as unknown as Record<string, unknown>[];
-  }
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+const PAGE_SIZE = 25;
+
+const VIEW_BASE: Partial<Record<CollectionKey, string>> = {
+  posts: "/blog",
+  projects: "/work",
+  services: "/services",
+};
+
+const SEARCH_FIELDS: Record<CollectionKey, string[]> = {
+  posts: ["title", "slug", "category"],
+  projects: ["client", "industry", "title"],
+  services: ["name", "slug", "tagline"],
+  team: ["name", "role", "expertise"],
+  jobs: ["title", "dept", "location"],
+  testimonials: ["company", "author", "industry"],
+  menulinks: ["label", "href", "group"],
+};
+
+const ORDER: Record<CollectionKey, any> = {
+  posts: { date: "desc" },
+  projects: [{ sort: "asc" }, { updatedAt: "desc" }],
+  services: { name: "asc" },
+  team: { sort: "asc" },
+  jobs: { title: "asc" },
+  testimonials: { sort: "asc" },
+  menulinks: [{ sort: "asc" }, { label: "asc" }],
+};
+
+function dbFor(key: CollectionKey): any {
+  return {
+    posts: prisma.post,
+    projects: prisma.project,
+    services: prisma.service,
+    team: prisma.teamMember,
+    jobs: prisma.job,
+    testimonials: prisma.testimonial,
+    menulinks: prisma.menuLink,
+  }[key];
 }
 
 export default async function CollectionListPage({
@@ -28,111 +55,223 @@ export default async function CollectionListPage({
   searchParams,
 }: {
   params: Promise<{ collection: string }>;
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; status?: string; page?: string }>;
 }) {
+  const user = await requireUser("viewer");
   const { collection } = await params;
-  const { q } = await searchParams;
+  const sp = await searchParams;
   if (!(collection in COLLECTIONS)) notFound();
   const key = collection as CollectionKey;
   const def = COLLECTIONS[key];
-  const query = (q ?? "").trim().toLowerCase();
-  const all = await fetchRows(key).catch(() => [] as Record<string, unknown>[]);
+  const q = (sp.q ?? "").trim();
+  const status = sp.status ?? "";
+  const page = Math.max(1, Number(sp.page) || 1);
+  const supportsStatus = key === "posts" || key === "projects";
+
+  const and: any[] = [];
+  if (q) and.push({ OR: SEARCH_FIELDS[key].map((field) => ({ [field]: { contains: q, mode: "insensitive" } })) });
+  if (supportsStatus && status) and.push({ status });
+  if (key === "jobs" && status) and.push({ active: status === "published" });
+  if (key === "menulinks" && status) and.push({ visible: status === "published" });
+  const where = and.length ? { AND: and } : {};
+
+  const db = dbFor(key);
+  const [rows, total] = await Promise.all([
+    db.findMany({ where, orderBy: ORDER[key], skip: (page - 1) * PAGE_SIZE, take: PAGE_SIZE }).catch(() => []),
+    db.count({ where }).catch(() => 0),
+  ]);
+
   let applicantCounts: Record<string, number> = {};
   if (key === "jobs") {
     try {
-      const appLeads = await prisma.lead.findMany({ where: { kind: "careers" }, select: { payload: true } });
-      for (const l of appLeads) {
-        const pos = l.payload && typeof l.payload === "object" && !Array.isArray(l.payload) ? String((l.payload as Record<string, unknown>).position ?? "") : "";
+      const leads = await prisma.lead.findMany({ where: { kind: "careers" }, select: { payload: true } });
+      for (const lead of leads) {
+        const payload = lead.payload;
+        const pos =
+          payload && typeof payload === "object" && !Array.isArray(payload)
+            ? String((payload as Record<string, unknown>).position ?? "")
+            : "";
         if (pos) applicantCounts[pos] = (applicantCounts[pos] ?? 0) + 1;
       }
-    } catch { applicantCounts = {}; }
+    } catch {
+      applicantCounts = {};
+    }
   }
-  const rows = query
-    ? all.filter((r) =>
-        [def.slugField, ...def.columns].some((c) => String(r[c] ?? "").toLowerCase().includes(query)),
-      )
-    : all;
+
+  const mapped: Row[] = (rows as Record<string, any>[]).map((r) => {
+    const slug = String(r[def.slugField] ?? "");
+    const title = String(r[def.columns[0]] ?? slug ?? `#${r.id}`);
+    const subtitle = def.columns
+      .slice(1)
+      .map((c) => (typeof r[c] === "string" ? r[c] : ""))
+      .filter(Boolean)
+      .join(" · ");
+    const statusValue =
+      key === "posts" || key === "projects"
+        ? String(r.status ?? (r.published ? "published" : "draft"))
+        : key === "jobs"
+          ? r.active
+            ? "active"
+            : "inactive"
+          : key === "menulinks"
+            ? r.visible
+              ? "visible"
+              : "hidden"
+            : null;
+
+    return {
+      id: r.id as number,
+      title,
+      subtitle: subtitle || slug,
+      status: statusValue,
+      thumb:
+        key === "posts" && typeof r.cover === "string" && r.cover
+          ? { kind: "image", value: r.cover }
+          : key === "projects" && typeof r.gradient === "string"
+            ? { kind: "gradient", value: r.gradient }
+            : null,
+      extra:
+        key === "jobs"
+          ? {
+              label: `${applicantCounts[String(r.title ?? "")] ?? 0} applicant${(applicantCounts[String(r.title ?? "")] ?? 0) === 1 ? "" : "s"}`,
+              href: `/admin/leads?kind=careers&job=${encodeURIComponent(String(r.title ?? ""))}`,
+            }
+          : null,
+      viewHref: VIEW_BASE[key] && slug ? `${VIEW_BASE[key]}/${slug}` : null,
+    };
+  });
+
+  const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const href = (patch: Record<string, string>) => {
+    const p = new URLSearchParams();
+    if (q) p.set("q", q);
+    if (status) p.set("status", status);
+    if (page > 1) p.set("page", String(page));
+    for (const [k, v] of Object.entries(patch)) {
+      if (v) p.set(k, v);
+      else p.delete(k);
+    }
+    const s = p.toString();
+    return `/admin/${key}${s ? `?${s}` : ""}`;
+  };
+
   return (
     <div>
-      <nav aria-label="Breadcrumb" className="mb-4 flex items-center gap-2 font-body text-xs text-ivory/50">
-        <Link href="/admin" className="transition-colors hover:text-sienna-bright">Admin</Link>
-        <span aria-hidden="true">/</span>
-        <span className="text-ivory/70">{def.label}</span>
-      </nav>
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="font-body text-[11px] font-semibold uppercase tracking-[0.22em] text-sienna-bright">Content · {rows.length} of {all.length}</p>
-          <h1 className="mt-3 font-display text-3xl font-semibold text-ivory md:text-4xl">{def.label}<span className="text-sienna">.</span></h1>
-        </div>
-        <Link href={`/admin/${key}/new`} className="btn btn-primary !px-5 !py-2.5 !text-sm">
-          + New {def.singular}
-        </Link>
+      <PageHeader
+        eyebrow={`Content · ${total} item${total === 1 ? "" : "s"}`}
+        title={
+          <>
+            {def.label}
+            <span className="text-[var(--a-accent)]">.</span>
+          </>
+        }
+        description={`Create, edit and publish ${def.label.toLowerCase()}. Search runs on the server across ${SEARCH_FIELDS[key].join(", ")}.`}
+        actions={
+          <Link href={`/admin/${key}/new`} className="a-btn a-btn-primary">
+            <Icon name="plus" className="h-3.5 w-3.5" /> New {def.singular.toLowerCase()}
+          </Link>
+        }
+      />
+
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <form method="get" role="search" className="flex min-w-[240px] flex-1 gap-2">
+          {status && <input type="hidden" name="status" value={status} />}
+          <div className="relative flex-1">
+            <input
+              type="search"
+              name="q"
+              defaultValue={q}
+              placeholder={`Search ${def.label.toLowerCase()}...`}
+              aria-label={`Search ${def.label}`}
+              className="a-input !pl-9"
+            />
+            <Icon name="search" className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--a-faint)]" />
+          </div>
+          <button type="submit" className="a-btn">
+            Search
+          </button>
+          {(q || status) && (
+            <Link href={`/admin/${key}`} className="a-btn a-btn-ghost">
+              Reset
+            </Link>
+          )}
+        </form>
+
+        {(supportsStatus || key === "jobs" || key === "menulinks") && (
+          <div className="flex flex-wrap gap-1.5">
+            {(supportsStatus
+              ? [
+                  { key: "", label: "All" },
+                  { key: "published", label: "Published" },
+                  { key: "review", label: "In review" },
+                  { key: "draft", label: "Drafts" },
+                ]
+              : [
+                  { key: "", label: "All" },
+                  { key: "published", label: key === "jobs" ? "Live" : "Visible" },
+                  { key: "draft", label: key === "jobs" ? "Hidden" : "Hidden" },
+                ]
+            ).map((f) => {
+              const active = status === f.key;
+              return (
+                <Link
+                  key={f.key || "all"}
+                  href={href({ status: f.key, page: "" })}
+                  aria-current={active ? "page" : undefined}
+                  className={`rounded-full border px-3 py-1.5 text-[11.5px] font-medium transition-colors ${
+                    active
+                      ? "border-[rgba(255,106,38,0.55)] bg-[var(--a-accent-soft)] text-[var(--a-accent)]"
+                      : "border-[var(--a-line-strong)] text-[var(--a-muted)] hover:text-[var(--a-text)]"
+                  }`}
+                >
+                  {f.label}
+                </Link>
+              );
+            })}
+          </div>
+        )}
       </div>
-      <form method="get" className="mt-6 flex gap-2" role="search">
-        <input
-          type="search"
-          name="q"
-          defaultValue={q ?? ""}
-          placeholder={`Search ${def.label.toLowerCase()}...`}
-          aria-label={`Search ${def.label}`}
-          className="w-full max-w-sm rounded-xl border border-olive/35 bg-umber/60 px-4 py-2.5 font-body text-sm text-ivory placeholder:text-ivory/30 focus:border-sienna-bright/70 focus:outline-none"
-        />
-        <button type="submit" className="rounded-xl border border-olive/35 px-4 py-2.5 font-body text-sm font-semibold text-ivory/70 transition-colors hover:border-sienna-bright/60 hover:text-sienna-bright">
-          Search
-        </button>
-      </form>
-      <div className="mt-5 space-y-3">
-        {rows.length === 0 && (
-          <div className="card-surface p-8 text-center">
-            <p className="font-body text-sm text-ivory/50">{query ? `No results for "${query}".` : "Nothing here yet."}</p>
-            {!query && (
-              <Link href={`/admin/${key}/new`} className="mt-4 inline-block font-body text-sm font-semibold text-sienna-bright hover:underline">
-                Create the first {def.singular.toLowerCase()} →
+
+      <CollectionTable
+        collection={key}
+        rows={mapped}
+        supportsStatus={supportsStatus}
+        canDelete={can(user.role, "admin")}
+      />
+
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-[11.5px]">
+        <span className="a-faint">
+          {total === 0 ? "No items" : `Showing ${(page - 1) * PAGE_SIZE + 1}–${Math.min(page * PAGE_SIZE, total)} of ${total}`}
+          {q && ` for “${q}”`}
+        </span>
+        {pages > 1 && (
+          <div className="flex gap-2">
+            {page > 1 && (
+              <Link href={href({ page: String(page - 1) })} className="a-btn a-btn-sm">
+                Previous
+              </Link>
+            )}
+            <span className="a-faint self-center px-1">
+              {page} / {pages}
+            </span>
+            {page < pages && (
+              <Link href={href({ page: String(page + 1) })} className="a-btn a-btn-sm">
+                Next
               </Link>
             )}
           </div>
         )}
-        {rows.map((r) => {
-          const id = r.id as number;
-          const pub = (r as { published?: unknown }).published;
-          return (
-            <div key={id} className="card-surface flex flex-wrap items-center justify-between gap-4 p-5 transition-colors hover:border-olive/40">
-              <div className="flex min-w-0 items-center gap-3.5">
-                {key === "posts" && typeof r.cover === "string" && r.cover !== "" && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={r.cover} alt="" aria-hidden="true" className="h-11 w-11 shrink-0 rounded-lg border border-olive/25 object-cover" loading="lazy" />
-                )}
-                {key === "projects" && typeof r.gradient === "string" && (
-                  <span aria-hidden="true" className={`h-11 w-11 shrink-0 rounded-lg bg-gradient-to-br ${r.gradient}`} />
-                )}
-                {"published" in r && (
-                  <span title={pub ? "Published" : "Draft"} aria-label={pub ? "Published" : "Draft"} className={`h-2.5 w-2.5 shrink-0 rounded-full ${pub ? "bg-emerald-400" : "bg-amber-400"}`} />
-                )}
-                <div className="min-w-0">
-                  <p className="truncate font-display text-base font-semibold text-ivory">
-                    {String(r[def.columns[0]] ?? r[def.slugField] ?? `#${id}`)}
-                  </p>
-                  {key === "jobs" && (
-                    <a href={`/admin/leads?kind=careers&job=${encodeURIComponent(String(r.title ?? ""))}`} className="mt-1 block font-body text-xs font-semibold text-sienna-bright hover:underline">
-                      {applicantCounts[String(r.title ?? "")] ?? 0} applicant{(applicantCounts[String(r.title ?? "")] ?? 0) === 1 ? "" : "s"} →
-                    </a>
-                  )}
-                  <p className="mt-1 truncate font-body text-xs text-ivory/50">
-                    {def.columns.slice(1).map((c) => String(r[c] ?? "")).filter(Boolean).join(" · ")}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Link href={`/admin/${key}/${id}`} className="rounded-lg border border-olive/35 px-3.5 py-2 font-body text-xs font-semibold text-ivory/75 transition-colors hover:border-sienna-bright/60 hover:text-sienna-bright">
-                  Edit
-                </Link>
-                <DuplicateButton collection={key} id={id} />
-                <DeleteButton collection={key} id={id} what={String(r[def.columns[0]] ?? "")} />
-              </div>
-            </div>
-          );
-        })}
       </div>
+
+      <p className="a-faint mt-4 flex flex-wrap items-center gap-2 text-[10.5px]">
+        <Badge tone="neutral">{def.singular}</Badge>
+        <span>
+          Public URL is built from <span className="a-mono">{def.slugField}</span>. Changes to it need a redirect.
+        </span>
+        <Link href="/admin/seo/redirects" className="underline underline-offset-2 hover:text-[var(--a-accent)]">
+          Manage redirects
+        </Link>
+      </p>
     </div>
   );
 }

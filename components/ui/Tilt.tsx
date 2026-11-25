@@ -43,7 +43,7 @@ export function Tilt({
       ref={ref}
       onPointerMove={onMove}
       onPointerLeave={onLeave}
-      className={`will-change-transform ${className}`}
+      className={`${enabled ? "will-change-transform" : ""} ${className}`}
     >
       {children}
     </div>

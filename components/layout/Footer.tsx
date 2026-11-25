@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { MenuLinkItem, NewsCopy } from "@/lib/content";
 import { createLead } from "@/app/admin/actions";
 import { fireBrowserLead, newLeadContext } from "@/lib/tracking-client";
@@ -28,28 +28,50 @@ const SOCIALS = [
     href: "https://youtube.com",
     path: "M23.5 7.6a2.9 2.9 0 0 0-2.05-2.05C19.6 5.1 12 5.1 12 5.1s-7.6 0-9.45.45A2.9 2.9 0 0 0 .5 7.6 30.3 30.3 0 0 0 .05 12c0 1.47.15 2.94.45 4.4a2.9 2.9 0 0 0 2.05 2.05c1.85.45 9.45.45 9.45.45s7.6 0 9.45-.45a2.9 2.9 0 0 0 2.05-2.05c.3-1.46.45-2.93.45-4.4 0-1.47-.15-2.94-.45-4.4zM9.75 15.35V8.65l5.85 3.35-5.85 3.35z",
   },
+  {
+    label: "X",
+    href: "https://x.com",
+    path: "M18.9 2H22l-6.8 7.8L23.3 22h-6.3l-4.9-6.4L6.4 22H3.3l7.3-8.3L2.9 2h6.4l4.4 5.8L18.9 2zm-1.1 18.1h1.7L8.4 3.8H6.6l11.2 16.3z",
+  },
 ] as const;
 
 function NewsletterForm({ news }: { news: NewsCopy }) {
   const [email, setEmail] = useState("");
-  const [done, setDone] = useState(false);
+  const [state, setState] = useState<"idle" | "sending" | "done">("idle");
+  const [error, setError] = useState("");
+  const trapRef = useRef<HTMLInputElement>(null);
 
   return (
     <form
       className="mt-5"
-      onSubmit={(e) => {
+      aria-busy={state === "sending"}
+      onSubmit={async (e) => {
         e.preventDefault();
-        if (!email.trim()) return;
-        setDone(true);
+        if (!email.trim() || state !== "idle") return;
+        // Bot check: hidden from humans, filled by naive scrapers.
+        if ((trapRef.current?.value ?? "").trim() !== "") {
+          setState("done");
+          return;
+        }
+        setState("sending");
+        setError("");
         const ctx = newLeadContext();
-        createLead("newsletter", { email: email.trim() }, ctx)
-          .then((r) => {
-            if (r.ok) fireBrowserLead("newsletter", ctx);
-          })
-          .catch(() => {});
+        try {
+          const r = await createLead("newsletter", { email: email.trim() }, ctx);
+          if (r.ok) {
+            fireBrowserLead("newsletter", ctx);
+            setState("done");
+          } else {
+            setError(r.error ?? "Something went wrong. Please try again.");
+            setState("idle");
+          }
+        } catch {
+          setError("Something went wrong. Please try again.");
+          setState("idle");
+        }
       }}
     >
-      {done ? (
+      {state === "done" ? (
         <p className="font-accent text-lg italic text-sienna-bright">
           {news.success}
         </p>
@@ -65,16 +87,31 @@ function NewsletterForm({ news }: { news: NewsCopy }) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder={news.placeholder}
-            className="w-full bg-transparent px-4 py-3 font-body text-sm text-ivory placeholder:text-ivory/50 focus:outline-none"
+            className="w-full bg-transparent px-4 py-3 font-body text-sm text-ivory placeholder:text-ivory/66 focus:outline-none"
           />
           <button
             type="submit"
-            className="shrink-0 bg-sienna-bright px-5 font-display text-sm font-semibold text-espresso transition-colors duration-300 hover:bg-sienna"
+            disabled={state === "sending"}
+            className="shrink-0 bg-sienna-bright px-5 font-display text-sm font-semibold text-espresso transition-colors duration-300 hover:bg-sienna disabled:opacity-70"
           >
             {news.button}
           </button>
         </div>
       )}
+      {error && (
+        <p role="alert" className="mt-2 font-body text-xs text-sienna-bright">
+          {error}
+        </p>
+      )}
+      <input
+        ref={trapRef}
+        type="text"
+        name="_hp"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        style={{ position: "absolute", left: "-9999px", width: 1, height: 1, opacity: 0 }}
+      />
     </form>
   );
 }
@@ -101,16 +138,18 @@ export function Footer({
   return (
     <footer className="relative overflow-hidden bg-umber/50">
       {/* Thin Signal Thread rule above the footer */}
-      <div className="section-shell pt-10" aria-hidden="true">
+      <div className="section-shell pt-8" aria-hidden="true">
         <div className="thread w-full opacity-70" />
       </div>
 
-      <div className="section-shell relative z-10 grid gap-12 py-14 md:grid-cols-2 lg:grid-cols-4 lg:py-16">
+      <div className="section-shell relative z-10 grid gap-12 py-12 md:grid-cols-2 lg:grid-cols-4 lg:py-14">
         <div>
           <Logo />
-          <p className="body-copy mt-5 font-body text-sm leading-relaxed text-ivory/60">
+          <p className="mt-4 font-body text-sm leading-relaxed text-ivory/75">
+            Zoolyum is a brand strategy and digital consultancy in Dhaka, Bangladesh.
+          </p>
+          <p className="body-copy mt-3 font-body text-sm leading-relaxed text-ivory/60">
             {foot.blurb}
-            competitive advantage.
           </p>
           <address className="mt-6 space-y-1.5 font-body text-sm not-italic text-ivory/60">
             {contact.mapUrl ? (
@@ -138,7 +177,7 @@ export function Footer({
 
         <nav aria-label="Company">
           <h3 className="eyebrow">Company</h3>
-          <ul className="mt-5 space-y-3">
+          <ul className="mt-5 grid grid-cols-2 gap-x-5 gap-y-0.5">
             {explore.map((link) => (
               <li key={link.href}>
                 <Link
@@ -154,7 +193,7 @@ export function Footer({
 
         <nav aria-label="Services">
           <h3 className="eyebrow">Services</h3>
-          <ul className="mt-5 space-y-3">
+          <ul className="mt-5 grid grid-cols-1 gap-y-0.5">
             {services.map((service) => (
               <li key={service.slug}>
                 <Link
@@ -175,20 +214,24 @@ export function Footer({
           </p>
           <NewsletterForm news={news} />
           <div className="mt-8 flex gap-3">
-            {SOCIALS.map((social) => (
-              <a
-                key={social.label}
-                href={socials[social.label.toLowerCase()] ?? social.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={social.label}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-olive/35 text-ivory/60 transition-colors duration-300 hover:border-sienna-bright/60 hover:text-sienna-bright"
-              >
-                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
-                  <path d={social.path} />
-                </svg>
-              </a>
-            ))}
+            {SOCIALS.map((social) => {
+              const href = (socials[social.label.toLowerCase()] ?? "").trim();
+              if (!href) return null;
+              return (
+                <a
+                  key={social.label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={social.label}
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-olive/35 text-ivory/60 transition-colors duration-300 hover:border-sienna-bright/60 hover:text-sienna-bright"
+                >
+                  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
+                    <path d={social.path} />
+                  </svg>
+                </a>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -211,7 +254,7 @@ export function Footer({
 
       <div aria-hidden="true" className="pointer-events-none relative select-none overflow-hidden">
         <p className="translate-y-[30%] bg-gradient-to-b from-ivory/[0.05] to-transparent bg-clip-text text-center font-display text-[17vw] font-semibold leading-none tracking-tight text-transparent">
-          ZOOYLUM
+          ZOOLYUM
         </p>
       </div>
     </footer>

@@ -18,6 +18,7 @@ export function FaqAccordion({ faqs }: { faqs: { q: string; a: string }[] }) {
             <h3>
               <button
                 type="button"
+                id={`faq-heading-${i}`}
                 aria-expanded={isOpen}
                 aria-controls={`faq-panel-${i}`}
                 onClick={() => setOpen(isOpen ? null : i)}
@@ -31,7 +32,7 @@ export function FaqAccordion({ faqs }: { faqs: { q: string; a: string }[] }) {
                   className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-all duration-300 ${
                     isOpen
                       ? "rotate-45 border-sienna-bright bg-sienna-bright text-espresso"
-                      : "border-olive/40 text-ivory/50"
+                      : "border-olive/40 text-ivory/66"
                   }`}
                 >
                   <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2">
@@ -43,6 +44,10 @@ export function FaqAccordion({ faqs }: { faqs: { q: string; a: string }[] }) {
             <div
               id={`faq-panel-${i}`}
               role="region"
+              aria-labelledby={`faq-heading-${i}`}
+              // The height/opacity animation is visual only; `inert` keeps a
+              // collapsed answer out of the accessibility tree and tab order.
+              inert={!isOpen}
               className={`grid transition-all duration-500 ease-read ${
                 isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
               }`}

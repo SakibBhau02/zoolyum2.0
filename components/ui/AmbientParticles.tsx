@@ -36,9 +36,11 @@ type Mote = {
 export function AmbientParticles() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const reduced = useMediaQuery("(prefers-reduced-motion: reduce)");
+  const desktop = useMediaQuery("(min-width: 768px)");
 
   useEffect(() => {
-    if (reduced) return;
+    // No canvas on phones: a full-screen 30fps paint is not worth the battery.
+    if (reduced || !desktop) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -121,7 +123,7 @@ export function AmbientParticles() {
       window.removeEventListener("resize", resize);
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [reduced]);
+  }, [reduced, desktop]);
 
   if (reduced) return null;
 

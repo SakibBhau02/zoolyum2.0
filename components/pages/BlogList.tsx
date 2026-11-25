@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { AnimatePresence, motion } from "motion/react";
 import type { ContentPost } from "@/lib/content";
 import { useSound } from "@/components/layout/SoundProvider";
 
@@ -99,16 +98,9 @@ function TopicMenu({
         </button>
       )}
 
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, y: 8, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 6, scale: 0.98 }}
-            transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute left-0 top-full z-30 mt-3 w-64 rounded-xl border border-olive/30 bg-umber p-1.5 shadow-[0_24px_60px_-24px_rgba(0,0,0,0.7)]"
-          >
-            <p className="px-3.5 pb-1.5 pt-2.5 font-body text-[10px] font-semibold uppercase tracking-[0.2em] text-ivory/50">
+      {open && (
+          <div className="menu-pop absolute left-0 top-full z-30 mt-3 w-64 rounded-xl border border-olive/30 bg-umber p-1.5 shadow-[0_24px_60px_-24px_rgba(0,0,0,0.7)]">
+            <p className="px-3.5 pb-1.5 pt-2.5 font-body text-[10px] font-semibold uppercase tracking-[0.2em] text-ivory/66">
               Filter by topic
             </p>
             <ul className="pb-1">
@@ -133,7 +125,7 @@ function TopicMenu({
                         <span className={`h-1.5 w-1.5 rounded-full ${active ? "bg-sienna-bright" : "bg-olive/50"}`} />
                         {t.name === "All" ? "All topics" : t.name}
                       </span>
-                      <span className="font-display text-[11px] font-semibold tabular-nums text-ivory/50">
+                      <span className="font-display text-[11px] font-semibold tabular-nums text-ivory/66">
                         {t.count}
                       </span>
                     </button>
@@ -141,9 +133,8 @@ function TopicMenu({
                 );
               })}
             </ul>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
     </div>
   );
 }
@@ -181,14 +172,14 @@ export function BlogList({ posts }: { posts: ContentPost[] }) {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <TopicMenu topics={topics} filter={filter} onSelect={setFilter} />
-        <p className="font-body text-xs uppercase tracking-[0.18em] text-ivory/50" aria-live="polite">
+        <p className="font-body text-xs uppercase tracking-[0.18em] text-ivory/66" aria-live="polite">
           {visible.length} article{visible.length === 1 ? "" : "s"}
           {filter !== "All" ? " - " + filter : ""}
         </p>
       </div>
 
       {featured && (
-        <motion.article layout className="mt-10">
+        <article className="card-enter mt-10">
           <Link
             href={`/blog/${featured.slug}`}
             className="card-surface group grid overflow-hidden lg:grid-cols-12"
@@ -214,7 +205,7 @@ export function BlogList({ posts }: { posts: ContentPost[] }) {
               <h2 className="mt-4 font-display text-display-3 font-semibold leading-tight text-ivory transition-colors duration-300 group-hover:text-sienna-bright">
                 {featured.title}
               </h2>
-              <p className="body-copy mt-4 flex-1 font-body text-[15px] leading-relaxed text-ivory/55">
+              <p className="body-copy mt-4 flex-1 font-body text-[15px] leading-relaxed text-ivory/70">
                 {featured.excerpt}
               </p>
               <div className="mt-7 flex items-center gap-4 border-t border-olive/20 pt-5">
@@ -223,27 +214,19 @@ export function BlogList({ posts }: { posts: ContentPost[] }) {
                 </span>
                 <div>
                   <p className="font-body text-sm font-medium text-ivory/80">{featured.author}</p>
-                  <p className="font-body text-xs text-ivory/50">
+                  <p className="font-body text-xs text-ivory/66">
                     {formatDate(featured.date)} - {featured.readTime} read
                   </p>
                 </div>
               </div>
             </div>
           </Link>
-        </motion.article>
+        </article>
       )}
 
-      <motion.div layout className="mt-7 grid gap-7 md:grid-cols-2 lg:grid-cols-3">
-        <AnimatePresence mode="popLayout">
+      <div className="mt-7 grid gap-7 md:grid-cols-2 lg:grid-cols-3">
           {rest.map((post) => (
-            <motion.article
-              key={post.slug}
-              layout
-              initial={{ opacity: 0, y: 18 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.97 }}
-              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            >
+            <article key={post.slug} className="card-enter">
               <Link
                 href={`/blog/${post.slug}`}
                 className="card-surface group flex h-full flex-col"
@@ -265,22 +248,21 @@ export function BlogList({ posts }: { posts: ContentPost[] }) {
                   <h3 className="line-clamp-2 font-display text-lg font-semibold leading-snug text-ivory transition-colors duration-300 group-hover:text-sienna-bright">
                     {post.title}
                   </h3>
-                  <p className="body-copy mt-3 line-clamp-3 flex-1 font-body text-[13px] leading-relaxed text-ivory/50">
+                  <p className="body-copy mt-3 line-clamp-3 flex-1 font-body text-[13px] leading-relaxed text-ivory/66">
                     {post.excerpt}
                   </p>
                   <div className="mt-5 flex items-center justify-between gap-3 border-t border-olive/20 pt-4">
-                    <span className="truncate font-body text-xs text-ivory/50">{post.author}</span>
-                    <span className="shrink-0 font-body text-xs text-ivory/50">{formatDate(post.date)} - {post.readTime}</span>
+                    <span className="truncate font-body text-xs text-ivory/66">{post.author}</span>
+                    <span className="shrink-0 font-body text-xs text-ivory/66">{formatDate(post.date)} - {post.readTime}</span>
                   </div>
                 </div>
               </Link>
-            </motion.article>
+            </article>
           ))}
-        </AnimatePresence>
-      </motion.div>
+      </div>
 
       {visible.length === 0 && (
-        <p className="mt-16 text-center font-accent text-xl italic text-ivory/50">
+        <p className="mt-16 text-center font-accent text-xl italic text-ivory/66">
           Nothing here yet - but the market keeps writing material.
         </p>
       )}

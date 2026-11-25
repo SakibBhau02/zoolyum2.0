@@ -1,8 +1,9 @@
 "use client";
 
-import { useActionState, useEffect, useMemo, useState } from "react";
+import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { saveItem } from "./actions";
+import { AutosaveLabel, useAutosave } from "./_ui/use-autosave";
 import { ImageField, ImageRows, FaqEditor } from "./ui";
 import type { CollectionKey } from "./config";
 
@@ -88,6 +89,8 @@ export function PostEditor({
   const [faqsJson, setFaqsJson] = useState(initial.faqs && initial.faqs !== "" ? initial.faqs : "[]");
 
   const [state, act, pending] = useActionState(saveItem.bind(null, collection, id), { ok: false });
+  const formRef = useRef<HTMLFormElement>(null);
+  const autosave = useAutosave({ formRef, collection, id: Number(id), enabled: id !== "new" });
   useEffect(() => {
     if (state.ok) {
       router.push("/admin/" + collection);
@@ -194,7 +197,7 @@ export function PostEditor({
       { label: "Freshness", detail: updated !== "" ? "Updated " + updated : "No update stamp (fine for new posts)", level: "ok" },
     ];
     return { seo, aeo, trust };
-  }, [title, excerpt, slug, focusKw, bodyText, bodyWords, coverVal, date, quote, takeawaysText, keywordsText, paras, imagesJson, faqsJson, author, category, readTime, updated, autoRead]);
+  }, [title, excerpt, slug, focusKw, bodyText, bodyWords, coverVal, date, quote, takeawaysText, keywordsText, paras, heads, imagesJson, faqsJson, author, category, readTime, updated, autoRead]);
 
   const all: Check[] = [...checks.seo, ...checks.aeo, ...checks.trust];
   const bads = all.filter((c) => c.level === "bad").length;
@@ -223,7 +226,7 @@ export function PostEditor({
   );
 
   return (
-    <form action={act} className="space-y-6">
+    <form ref={formRef} action={act} className="space-y-6">
       <div className="flex flex-wrap items-center gap-3">
         <span className={"rounded-full px-3 py-1 font-body text-xs font-semibold " + (published ? "bg-emerald-400/15 text-emerald-300" : "bg-amber-400/15 text-amber-300")}>
           {published ? "Published" : "Draft"}
@@ -235,9 +238,6 @@ export function PostEditor({
               View on site
             </a>
           )}
-          <button type="submit" disabled={pending} className="btn btn-primary !px-5 !py-2 !text-sm disabled:opacity-50">
-            {pending ? "Saving..." : isNew ? "Publish post" : "Save changes"}
-          </button>
         </span>
       </div>
       {state.error && (
@@ -454,15 +454,16 @@ export function PostEditor({
         </div>
       </div>
 
-      <div className="sticky bottom-4 z-10 flex flex-wrap items-center gap-3 rounded-2xl border border-olive/25 bg-espresso/90 p-4 shadow-[0_16px_40px_-16px_rgba(0,0,0,0.7)] backdrop-blur-md">
-        <button type="submit" disabled={pending} className="btn btn-primary disabled:opacity-50">
+      <div className="sticky bottom-3 z-10 flex flex-wrap items-center gap-2 rounded-[11px] border border-[var(--a-line-strong)] bg-[rgba(34,28,23,0.95)] p-3.5 backdrop-blur-md">
+        <button type="submit" disabled={pending} className="a-btn a-btn-primary">
           {pending ? "Saving..." : isNew ? "Publish post" : "Save changes"}
         </button>
         {viewHref && !isNew && (
-          <a href={viewHref} target="_blank" rel="noreferrer" className="btn btn-secondary">
+          <a href={viewHref} target="_blank" rel="noreferrer" className="a-btn">
             View on site
           </a>
         )}
+        <AutosaveLabel state={autosave} />
       </div>
     </form>
   );

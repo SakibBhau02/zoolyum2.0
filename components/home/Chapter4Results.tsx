@@ -27,8 +27,8 @@ export function Chapter4Results({ copy }: { copy: ResultsCopy }) {
         <HorizonRule className="mb-16 opacity-50" />
         <Reveal>
           <p className="eyebrow">{copy.eyebrow}</p>
-          <h2 className="mt-4 max-w-2xl font-display text-display-2 font-semibold text-ivory">
-            <AccentSplit text={copy.title} accentClassName="text-ivory/55" />
+          <h2 className="mt-4 max-w-2xl text-balance font-display text-display-2 font-semibold text-ivory">
+            <AccentSplit text={copy.title} accentClassName="text-ivory/70" />
           </h2>
           <p className="body-copy mt-5 max-w-xl font-body text-lead text-ivory/60">
             {copy.lead}
@@ -47,10 +47,8 @@ export function Chapter4Results({ copy }: { copy: ResultsCopy }) {
         </div>
 
         <Reveal delay={150}>
-          <p className="body-copy mt-14 max-w-lg font-body text-[15px] leading-relaxed text-ivory/55">
+          <p className="body-copy mt-14 max-w-lg font-body text-[15px] leading-relaxed text-ivory/70">
             {copy.closing}
-            e-commerce. The pattern holds: give a brand a defensible
-            position, and the category takes notice.
           </p>
         </Reveal>
       </div>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMeta } from "@/lib/content";
+import { PageSchema } from "@/components/seo/PageSchema";
 import Link from "next/link";
 import { PageHero } from "@/components/pages/PageHero";
 import { Reveal } from "@/components/ui/Reveal";
@@ -43,7 +44,7 @@ export default function AboutPage() {
         <div className="section-shell grid gap-12 lg:grid-cols-12">
           <Reveal className="lg:col-span-7">
             <h2 className="font-display text-display-2 font-semibold text-ivory">
-              Born in Mirpur. <span className="text-ivory/55">Built for the whole market.</span>
+              Born in Mirpur. <span className="text-ivory/70">Built for the whole market.</span>
             </h2>
             <div className="body-copy mt-8 space-y-6 font-body text-lead leading-relaxed text-ivory/65">
               <p>
@@ -84,7 +85,7 @@ export default function AboutPage() {
                 <span className="block font-display text-sm font-semibold text-ivory">
                   The Zoolyum principle
                 </span>
-                <span className="mt-1 block font-body text-xs tracking-wide text-ivory/50">
+                <span className="mt-1 block font-body text-xs tracking-wide text-ivory/66">
                   Written on the studio wall since day one
                 </span>
               </figcaption>
@@ -102,7 +103,7 @@ export default function AboutPage() {
                   SC
                 </div>
                 <p className="mt-5 font-display text-base font-semibold text-ivory">Sakib Chowdhury</p>
-                <p className="mt-1 font-body text-xs tracking-wide text-ivory/50">
+                <p className="mt-1 font-body text-xs tracking-wide text-ivory/66">
                   Founder &amp; Creative Director
                 </p>
               </div>
@@ -132,7 +133,7 @@ export default function AboutPage() {
             eyebrow="The Zoolyum Method"
             title={
               <>
-                Five stages. <span className="text-ivory/55">One line of thinking.</span>
+                Five stages. <span className="text-ivory/70">One line of thinking.</span>
               </>
             }
             lead="Every engagement runs the same disciplined sequence — the method that turns projects into positions."
@@ -142,7 +143,7 @@ export default function AboutPage() {
               <Reveal as="li" key={stage.num} delay={i * 80} className="list-none">
                 <div className="group relative grid gap-4 border-l border-olive/25 pb-12 pl-8 transition-colors duration-300 hover:border-sienna/60 md:grid-cols-[140px_220px_1fr] md:gap-8 md:pl-10">
                   <span className="absolute -left-[7px] top-1.5 h-3.5 w-3.5 rounded-full border-2 border-olive/40 bg-espresso transition-colors duration-300 group-hover:border-sienna group-hover:bg-sienna" />
-                  <span className="font-display text-4xl font-semibold text-sienna/25 transition-colors duration-300 group-hover:text-sienna/60">
+                  <span className="font-display text-4xl font-semibold text-sienna-bright/75 transition-colors duration-300 group-hover:text-sienna-bright">
                     {stage.num}
                   </span>
                   <h3 className="font-display text-xl font-semibold text-ivory">
@@ -179,7 +180,7 @@ export default function AboutPage() {
                     <h3 className="font-display text-[15px] font-semibold leading-snug text-ivory">
                       {award.title}
                     </h3>
-                    <p className="mt-1.5 font-body text-xs tracking-wide text-ivory/50">
+                    <p className="mt-1.5 font-body text-xs tracking-wide text-ivory/66">
                       {award.org}
                     </p>
                   </div>
@@ -202,6 +203,7 @@ export default function AboutPage() {
         </div>
       </section>
 
+      <PageSchema route="about" path="/about" label="About" type="AboutPage" />
     </>
   );
 }

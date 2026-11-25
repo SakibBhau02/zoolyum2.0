@@ -41,7 +41,7 @@ export function MarqueeRow({
         style={{ "--marquee-duration": `${duration}s` } as React.CSSProperties}
       >
         <div className="flex shrink-0 items-stretch gap-6 pr-6">{children}</div>
-        <div className="flex shrink-0 items-stretch gap-6 pr-6" aria-hidden="true">
+        <div className="flex shrink-0 items-stretch gap-6 pr-6" aria-hidden="true" inert>
           {children}
         </div>
       </div>

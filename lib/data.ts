@@ -35,7 +35,7 @@ export const CONTACT_FAQS = [
   },
 ] as const;
 
-export const SITE_URL = "https://zoolyum.com";
+export const SITE_URL = "https://www.zoolyum.com";
 
 export type StoryAct = {
   label: string;
@@ -560,6 +560,70 @@ export const TESTIMONIALS = [
     industry: "Hospitality",
   },
 ] as const;
+
+/**
+ * The screening room. Films live on YouTube; only the id is stored here so
+ * the page can ship a poster + facade and load the player on intent.
+ * Empty `youtubeId` is a supported state - the card renders a designed
+ * poster and links to the channel until a real id is added in the CMS.
+ */
+export type Film = {
+  youtubeId: string;
+  title: string;
+  client: string;
+  kind: string;
+  duration: string;
+  blurb: string;
+  projectSlug: string;
+};
+
+export const FILMS: Film[] = [
+  {
+    youtubeId: "",
+    title: "The Verandah Season",
+    client: "Verandah Resorts",
+    kind: "Brand film",
+    duration: "2:14",
+    blurb: "A monsoon reframed as the reason to come - and a quiet season sold direct.",
+    projectSlug: "verandah",
+  },
+  {
+    youtubeId: "",
+    title: "Hunt Your Hunger",
+    client: "Ember & Eats",
+    kind: "Launch film",
+    duration: "1:38",
+    blurb: "A launch cut engineered for the first three seconds of a scroll.",
+    projectSlug: "ember-eats",
+  },
+  {
+    youtubeId: "",
+    title: "Cloth Has a Name",
+    client: "Loom & Lane",
+    kind: "Documentary series",
+    duration: "4:06",
+    blurb: "Fourteen weaver films from six districts - the makers, not the fabric.",
+    projectSlug: "loom-lane",
+  },
+  {
+    youtubeId: "",
+    title: "Own Your Corner",
+    client: "Urban Prowl",
+    kind: "Campaign film",
+    duration: "1:52",
+    blurb: "Square feet replaced with the life those feet hold.",
+    projectSlug: "urban-prowl",
+  },
+  {
+    youtubeId: "",
+    title: "Answers, Not Anxiety",
+    client: "Meridian Health",
+    kind: "Brand film",
+    duration: "2:40",
+    blurb: "A diagnostics chain rebuilt around one feeling: clarity.",
+    projectSlug: "meridian-health",
+  },
+];
 
 export const POSTS = [
   { slug: "why-bangladeshi-brands-lose", title: "Why Most Bangladeshi Brands Lose (And the Few That Don't)", category: "Branding", excerpt: "The market isn't crowded — it's camouflaged. A field guide to the four patterns we see in brands that dominate their category versus those that disappear into the background.", date: "2025-11-18", readTime: "7 min", keywords: ["Brand Distinction", "Positioning", "Category Audit", "Brand Recall", "Identity Systems", "Bangladesh Market"], author: "Sakib Chowdhury", authorRole: "Founder & Creative Director", cover: "/blog/why-bangladeshi-brands-lose/cover.svg", quote: "Being 10% better than competitors gets you nothing. Being 10% different gets you everything.", takeaways: ["In a crowded category, being 10% better gets you nothing - being 10% different gets you everything.", "The camouflage trap has four patterns: borrowed identity, feature shouting, random acts of marketing, and silence.", "Audit test: if a competitor could paste their logo over your last ten posts, you have a placeholder, not a brand."], images: [{ src: "/blog/why-bangladeshi-brands-lose/01.svg", caption: "The camouflage audit: where every touchpoint reads like everyone else." }, { src: "/blog/why-bangladeshi-brands-lose/02.svg", caption: "Distinction compounds. Camouflage compounds too - into invisibility." }] },

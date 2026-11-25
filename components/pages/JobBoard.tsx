@@ -52,7 +52,7 @@ export function JobBoard({ jobs }: { jobs: BoardJob[] }) {
                 <h3 className={`font-display text-xl font-semibold transition-colors duration-300 ${isOpen ? "text-sienna-bright" : "text-ivory"}`}>
                   {job.title}
                 </h3>
-                <p className="mt-1.5 font-body text-sm text-ivory/50">
+                <p className="mt-1.5 font-body text-sm text-ivory/66">
                   {job.dept} - {job.location}
                 </p>
               </div>
@@ -110,13 +110,13 @@ export function JobBoard({ jobs }: { jobs: BoardJob[] }) {
                       </div>
                     </div>
                     <div className="rounded-xl border border-olive/25 bg-espresso/60 p-5">
-                      <p className="font-body text-[11px] font-semibold uppercase tracking-[0.2em] text-ivory/50">
+                      <p className="font-body text-[11px] font-semibold uppercase tracking-[0.2em] text-ivory/66">
                         Success in 90 days looks like
                       </p>
                       <p className="mt-2 font-body text-sm leading-relaxed text-ivory/75">
                         {detail.success90}
                       </p>
-                      <p className="mt-3 font-body text-xs leading-relaxed text-ivory/50">
+                      <p className="mt-3 font-body text-xs leading-relaxed text-ivory/66">
                         Nice to have: {detail.niceToHave.join(" · ")}
                       </p>
                     </div>

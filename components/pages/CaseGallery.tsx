@@ -27,6 +27,8 @@ export function CaseGallery({
   labels: { eyebrow: string; titleA: string; titleB: string; note: string };
 }) {
   const trackRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
   const [lightbox, setLightbox] = useState<number | null>(null);
   const reduced = useMediaQuery("(prefers-reduced-motion: reduce)");
 
@@ -50,16 +52,40 @@ export function CaseGallery({
 
   useEffect(() => {
     if (lightbox === null) return;
+    const dialog = dialogRef.current;
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    closeRef.current?.focus();
+    const focusables = () =>
+      dialog
+        ? Array.from(
+            dialog.querySelectorAll<HTMLElement>(
+              'button:not([disabled]), a[href], iframe, [tabindex]:not([tabindex="-1"])',
+            ),
+          )
+        : [];
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") close();
       if (e.key === "ArrowRight") step(1);
       if (e.key === "ArrowLeft") step(-1);
+      if (e.key !== "Tab") return;
+      const items = focusables();
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     window.addEventListener("keydown", onKey);
     lockScroll();
     return () => {
       window.removeEventListener("keydown", onKey);
       unlockScroll();
+      previouslyFocused?.focus();
     };
   }, [lightbox, close, step]);
 
@@ -140,7 +166,7 @@ export function CaseGallery({
           </div>
           {isTraverse && (
             <div className="flex items-center gap-4">
-              <p className="hidden font-body text-xs tracking-[0.2em] text-ivory/50 lg:block">
+              <p className="hidden font-body text-xs tracking-[0.2em] text-ivory/66 lg:block">
                 {reduced ? "SWIPE THE STRIP" : "DRAG OR SWIPE"}
               </p>
               <div className="hidden gap-2 md:flex">
@@ -175,6 +201,7 @@ export function CaseGallery({
       {/* Lightbox */}
       {lightbox !== null && (
         <div
+          ref={dialogRef}
           role="dialog"
           aria-modal="true"
           aria-label={`${client} frame viewer`}
@@ -182,6 +209,7 @@ export function CaseGallery({
           onClick={close}
         >
           <button
+            ref={closeRef}
             type="button"
             onClick={close}
             aria-label="Close viewer"
@@ -220,7 +248,7 @@ export function CaseGallery({
               className="max-h-[78vh] w-auto max-w-full rounded-xl border border-olive/30 object-contain"
             />
             )}
-            <figcaption className="mt-4 text-center font-body text-xs tracking-[0.2em] text-ivory/50">
+            <figcaption className="mt-4 text-center font-body text-xs tracking-[0.2em] text-ivory/66">
               {client.toUpperCase()} - FRAME {String(lightbox + 1).padStart(2, "0")} / {String(images.length).padStart(2, "0")}
             </figcaption>
           </figure>

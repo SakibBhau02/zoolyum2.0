@@ -1,0 +1,5 @@
+Contact: mailto:hello@zoolyum.com
+Expires: 2027-12-31T00:00:00.000Z
+Preferred-Languages: en, bn
+Canonical: https://www.zoolyum.com/.well-known/security.txt
+Policy: https://www.zoolyum.com/privacy-policy

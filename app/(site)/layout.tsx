@@ -1,16 +1,25 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { TerrainScrollIndicator } from "@/components/layout/TerrainScrollIndicator";
+import { DecorativeChrome } from "@/components/layout/DecorativeChrome";
 import { ReadingPause } from "@/components/layout/ReadingPause";
 import { SmoothScroll } from "@/components/layout/SmoothScroll";
 import { ThreadCursor } from "@/components/ui/ThreadCursor";
-import { AmbientParticles } from "@/components/ui/AmbientParticles";
-import { SignalFlash } from "@/components/ui/SignalFlash";
 import { SoundProvider } from "@/components/layout/SoundProvider";
 import { AuditTab } from "@/components/leadgen/AuditTab";
 import { AnalyticsLoader } from "@/components/analytics/AnalyticsLoader";
+import { ConsentScript } from "@/components/analytics/ConsentScript";
+import { ConsentBanner } from "@/components/analytics/ConsentBanner";
 import { getMenuLinks, getServices, getContactInfo, getSocials, getSetting, getNewsCopy } from "@/lib/content";
 import { ExitIntentModal } from "@/components/leadgen/ExitIntentModal";
+import { emailConfigured } from "@/lib/email";
+
+/**
+ * Public pages are prerendered and revalidated hourly. Admin saves call
+ * revalidatePath for the exact route, so this is only a safety net: it heals a
+ * render that happened during a database blip, and picks up edits made by
+ * scripts that write to Postgres directly.
+ */
+export const revalidate = 3600;
 
 /**
  * Site chrome for every public page. Admin routes intentionally live
@@ -18,7 +27,7 @@ import { ExitIntentModal } from "@/components/leadgen/ExitIntentModal";
  * never cover the CMS.
  */
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
-  const [headerLinks, exploreLinks, legalLinks, services, contact, socials, tagline, ctaLabel, news, foot] = await Promise.all([
+  const [headerLinks, exploreLinks, legalLinks, services, contact, socials, tagline, ctaLabel, ctaHref, news, foot, consentMode] = await Promise.all([
     getMenuLinks("header"),
     getMenuLinks("explore"),
     getMenuLinks("legal"),
@@ -27,6 +36,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
     getSocials(),
     getSetting("brand.tagline", "Consultancy. Strategy. Solution."),
     getSetting("header.cta.label", "Start a Conversation"),
+    getSetting("header.cta.href", "/contact"),
     getNewsCopy(),
     Promise.all([
       getSetting("home.footer.blurb", "The strategic partner that turns market noise into a clear competitive advantage."),
@@ -34,9 +44,14 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       getSetting("home.footer.newsText", "One strategic insight a month. No noise — we dislike noise more than you do."),
       getSetting("home.footer.based", "— Based in Dhaka."),
     ]).then(([blurb, newsTitle, newsText, based]) => ({ blurb, newsTitle, newsText, based })),
+    getSetting("analytics.consent_mode", "off"),
   ]);
+  const consentOn = consentMode.trim().toLowerCase() === "on";
+  const rawCta = ctaHref.trim();
+  const ctaTarget = rawCta.startsWith("/") || /^https?:\/\//i.test(rawCta) ? rawCta : "/contact";
   return (
     <SoundProvider>
+      {consentOn && <ConsentScript />}
       <SmoothScroll />
       <a
         href="#main"
@@ -45,10 +60,9 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         Skip to content
       </a>
       <ReadingPause />
-      <AmbientParticles />
+      <DecorativeChrome />
       <ThreadCursor />
-      <TerrainScrollIndicator />
-      <Header links={headerLinks} ctaLabel={ctaLabel} tagline={tagline} />
+      <Header links={headerLinks} ctaLabel={ctaLabel} ctaHref={ctaTarget} tagline={tagline} />
       <main id="main">{children}</main>
       <Footer
         explore={exploreLinks}
@@ -61,9 +75,9 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         foot={foot}
       />
       <AnalyticsLoader />
+      {consentOn && <ConsentBanner />}
       <AuditTab />
-      <ExitIntentModal />
-      <SignalFlash />
+      <ExitIntentModal emailConfigured={emailConfigured()} />
     </SoundProvider>
   );
 }

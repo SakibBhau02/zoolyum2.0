@@ -1,0 +1,327 @@
+/* ============================================================================
+   Admin design layer.
+   Deliberately calmer than the marketing site: no hover lift, no gradient
+   sweeps, tighter rhythm. Scoped by the `.a-` prefix so nothing leaks.
+   ========================================================================== */
+
+.a-root {
+  --a-bg: #171310;
+  --a-panel: #221c17;
+  --a-panel-2: #2a231d;
+  --a-line: rgba(122, 122, 92, 0.22);
+  --a-line-strong: rgba(122, 122, 92, 0.4);
+  --a-text: #f6f1e8;
+  --a-muted: rgba(246, 241, 232, 0.6);
+  --a-faint: rgba(246, 241, 232, 0.38);
+  --a-accent: #ff6a26;
+  --a-accent-soft: rgba(255, 80, 1, 0.14);
+  --a-ok: #5dd39e;
+  --a-warn: #f2b544;
+  --a-bad: #f2705f;
+  background: var(--a-bg);
+  color: var(--a-text);
+}
+
+.a-root ::selection {
+  background: rgba(255, 80, 1, 0.35);
+}
+
+/* ------------------------------- surfaces -------------------------------- */
+
+.a-card {
+  background: var(--a-panel);
+  border: 1px solid var(--a-line);
+  border-radius: 14px;
+}
+
+.a-card-quiet {
+  background: rgba(42, 35, 29, 0.45);
+  border: 1px solid var(--a-line);
+  border-radius: 12px;
+}
+
+.a-divide {
+  border-top: 1px solid var(--a-line);
+}
+
+.a-hairline {
+  border-color: var(--a-line);
+}
+
+/* -------------------------------- type ----------------------------------- */
+
+.a-eyebrow {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--a-accent);
+}
+
+.a-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.1;
+}
+
+.a-muted {
+  color: var(--a-muted);
+}
+
+.a-faint {
+  color: var(--a-faint);
+}
+
+.a-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+}
+
+/* -------------------------------- buttons -------------------------------- */
+
+.a-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border-radius: 9px;
+  border: 1px solid var(--a-line-strong);
+  background: transparent;
+  color: var(--a-text);
+  padding: 0.5rem 0.85rem;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1;
+  transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.a-btn:hover {
+  border-color: rgba(255, 106, 38, 0.55);
+  color: var(--a-accent);
+}
+
+.a-btn:focus-visible {
+  outline: 2px solid var(--a-accent);
+  outline-offset: 2px;
+}
+
+.a-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.a-btn-primary {
+  background: var(--a-accent);
+  border-color: var(--a-accent);
+  color: #1a1109;
+}
+
+.a-btn-primary:hover {
+  background: #ff7d3f;
+  border-color: #ff7d3f;
+  color: #1a1109;
+}
+
+.a-btn-ghost {
+  border-color: transparent;
+  color: var(--a-muted);
+}
+
+.a-btn-ghost:hover {
+  background: rgba(246, 241, 232, 0.06);
+  border-color: transparent;
+  color: var(--a-text);
+}
+
+.a-btn-danger {
+  border-color: rgba(242, 112, 95, 0.4);
+  color: #f2705f;
+}
+
+.a-btn-danger:hover {
+  background: rgba(242, 112, 95, 0.1);
+  border-color: rgba(242, 112, 95, 0.7);
+  color: #f2705f;
+}
+
+.a-btn-sm {
+  padding: 0.35rem 0.65rem;
+  font-size: 11.5px;
+  border-radius: 8px;
+}
+
+/* -------------------------------- inputs --------------------------------- */
+
+.a-label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--a-muted);
+}
+
+.a-input,
+.a-select,
+.a-textarea {
+  width: 100%;
+  border-radius: 9px;
+  border: 1px solid var(--a-line-strong);
+  background: #171310;
+  color: var(--a-text);
+  padding: 0.55rem 0.75rem;
+  font-size: 13.5px;
+  line-height: 1.5;
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.a-input::placeholder,
+.a-textarea::placeholder {
+  color: var(--a-faint);
+}
+
+.a-input:focus,
+.a-select:focus,
+.a-textarea:focus {
+  outline: none;
+  border-color: rgba(255, 106, 38, 0.7);
+  box-shadow: 0 0 0 3px rgba(255, 80, 1, 0.12);
+}
+
+.a-input[aria-invalid="true"],
+.a-textarea[aria-invalid="true"] {
+  border-color: rgba(242, 112, 95, 0.7);
+}
+
+.a-help {
+  margin-top: 0.35rem;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--a-faint);
+}
+
+/* -------------------------------- badges --------------------------------- */
+
+.a-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border-radius: 999px;
+  border: 1px solid var(--a-line-strong);
+  padding: 0.12rem 0.5rem;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--a-muted);
+}
+
+.a-badge-ok {
+  border-color: rgba(93, 211, 158, 0.4);
+  background: rgba(93, 211, 158, 0.1);
+  color: var(--a-ok);
+}
+
+.a-badge-warn {
+  border-color: rgba(242, 181, 68, 0.4);
+  background: rgba(242, 181, 68, 0.1);
+  color: var(--a-warn);
+}
+
+.a-badge-bad {
+  border-color: rgba(242, 112, 95, 0.4);
+  background: rgba(242, 112, 95, 0.1);
+  color: var(--a-bad);
+}
+
+.a-badge-accent {
+  border-color: rgba(255, 106, 38, 0.45);
+  background: var(--a-accent-soft);
+  color: var(--a-accent);
+}
+
+.a-kbd {
+  border: 1px solid var(--a-line-strong);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 0.05rem 0.35rem;
+  font-family: ui-monospace, monospace;
+  font-size: 10px;
+  color: var(--a-muted);
+}
+
+/* -------------------------------- tables --------------------------------- */
+
+.a-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13px;
+}
+
+.a-table th {
+  text-align: left;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--a-faint);
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--a-line);
+  white-space: nowrap;
+}
+
+.a-table td {
+  padding: 0.7rem 0.75rem;
+  border-bottom: 1px solid var(--a-line);
+  vertical-align: middle;
+}
+
+.a-table tr:last-child td {
+  border-bottom: none;
+}
+
+.a-table tbody tr:hover td {
+  background: rgba(246, 241, 232, 0.025);
+}
+
+/* -------------------------------- layout --------------------------------- */
+
+.a-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(122, 122, 92, 0.45) transparent;
+}
+
+.a-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.a-scroll::-webkit-scrollbar-thumb {
+  background: rgba(122, 122, 92, 0.4);
+  border-radius: 999px;
+}
+
+.a-fade-in {
+  animation: a-fade 160ms ease-out;
+}
+
+@keyframes a-fade {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .a-fade-in {
+    animation: none;
+  }
+}

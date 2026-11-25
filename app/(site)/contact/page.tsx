@@ -1,5 +1,7 @@
+import { jsonLdHtml } from "@/lib/seo";
 import type { Metadata } from "next";
 import { pageMeta } from "@/lib/content";
+import { PageSchema } from "@/components/seo/PageSchema";
 import { PageHero } from "@/components/pages/PageHero";
 import { Reveal } from "@/components/ui/Reveal";
 import { ContactWizard } from "@/components/pages/ContactWizard";
@@ -89,7 +91,7 @@ export default async function ContactPage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(jsonLd) }}
       />
 
       <PageHero
@@ -131,7 +133,7 @@ export default async function ContactPage() {
                       </span>
                       <div className="pt-0.5">
                         <p className="font-display text-[15px] font-semibold text-ivory">{s.title}</p>
-                        <p className="mt-1 font-body text-sm leading-relaxed text-ivory/50">{s.body}</p>
+                        <p className="mt-1 font-body text-sm leading-relaxed text-ivory/66">{s.body}</p>
                       </div>
                     </li>
                   ))}
@@ -180,7 +182,7 @@ export default async function ContactPage() {
                 <blockquote className="font-body text-[15px] leading-relaxed text-ivory/70">
                   &ldquo;{quote.quote}&rdquo;
                 </blockquote>
-                <figcaption className="mt-3 font-body text-xs uppercase tracking-[0.18em] text-ivory/50">
+                <figcaption className="mt-3 font-body text-xs uppercase tracking-[0.18em] text-ivory/66">
                   {quote.author} &middot; {quote.company}
                 </figcaption>
               </figure>
@@ -191,12 +193,17 @@ export default async function ContactPage() {
                 rel="noopener noreferrer"
                 className="card-surface group relative flex min-h-[200px] flex-1 flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-umber via-espresso to-sienna/30 p-8 text-center"
               >
-                <span
+                <svg
                   aria-hidden="true"
-                  className="absolute -bottom-8 -right-4 select-none font-display text-8xl font-semibold tracking-tight text-sienna/10"
+                  viewBox="0 0 20 20"
+                  className="pointer-events-none absolute -bottom-10 -right-6 h-44 w-44 select-none text-sienna opacity-[0.15]"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="0.9"
                 >
-                  Mirpur 11
-                </span>
+                  <path d="M10 18.5s7-6.2 7-11.3a7 7 0 1 0-14 0c0 5.1 7 11.3 7 11.3Z" strokeLinejoin="round" />
+                  <circle cx="10" cy="7.2" r="2.6" />
+                </svg>
                 <span className="flex h-14 w-14 items-center justify-center rounded-full bg-sienna-bright text-espresso shadow-[0_0_30px_-4px_rgba(255,80,1,0.6)] transition-transform duration-300 group-hover:scale-110">
                   <svg viewBox="0 0 20 20" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
                     <path d="M10 17.5s6-5.1 6-9.5a6 6 0 1 0-12 0c0 4.4 6 9.5 6 9.5Z" strokeLinejoin="round" />
@@ -206,7 +213,7 @@ export default async function ContactPage() {
                 <span className="mt-5 font-display text-lg font-semibold text-ivory">
                   Find us in Mirpur 11
                 </span>
-                <span className="mt-1 font-body text-sm text-ivory/50">
+                <span className="mt-1 font-body text-sm text-ivory/66">
                   Open in Google Maps &rarr;
                 </span>
               </a>
@@ -226,7 +233,7 @@ export default async function ContactPage() {
               <h2 className="mt-4 font-display text-display-3 font-semibold text-ivory">
                 Answers, before the questions.
               </h2>
-              <p className="body-copy mt-4 font-body text-sm leading-relaxed text-ivory/50">
+              <p className="body-copy mt-4 font-body text-sm leading-relaxed text-ivory/66">
                 The four things people ask before their first message.
               </p>
             </Reveal>
@@ -236,6 +243,7 @@ export default async function ContactPage() {
           </Reveal>
         </div>
       </section>
+      <PageSchema route="contact" path="/contact" label="Contact" type="ContactPage" />
     </>
   );
 }

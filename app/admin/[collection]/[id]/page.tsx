@@ -1,10 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { requireUser } from "@/lib/auth";
 import { COLLECTIONS, type CollectionKey, type FieldDef } from "../../config";
 import { EditorForm } from "../../ui";
 import { PostEditor } from "../../ui-post";
 import { ProjectEditor } from "../../ui-project";
+import { StatusControl } from "../../_ui/status-control";
+import { Breadcrumbs, PageHeader } from "../../_ui/primitives";
 import { SITE_URL } from "@/lib/data";
 
 const VIEW_BASE: Partial<Record<CollectionKey, string>> = {
@@ -35,12 +38,14 @@ export default async function EditorPage({
   params: Promise<{ collection: string; id: string }>;
 }) {
   const { collection, id } = await params;
+  await requireUser("editor");
   if (!(collection in COLLECTIONS)) notFound();
   const key = collection as CollectionKey;
   const def = COLLECTIONS[key];
 
   const initial: Record<string, string> = {};
   let slugVal = "";
+  let statusVal = "draft";
   if (id !== "new") {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const delegates: Record<CollectionKey, any> = {
@@ -56,6 +61,7 @@ export default async function EditorPage({
     if (!row) notFound();
     for (const f of def.fields) initial[f.name] = serialize(f, row[f.name]);
     slugVal = String(row[def.slugField] ?? "");
+    statusVal = String(row.status ?? (row.published ? "published" : "draft"));
   } else {
     for (const f of def.fields)
       initial[f.name] = f.kind === "checkbox" ? (f.name === "published" || f.name === "active" ? "true" : "false") : "";
@@ -73,19 +79,28 @@ export default async function EditorPage({
       .catch(() => [] as string[]);
     return (
       <div>
-        <nav aria-label="Breadcrumb" className="mb-4 flex items-center gap-2 font-body text-xs text-ivory/50">
-          <Link href="/admin" className="transition-colors hover:text-sienna-bright">Admin</Link>
-          <span aria-hidden="true">/</span>
-          <Link href="/admin/projects" className="transition-colors hover:text-sienna-bright">Work / Case Studies</Link>
-          <span aria-hidden="true">/</span>
-          <span className="text-ivory/70">{id === "new" ? "New" : "Edit"}</span>
-        </nav>
-        <p className="font-body text-[11px] font-semibold uppercase tracking-[0.22em] text-sienna-bright">
-          Work / {id === "new" ? "New" : "Edit"}
-        </p>
-        <h1 className="mb-8 mt-3 font-display text-3xl font-semibold text-ivory">
-          {id === "new" ? "New Case" : "Edit Case"}<span className="text-sienna">.</span>
-        </h1>
+        <Breadcrumbs
+          items={[
+            { label: "Admin", href: "/admin" },
+            { label: "Work / Case Studies", href: "/admin/projects" },
+            { label: id === "new" ? "New" : "Edit" },
+          ]}
+        />
+        <PageHeader
+          eyebrow={`Work / ${id === "new" ? "New" : "Edit"}`}
+          title={
+            <>
+              {id === "new" ? "New Case" : "Edit Case"}
+              <span className="text-[var(--a-accent)]">.</span>
+            </>
+          }
+        />
+        {id !== "new" && <StatusControl collection="projects" id={Number(id)} status={statusVal} />}
+        {base && slugVal && (
+          <Link href={`/admin/seo/edit?path=${encodeURIComponent(`${base}/${slugVal}`)}`} className="a-btn a-btn-sm">
+            SEO for this page
+          </Link>
+        )}
         <ProjectEditor
           collection={key}
           id={id}
@@ -108,19 +123,28 @@ export default async function EditorPage({
       .catch(() => [] as { name: string; role: string }[]);
     return (
       <div>
-        <nav aria-label="Breadcrumb" className="mb-4 flex items-center gap-2 font-body text-xs text-ivory/50">
-          <Link href="/admin" className="transition-colors hover:text-sienna-bright">Admin</Link>
-          <span aria-hidden="true">/</span>
-          <Link href="/admin/posts" className="transition-colors hover:text-sienna-bright">Blog Posts</Link>
-          <span aria-hidden="true">/</span>
-          <span className="text-ivory/70">{id === "new" ? "New" : "Edit"}</span>
-        </nav>
-        <p className="font-body text-[11px] font-semibold uppercase tracking-[0.22em] text-sienna-bright">
-          Blog Posts / {id === "new" ? "New" : "Edit"}
-        </p>
-        <h1 className="mb-8 mt-3 font-display text-3xl font-semibold text-ivory">
-          {id === "new" ? "New Post" : "Edit Post"}<span className="text-sienna">.</span>
-        </h1>
+        <Breadcrumbs
+          items={[
+            { label: "Admin", href: "/admin" },
+            { label: "Blog Posts", href: "/admin/posts" },
+            { label: id === "new" ? "New" : "Edit" },
+          ]}
+        />
+        <PageHeader
+          eyebrow={`Blog Posts / ${id === "new" ? "New" : "Edit"}`}
+          title={
+            <>
+              {id === "new" ? "New Post" : "Edit Post"}
+              <span className="text-[var(--a-accent)]">.</span>
+            </>
+          }
+        />
+        {id !== "new" && <StatusControl collection="posts" id={Number(id)} status={statusVal} />}
+        {base && slugVal && (
+          <Link href={`/admin/seo/edit?path=${encodeURIComponent(`${base}/${slugVal}`)}`} className="a-btn a-btn-sm">
+            SEO for this page
+          </Link>
+        )}
         <div>
           <PostEditor
             collection={key}
@@ -138,20 +162,30 @@ export default async function EditorPage({
   }
   return (
     <div>
-      <nav aria-label="Breadcrumb" className="mb-4 flex items-center gap-2 font-body text-xs text-ivory/50">
-        <Link href="/admin" className="transition-colors hover:text-sienna-bright">Admin</Link>
-        <span aria-hidden="true">/</span>
-        <a href={`/admin/${collection}`} className="transition-colors hover:text-sienna-bright">{def.label}</a>
-        <span aria-hidden="true">/</span>
-        <span className="text-ivory/70">{id === "new" ? "New" : "Edit"}</span>
-      </nav>
-      <p className="font-body text-[11px] font-semibold uppercase tracking-[0.22em] text-sienna-bright">
-        {def.label} / {id === "new" ? "New" : "Edit"}
-      </p>
-      <h1 className="mb-8 mt-3 font-display text-3xl font-semibold text-ivory">
-        {id === "new" ? `New ${def.singular}` : `Edit ${def.singular}`}<span className="text-sienna">.</span>
-      </h1>
-      <div className="card-surface p-6 md:p-8">
+      <Breadcrumbs
+        items={[
+          { label: "Admin", href: "/admin" },
+          { label: def.label, href: `/admin/${collection}` },
+          { label: id === "new" ? "New" : "Edit" },
+        ]}
+      />
+      <PageHeader
+        eyebrow={`${def.label} / ${id === "new" ? "New" : "Edit"}`}
+        title={
+          <>
+            {id === "new" ? `New ${def.singular}` : `Edit ${def.singular}`}
+            <span className="text-[var(--a-accent)]">.</span>
+          </>
+        }
+      />
+      {base && slugVal && (
+        <div className="mb-4">
+          <Link href={`/admin/seo/edit?path=${encodeURIComponent(`${base}/${slugVal}`)}`} className="a-btn a-btn-sm">
+            SEO for this page
+          </Link>
+        </div>
+      )}
+      <div className="a-card p-5 md:p-7">
         <EditorForm
           collection={key}
           id={id}

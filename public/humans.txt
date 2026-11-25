@@ -1,0 +1,7 @@
+Zoolyum
+Consultancy. Strategy. Solution.
+Dhaka, Bangladesh
+https://www.zoolyum.com
+
+Strategy, design and engineering by the Zoolyum team.
+Built with Next.js, React, Tailwind CSS and Postgres.

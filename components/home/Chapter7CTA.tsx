@@ -26,7 +26,7 @@ export async function Chapter7CTA() {
       <div className="section-shell relative z-10 py-14 text-center md:py-20">
         <Reveal>
           <p className="eyebrow mx-auto inline-block">{eyebrow}</p>
-          <h2 className="mx-auto mt-6 max-w-4xl font-display text-display-1 font-semibold text-ivory">
+          <h2 className="mx-auto mt-6 max-w-5xl text-balance font-display text-display-1 font-semibold text-ivory">
             <AccentSplit text={title} accentClassName="text-ivory/60" />
           </h2>
           <p className="body-copy mx-auto mt-7 font-body text-lead text-ivory/65">

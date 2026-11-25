@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { lockScroll, unlockScroll } from "@/lib/smooth-scroll";
 
@@ -18,23 +18,48 @@ export function BlogFigure({
   priority?: boolean;
 }) {
   const [zoom, setZoom] = useState(false);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const previousFocus = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (!zoom) return;
+    previousFocus.current = document.activeElement as HTMLElement | null;
+    const panel = panelRef.current;
+    const focusables = () =>
+      panel ? Array.from(panel.querySelectorAll<HTMLElement>('button, a[href]')) : [];
+    focusables()[0]?.focus();
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setZoom(false);
+      if (e.key === "Escape") {
+        setZoom(false);
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const items = focusables();
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     window.addEventListener("keydown", onKey);
     lockScroll();
     return () => {
       window.removeEventListener("keydown", onKey);
       unlockScroll();
+      previousFocus.current?.focus();
     };
   }, [zoom]);
 
   return (
     <figure className="my-10">
       <button
+        ref={triggerRef}
         type="button"
         onClick={() => setZoom(true)}
         aria-label="Open image full-size"
@@ -50,13 +75,14 @@ export function BlogFigure({
           className="w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
         />
       </button>
-      <figcaption className="mt-3 flex items-start gap-3 font-body text-[13px] leading-relaxed text-ivory/50">
+      <figcaption className="mt-3 flex items-start gap-3 font-body text-[13px] leading-relaxed text-ivory/66">
         <span aria-hidden="true" className="mt-2 h-px w-5 shrink-0 bg-sienna" />
         {caption}
       </figcaption>
 
       {zoom && (
         <div
+          ref={panelRef}
           role="dialog"
           aria-modal="true"
           aria-label="Image viewer"
@@ -82,7 +108,7 @@ export function BlogFigure({
               unoptimized
               className="max-h-[82vh] w-auto max-w-full rounded-xl border border-olive/30 object-contain"
             />
-            <figcaption className="mt-4 text-center font-body text-xs tracking-[0.16em] text-ivory/50">
+            <figcaption className="mt-4 text-center font-body text-xs tracking-[0.16em] text-ivory/66">
               {caption}
             </figcaption>
           </figure>

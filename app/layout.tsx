@@ -1,10 +1,11 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { Inter, Instrument_Serif } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
-import { getSetting, getSocials } from "@/lib/content";
+import { getSetting, getSocials, getContactInfo } from "@/lib/content";
 import { SITE_URL } from "@/lib/data";
+import { indexableRobots, jsonLdHtml } from "@/lib/seo";
 
 const generalSans = localFont({
   src: [
@@ -28,10 +29,13 @@ const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
   variable: "--font-instrument-serif",
   display: "swap",
+  // Accent face, used below the fold on most routes. Not preloading it keeps
+  // two font files off the critical path.
+  preload: false,
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://zoolyum.com"),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Zoolyum — Consultancy. Strategy. Solution.",
     template: "%s — Zoolyum",
@@ -54,8 +58,29 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     siteName: "Zoolyum",
+    url: SITE_URL,
+    images: [{ url: `${SITE_URL}/opengraph-image`, width: 1200, height: 630, alt: "Zoolyum" }],
   },
-  robots: { index: true, follow: true },
+  twitter: {
+    card: "summary_large_image",
+    title: "Zoolyum — Consultancy. Strategy. Solution.",
+    description:
+      "Every market has a pattern. Most brands react to it. We help you read it first — and act while others are still guessing.",
+    images: [`${SITE_URL}/opengraph-image`],
+  },
+  alternates: {
+    canonical: "/",
+    types: { "application/rss+xml": `${SITE_URL}/feed.xml` },
+  },
+  applicationName: "Zoolyum",
+  category: "business",
+  manifest: "/manifest.webmanifest",
+  robots: indexableRobots,
+};
+
+export const viewport: Viewport = {
+  themeColor: "#241F1B",
+  colorScheme: "dark",
 };
 
 export default async function RootLayout({
@@ -64,11 +89,16 @@ export default async function RootLayout({
   // Social URLs power sameAs (Organization schema) + GSC token powers the
   // verification meta tag. Placeholder roots (e.g. https://facebook.com)
   // are filtered out so only real profiles are claimed.
-  const [socials, googleVerification, pinterestVerification] = await Promise.all([
+  const [socials, contact, googleVerification, pinterestVerification, consentMode] = await Promise.all([
     getSocials(),
+    getContactInfo(),
     getSetting("seo.google_verification", ""),
     getSetting("seo.pinterest_verification", ""),
+    getSetting("analytics.consent_mode", "off"),
   ]);
+  // When tags wait for consent, preconnecting on first paint only burns four
+  // DNS/TLS handshakes for visitors who may never accept.
+  const preconnectAnalytics = consentMode.trim().toLowerCase() !== "on";
   const sameAs = Object.values(socials)
     .map((u) => {
       const v = (u ?? "").trim();
@@ -94,12 +124,15 @@ export default async function RootLayout({
         <meta name="p:domain_verify" content={pinterestVerification.trim()} />
       )}
       <body className="min-h-screen bg-espresso font-body text-ivory antialiased">
-        {/* Analytics/tag origins are connected before the scripts ask for
-            them — Lighthouse measured 140-180ms of dead time per origin. */}
-        <link rel="preconnect" href="https://www.googletagmanager.com" />
-        <link rel="preconnect" href="https://www.google-analytics.com" />
-        <link rel="preconnect" href="https://www.clarity.ms" />
-        <link rel="preconnect" href="https://connect.facebook.net" crossOrigin="" />
+        {/* Connect tag origins up front only when tags load unconditionally. */}
+        {preconnectAnalytics && (
+          <>
+            <link rel="preconnect" href="https://www.googletagmanager.com" />
+            <link rel="preconnect" href="https://www.google-analytics.com" />
+            <link rel="preconnect" href="https://www.clarity.ms" />
+            <link rel="preconnect" href="https://connect.facebook.net" crossOrigin="" />
+          </>
+        )}
         <script
           dangerouslySetInnerHTML={{
             __html: `document.documentElement.classList.add("js")`,
@@ -108,40 +141,79 @@ export default async function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
+            __html: jsonLdHtml({
               "@context": "https://schema.org",
               "@graph": [
                 {
                   "@type": ["Organization", "ProfessionalService"],
                   "@id": `${SITE_URL}/#organization`,
                   name: "Zoolyum",
+                  alternateName: "Zoolyum Consultancy",
                   url: SITE_URL,
-                  logo: `${SITE_URL}/logo.svg`,
-                  image: `${SITE_URL}/logo.svg`,
+                  logo: {
+                    "@type": "ImageObject",
+                    url: `${SITE_URL}/icon.png`,
+                    width: 512,
+                    height: 512,
+                  },
+                  image: `${SITE_URL}/opengraph-image`,
                   slogan: "Consultancy. Strategy. Solution.",
                   description:
                     "Strategy-first brand and digital consultancy in Dhaka, Bangladesh. We read the market's pattern, then build the position that holds.",
-                  email: "hello@zoolyum.com",
+                  email: contact.email,
+                  telephone: contact.phone,
                   address: {
                     "@type": "PostalAddress",
+                    streetAddress: contact.address,
                     addressLocality: "Dhaka",
+                    postalCode: "1216",
                     addressCountry: "BD",
                   },
+                  areaServed: [
+                    { "@type": "City", name: "Dhaka" },
+                    { "@type": "Country", name: "Bangladesh" },
+                  ],
+                  priceRange: "$$",
+                  currenciesAccepted: "BDT",
+                  foundingDate: "2017",
+                  knowsAbout: [
+                    "brand strategy",
+                    "market positioning",
+                    "brand messaging",
+                    "digital design",
+                    "UI/UX design",
+                    "growth marketing",
+                    "content strategy",
+                    "video production",
+                  ],
+                  contactPoint: [
+                    {
+                      "@type": "ContactPoint",
+                      contactType: "sales",
+                      email: contact.email,
+                      telephone: contact.phone,
+                      areaServed: "BD",
+                      availableLanguage: ["en", "bn"],
+                    },
+                  ],
                   sameAs,
                 },
                 {
                   "@type": "WebSite",
+                  "@id": `${SITE_URL}/#website`,
                   name: "Zoolyum",
                   url: SITE_URL,
                   inLanguage: "en",
-                  publisher: { "@type": "Organization", name: "Zoolyum" },
+                  publisher: { "@id": `${SITE_URL}/#organization` },
                 },
               ],
             }),
           }}
         />
         {children}
-        <Analytics />
+        {/* The Vercel script only exists on Vercel. Loading it elsewhere
+            produced a 404 and a console error on every page. */}
+        {process.env.VERCEL === "1" && <Analytics />}
       </body>
     </html>
   );

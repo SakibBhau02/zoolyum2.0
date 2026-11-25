@@ -1,41 +1,57 @@
 import { prisma } from "@/lib/prisma";
-import { CopyButton, MediaDeleteButton, UploadForm } from "../ui";
-
-function kb(size: number | null) {
-  if (!size) return "";
-  return size > 1024 * 1024 ? `${(size / 1024 / 1024).toFixed(1)} MB` : `${Math.round(size / 1024)} KB`;
-}
+import { can, requireUser } from "@/lib/auth";
+import { Badge, Card, EmptyState, PageHeader } from "../_ui/primitives";
+import { MediaCard, UploadPanel } from "./media-client";
 
 export default async function MediaPage() {
-  const files = await prisma.media.findMany({ orderBy: { createdAt: "desc" } }).catch(() => []);
+  const user = await requireUser("editor");
+  const files = await prisma.media.findMany({ orderBy: { createdAt: "desc" }, take: 200 }).catch(() => []);
+  const missingAlt = files.filter((f) => !f.alt).length;
+
   return (
     <div>
-      <p className="font-body text-[11px] font-semibold uppercase tracking-[0.22em] text-sienna-bright">Studio</p>
-      <h1 className="mt-3 font-display text-3xl font-semibold text-ivory">Media library<span className="text-sienna">.</span></h1>
-      <div className="card-surface mt-8 p-6">
-        <UploadForm />
-      </div>
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {files.length === 0 && (
-          <p className="font-body text-sm text-ivory/50">No uploads yet.</p>
-        )}
-        {files.map((f) => (
-          <div key={f.id} className="card-surface overflow-hidden">
-            {f.mime?.startsWith("image/") && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={f.url} alt={f.alt ?? f.key} className="h-36 w-full object-cover" loading="lazy" />
-            )}
-            <div className="space-y-2 p-4">
-              <p className="truncate font-mono text-xs text-ivory/60" title={f.url}>{f.url}</p>
-              <p className="truncate font-body text-xs text-ivory/50" title={f.alt ?? ""}>{f.alt ? `Alt: ${f.alt}` : "No alt text"}</p>
-              <p className="font-body text-xs text-ivory/50">{kb(f.size)}{f.width ? ` · ${f.width}x${f.height}` : ""}</p>
-              <div className="flex gap-2">
-                <CopyButton text={f.url} />
-                <MediaDeleteButton id={f.id} />
-              </div>
-            </div>
+      <PageHeader
+        eyebrow="Workspace"
+        title={
+          <>
+            Media library<span className="text-[var(--a-accent)]">.</span>
+          </>
+        }
+        description="Every upload lives here. Alt text is not decoration — it is how search engines and screen readers understand the image."
+        actions={
+          <Badge tone={missingAlt === 0 ? "ok" : "warn"}>
+            {missingAlt === 0 ? "All images have alt text" : `${missingAlt} missing alt text`}
+          </Badge>
+        }
+      />
+
+      <Card>
+        <h2 className="a-title mb-3 text-[15px]">Upload</h2>
+        <UploadPanel />
+      </Card>
+
+      <div className="mt-4">
+        {files.length === 0 ? (
+          <EmptyState title="No uploads yet" description="Upload an image and it becomes available in every editor." />
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {files.map((f) => (
+              <MediaCard
+                key={f.id}
+                canDelete={can(user.role, "admin")}
+                file={{
+                  id: f.id,
+                  url: f.url,
+                  alt: f.alt,
+                  mime: f.mime,
+                  size: f.size,
+                  width: f.width,
+                  height: f.height,
+                }}
+              />
+            ))}
           </div>
-        ))}
+        )}
       </div>
     </div>
   );

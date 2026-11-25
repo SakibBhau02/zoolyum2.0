@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMeta } from "@/lib/content";
+import { PageSchema } from "@/components/seo/PageSchema";
 import { PageHero } from "@/components/pages/PageHero";
 import { Reveal } from "@/components/ui/Reveal";
 import { ResourceGate } from "@/components/pages/ResourceGate";
@@ -45,12 +46,13 @@ export default function ResourcesPage() {
 
         <div className="section-shell mt-20">
           <Reveal>
-            <p className="mx-auto max-w-xl text-center font-accent text-xl italic leading-relaxed text-ivory/55">
+            <p className="mx-auto max-w-xl text-center font-accent text-xl italic leading-relaxed text-ivory/70">
               &ldquo;Free tools are how the market knows you&apos;re serious.&rdquo;
             </p>
           </Reveal>
         </div>
       </section>
+      <PageSchema route="resources" path="/resources" label="Resources" type="CollectionPage" />
     </>
   );
 }

@@ -1,3 +1,4 @@
+import { jsonLdHtml } from "@/lib/seo";
 import type { Metadata } from "next";
 import { pageMeta } from "@/lib/content";
 import Link from "next/link";
@@ -6,6 +7,7 @@ import { Reveal } from "@/components/ui/Reveal";
 import { FaqAccordion } from "@/components/ui/FaqAccordion";
 import { GLOBAL_FAQS as TS_FAQS } from "@/lib/data";
 import { getJsonSetting } from "@/lib/content";
+import { PageSchema } from "@/components/seo/PageSchema";
 
 export async function generateMetadata(): Promise<Metadata> {
   return pageMeta("faq", {
@@ -61,7 +63,7 @@ export default async function FaqPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: jsonLdHtml({
             "@context": "https://schema.org",
             "@type": "FAQPage",
             mainEntity: faqs.map((f: { q: string; a: string }) => ({
@@ -72,6 +74,7 @@ export default async function FaqPage() {
           }),
         }}
       />
+      <PageSchema route="faq" path="/faq" label="FAQ" />
     </>
   );
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import gsap from "gsap";
 import { useMediaQuery } from "@/lib/hooks";
 
 /**
@@ -141,31 +140,53 @@ export function HeroBackdrop({
   const torchRef = useRef<SVGEllipseElement>(null);
   const reduced = useMediaQuery("(prefers-reduced-motion: reduce)");
 
-  /* Mouse parallax - layers drift a few pixels with the cursor */
+  /* Mouse parallax - layers drift a few pixels with the cursor. A small
+     lerped rAF (instead of GSAP quickTo) keeps the animation runtime out of
+     the shared bundle; it stops as soon as every layer has settled. */
   useEffect(() => {
     if (reduced) return;
     if (window.matchMedia("(pointer: coarse)").matches) return;
     const root = scope.current;
     if (!root) return;
 
-    const layers = Array.from(root.querySelectorAll<HTMLElement>("[data-para]"));
-    const movers = layers.map((el) => ({
+    const movers = Array.from(root.querySelectorAll<HTMLElement>("[data-para]")).map((el) => ({
+      el,
       depth: Number(el.dataset.para ?? 0.2),
-      x: gsap.quickTo(el, "x", { duration: 0.9, ease: "power3.out" }),
-      y: gsap.quickTo(el, "y", { duration: 0.9, ease: "power3.out" }),
+      x: 0,
+      y: 0,
+      tx: 0,
+      ty: 0,
     }));
+
+    let frame = 0;
+    const tick = () => {
+      let settled = true;
+      for (const m of movers) {
+        const dx = m.tx - m.x;
+        const dy = m.ty - m.y;
+        if (Math.abs(dx) > 0.05 || Math.abs(dy) > 0.05) settled = false;
+        m.x += dx * 0.14;
+        m.y += dy * 0.14;
+        m.el.style.transform = `translate3d(${m.x.toFixed(2)}px, ${m.y.toFixed(2)}px, 0)`;
+      }
+      frame = settled ? 0 : requestAnimationFrame(tick);
+    };
 
     const onMove = (e: PointerEvent) => {
       const nx = e.clientX / window.innerWidth - 0.5;
       const ny = e.clientY / window.innerHeight - 0.5;
-      movers.forEach((m) => {
-        m.x(nx * 26 * m.depth);
-        m.y(ny * 18 * m.depth);
-      });
+      for (const m of movers) {
+        m.tx = nx * 26 * m.depth;
+        m.ty = ny * 18 * m.depth;
+      }
+      if (!frame) frame = requestAnimationFrame(tick);
     };
 
     window.addEventListener("pointermove", onMove, { passive: true });
-    return () => window.removeEventListener("pointermove", onMove);
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      if (frame) cancelAnimationFrame(frame);
+    };
   }, [reduced]);
 
   /* Torch glow - blades near the cursor light up in sienna. The

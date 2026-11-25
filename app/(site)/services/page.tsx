@@ -1,5 +1,7 @@
+import { jsonLdHtml } from "@/lib/seo";
 import type { Metadata } from "next";
 import { pageMeta } from "@/lib/content";
+import { PageSchema } from "@/components/seo/PageSchema";
 import Link from "next/link";
 import { PageHero } from "@/components/pages/PageHero";
 import { Reveal } from "@/components/ui/Reveal";
@@ -65,7 +67,7 @@ export default async function ServicesPage() {
                         <h2 className="mt-4 font-display text-display-2 font-semibold text-ivory">
                           {service.name}
                         </h2>
-                        <p className="mt-3 font-accent text-xl italic text-ivory/55">
+                        <p className="mt-3 font-accent text-xl italic text-ivory/70">
                           {service.tagline}
                         </p>
                       </div>
@@ -73,7 +75,7 @@ export default async function ServicesPage() {
                         <p className="font-display text-4xl font-semibold tracking-tight text-sienna tabular-nums">
                           {service.proofStat.value}
                         </p>
-                        <p className="mt-1 max-w-[180px] font-body text-xs leading-relaxed text-ivory/50">
+                        <p className="mt-1 max-w-[180px] font-body text-xs leading-relaxed text-ivory/66">
                           {service.proofStat.label}
                         </p>
                       </div>
@@ -85,10 +87,10 @@ export default async function ServicesPage() {
                     {ACTS.map((act, a) => (
                       <Reveal key={act.key} delay={a * 120}>
                         <div className="card-surface h-full p-7">
-                          <p className="font-body text-[10px] font-semibold uppercase tracking-[0.22em] text-ivory/50">
+                          <p className="font-body text-[10px] font-semibold uppercase tracking-[0.22em] text-ivory/66">
                             {act.label}
                           </p>
-                          <p className="mt-1 font-accent text-sm italic text-olive">
+                          <p className="mt-1 font-accent text-sm italic text-olive-hi">
                             {act.hint}
                           </p>
                           <p className="body-copy mt-4 font-body text-[15px] leading-relaxed text-ivory/65">
@@ -133,7 +135,7 @@ export default async function ServicesPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: jsonLdHtml({
             "@context": "https://schema.org",
             "@type": "ItemList",
             itemListElement: services.map((s, i) => ({
@@ -150,6 +152,7 @@ export default async function ServicesPage() {
           }),
         }}
       />
+      <PageSchema route="services" path="/services" label="Services" type="CollectionPage" />
     </>
   );
 }

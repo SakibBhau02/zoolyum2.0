@@ -1,5 +1,7 @@
+import { jsonLdHtml } from "@/lib/seo";
 import type { Metadata } from "next";
 import { pageMeta } from "@/lib/content";
+import { PageSchema } from "@/components/seo/PageSchema";
 import Link from "next/link";
 import { PageHero } from "@/components/pages/PageHero";
 import { Reveal } from "@/components/ui/Reveal";
@@ -106,7 +108,7 @@ export default async function CareersPage() {
             eyebrow="Culture"
             title={
               <>
-                How we actually <span className="text-ivory/55">work.</span>
+                How we actually <span className="text-ivory/70">work.</span>
               </>
             }
             lead="Four rules run this studio. They are enforced in reviews, in critiques, and in who gets hired - starting with this page."
@@ -119,7 +121,7 @@ export default async function CareersPage() {
                   <h3 className="mt-5 font-display text-lg font-semibold text-ivory">
                     {v.title}
                   </h3>
-                  <p className="body-copy mt-3 font-body text-sm leading-relaxed text-ivory/55">
+                  <p className="body-copy mt-3 font-body text-sm leading-relaxed text-ivory/70">
                     {v.detail}
                   </p>
                 </div>
@@ -151,7 +153,7 @@ export default async function CareersPage() {
                     </span>
                     <div>
                       <p className="font-body text-sm font-medium text-ivory/85">{m.name}</p>
-                      <p className="font-body text-xs text-ivory/50">{m.role}</p>
+                      <p className="font-body text-xs text-ivory/66">{m.role}</p>
                     </div>
                   </li>
                 ))}
@@ -195,25 +197,23 @@ export default async function CareersPage() {
             eyebrow="How we hire"
             title={
               <>
-                Two weeks, <span className="text-ivory/55">four steps.</span>
+                Two weeks, <span className="text-ivory/70">four steps.</span>
               </>
             }
             lead="No silence, no puzzles. You will always know where you stand - if we go quiet, nudge us."
           />
           <ol className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {steps.map((s: { step: string; detail: string }, i: number) => (
-              <Reveal key={s.step} delay={(i % 4) * 80}>
-                <li className="card-surface h-full list-none p-7">
-                  <p className="font-display text-sm font-semibold text-sienna tabular-nums" aria-hidden="true">
-                    {String(i + 1).padStart(2, "0")}
-                  </p>
-                  <h3 className="mt-3 font-display text-lg font-semibold text-ivory">
-                    {s.step}
-                  </h3>
-                  <p className="body-copy mt-2.5 font-body text-sm leading-relaxed text-ivory/55">
-                    {s.detail}
-                  </p>
-                </li>
+              <Reveal key={s.step} as="li" delay={(i % 4) * 80} className="card-surface h-full p-7">
+                <p className="font-display text-sm font-semibold text-sienna-bright tabular-nums" aria-hidden="true">
+                  {String(i + 1).padStart(2, "0")}
+                </p>
+                <h3 className="mt-3 font-display text-lg font-semibold text-ivory">
+                  {s.step}
+                </h3>
+                <p className="body-copy mt-2.5 font-body text-sm leading-relaxed text-ivory/70">
+                  {s.detail}
+                </p>
               </Reveal>
             ))}
           </ol>
@@ -230,7 +230,7 @@ export default async function CareersPage() {
             eyebrow="Pay, care & growth"
             title={
               <>
-                Looked after, <span className="text-ivory/55">sharpened up.</span>
+                Looked after, <span className="text-ivory/70">sharpened up.</span>
               </>
             }
           />
@@ -243,7 +243,7 @@ export default async function CareersPage() {
                   <h3 className="mt-5 font-display text-lg font-semibold text-ivory">
                     {benefit.title}
                   </h3>
-                  <p className="body-copy mt-3 font-body text-sm leading-relaxed text-ivory/55">
+                  <p className="body-copy mt-3 font-body text-sm leading-relaxed text-ivory/70">
                     {benefit.detail}
                   </p>
                 </div>
@@ -335,14 +335,15 @@ export default async function CareersPage() {
 
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jobPostingLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(jobPostingLd) }}
       />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(faqLd),
+          __html: jsonLdHtml(faqLd),
         }}
       />
+      <PageSchema route="careers" path="/careers" label="Careers" />
     </>
   );
 }

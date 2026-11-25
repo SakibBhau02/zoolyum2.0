@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
 type TestimonialItem = { quote: string; author: string; company: string; industry: string };
 
 /**
@@ -39,17 +38,11 @@ export function TestimonialWall({ testimonials }: { testimonials: TestimonialIte
         ))}
       </div>
 
-      <motion.div layout className="mt-12 grid gap-6 md:grid-cols-2">
-        <AnimatePresence mode="popLayout">
+      <div className="mt-12 grid gap-6 md:grid-cols-2">
           {visible.map((testimonial) => (
-            <motion.figure
+            <figure
               key={testimonial.company}
-              layout
-              initial={{ opacity: 0, y: 18 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.97 }}
-              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-              className="card-surface relative flex h-full flex-col p-9"
+              className="card-enter card-surface relative flex h-full flex-col p-9"
             >
               <span
                 aria-hidden="true"
@@ -70,15 +63,14 @@ export function TestimonialWall({ testimonials }: { testimonials: TestimonialIte
                   <span className="block font-display text-sm font-semibold text-ivory">
                     {testimonial.author}, {testimonial.company}
                   </span>
-                  <span className="mt-0.5 block font-body text-xs tracking-wide text-ivory/50">
+                  <span className="mt-0.5 block font-body text-xs tracking-wide text-ivory/66">
                     {testimonial.industry}
                   </span>
                 </span>
               </figcaption>
-            </motion.figure>
+            </figure>
           ))}
-        </AnimatePresence>
-      </motion.div>
+      </div>
     </div>
   );
 }

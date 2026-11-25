@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { NewsCopy } from "@/lib/content";
 type TestimonialItem = { quote: string; author: string; company: string; industry: string };
 import { Reveal, HorizonRule } from "@/components/ui/Reveal";
@@ -10,11 +10,11 @@ import { createLead } from "@/app/admin/actions";
 import { fireBrowserLead, newLeadContext } from "@/lib/tracking-client";
 
 /**
- * Chapter 6 Ã¢â‚¬â€ What Clients Say.
+ * Chapter 6 — What Clients Say.
  * A Warm Ivory clearing with two always-moving testimonial rivers:
- * one flowing left Ã¢â€ â€™ right, one right Ã¢â€ â€™ left. Hover pauses a row;
+ * one flowing left → right, one right → left. Hover pauses a row;
  * reduced-motion falls back to a static grid. The inline newsletter
- * capture stays Ã¢â‚¬â€ "One strategic insight a month. No noise."
+ * capture stays — "One strategic insight a month. No noise."
  */
 export type VoicesCopy = {
   eyebrow: string; title: string; newsEyebrow: string; newsTitle: string; newsLead: string;
@@ -27,7 +27,7 @@ export function Chapter6Voices({ testimonials, copy, news }: { testimonials: Tes
 
   return (
     <section
-      className="section-light relative overflow-hidden py-12 md:py-16"
+      className="section-light relative overflow-hidden pb-12 pt-20 md:pb-16 md:pt-24"
       aria-label="What clients say"
     >
       <div className="section-shell relative z-10">
@@ -39,7 +39,7 @@ export function Chapter6Voices({ testimonials, copy, news }: { testimonials: Tes
         </Reveal>
       </div>
 
-      {/* The two rivers Ã¢â‚¬â€ always moving */}
+      {/* The two rivers — always moving */}
       <Reveal delay={100} className="relative z-10 mt-9">
         <MarqueeRow direction="ltr" duration={52} className="py-3">
           {rowA.map((t) => (
@@ -54,7 +54,7 @@ export function Chapter6Voices({ testimonials, copy, news }: { testimonials: Tes
       </Reveal>
 
       <div className="section-shell relative z-10">
-        {/* Inline newsletter capture Ã¢â‚¬â€ sequenced lead point */}
+        {/* Inline newsletter capture — sequenced lead point */}
         <Reveal delay={160}>
           <div
             data-lead-inline
@@ -63,10 +63,10 @@ export function Chapter6Voices({ testimonials, copy, news }: { testimonials: Tes
             <div className="grid items-center gap-8 md:grid-cols-2">
               <div>
                 <p className="eyebrow eyebrow-dark">{copy.newsEyebrow}</p>
-                <p className="mt-4 font-display text-display-3 font-semibold text-espresso">
-                  <AccentSplit text={copy.newsTitle} accentClassName="text-espresso/55" />
+                <p className="mt-4 text-balance font-display text-display-3 font-semibold text-espresso">
+                  <AccentSplit text={copy.newsTitle} accentClassName="text-espresso/75" />
                 </p>
-                <p className="body-copy mt-4 font-body text-[15px] leading-relaxed text-espresso/60">
+                <p className="body-copy mt-4 font-body text-[15px] leading-relaxed text-espresso/75">
                   {copy.newsLead}
                 </p>
               </div>
@@ -107,7 +107,7 @@ function TestimonialCard({
           <span className="block truncate font-display text-sm font-semibold text-espresso">
             {author}, {company}
           </span>
-          <span className="mt-0.5 block font-body text-xs tracking-wide text-espresso/50">
+          <span className="mt-0.5 block font-body text-xs tracking-wide text-espresso/72">
             {industry}
           </span>
         </span>
@@ -119,20 +119,37 @@ function TestimonialCard({
 function NewsletterInlineForm({ news }: { news: NewsCopy }) {
   const [email, setEmail] = useState("");
   const [done, setDone] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const trapRef = useRef<HTMLInputElement>(null);
 
   return (
     <form
       className="md:justify-self-end md:w-full"
-      onSubmit={(e) => {
+      aria-busy={busy}
+      onSubmit={async (e) => {
         e.preventDefault();
-        if (!email.trim()) return;
-        setDone(true);
+        if (!email.trim() || busy || done) return;
+        if ((trapRef.current?.value ?? "").trim() !== "") {
+          setDone(true);
+          return;
+        }
+        setBusy(true);
+        setError("");
         const ctx = newLeadContext();
-        createLead("newsletter", { email: email.trim() }, ctx)
-          .then((r) => {
-            if (r.ok) fireBrowserLead("newsletter", ctx);
-          })
-          .catch(() => {});
+        try {
+          const r = await createLead("newsletter", { email: email.trim() }, ctx);
+          if (r.ok) {
+            fireBrowserLead("newsletter", ctx);
+            setDone(true);
+          } else {
+            setError(r.error ?? "Something went wrong. Please try again.");
+          }
+        } catch {
+          setError("Something went wrong. Please try again.");
+        } finally {
+          setBusy(false);
+        }
       }}
     >
       {done ? (
@@ -152,17 +169,31 @@ function NewsletterInlineForm({ news }: { news: NewsCopy }) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder={news.placeholder}
-              className="w-full rounded-lg border border-espresso/20 bg-ivory px-4 py-3.5 font-body text-sm text-espresso placeholder:text-espresso/40 transition-colors focus:border-sienna focus:outline-none sm:min-w-[260px]"
+              className="w-full rounded-lg border border-espresso/20 bg-ivory px-4 py-3.5 font-body text-sm text-espresso placeholder:text-espresso/65 transition-colors focus:border-sienna focus:outline-none sm:min-w-[260px]"
             />
             <button type="submit" className="btn btn-primary shrink-0">
               {news.button}
             </button>
           </div>
-          <p className="mt-3 font-body text-xs text-espresso/45">
+          <p className="mt-3 font-body text-xs text-espresso/72">
             {news.disclaimer}
           </p>
+          {error && (
+            <p role="alert" className="mt-2 font-body text-xs text-sienna-bright">
+              {error}
+            </p>
+          )}
         </>
       )}
+      <input
+        ref={trapRef}
+        type="text"
+        name="_hp"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        style={{ position: "absolute", left: "-9999px", width: 1, height: 1, opacity: 0 }}
+      />
     </form>
   );
 }

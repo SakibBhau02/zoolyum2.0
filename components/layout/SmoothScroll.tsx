@@ -3,29 +3,33 @@
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import Lenis from "lenis";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useMediaQuery } from "@/lib/hooks";
 import { registerSmoothScroll } from "@/lib/smooth-scroll";
 
 /**
  * SmoothScroll — the inertial scroll layer the site was designed for.
  *
- * Lenis drives the real document scroll position (not a transform), so
- * GSAP ScrollTrigger keeps working; we just hand Lenis' frame clock to
- * GSAP's ticker and tell ScrollTrigger to re-read on every Lenis tick.
- * Without this the page is native-wheel scroll underneath a 91-animation
- * composition, which is exactly what reads as "not smooth".
+ * Lenis drives the real document scroll position (not a transform), so the
+ * scroll-driven chapters and every IntersectionObserver keep working.
+ *
+ * This used to hand Lenis' frame clock to GSAP's ticker and register
+ * ScrollTrigger, which pulled ~70KB of animation runtime into the shared
+ * bundle of every route. No page uses ScrollTrigger — the home chapters are
+ * rAF-driven — so the loop is now a plain requestAnimationFrame. That removes
+ * GSAP from the critical path entirely.
  *
  * Reduced-motion users get native scrolling — no hijacking at all.
  */
 export function SmoothScroll() {
   const reduced = useMediaQuery("(prefers-reduced-motion: reduce)");
+  const finePointer = useMediaQuery("(pointer: fine)");
   const pathname = usePathname();
   const lenisRef = useRef<Lenis | null>(null);
 
   useEffect(() => {
-    if (reduced) return;
+    // Touch devices keep native scrolling. Lenis on a phone buys nothing and
+    // costs a permanent rAF loop plus wheel/touch listeners on the main thread.
+    if (reduced || !finePointer) return;
 
     const lenis = new Lenis({
       duration: 1.05,
@@ -41,31 +45,25 @@ export function SmoothScroll() {
     lenisRef.current = lenis;
     registerSmoothScroll(lenis);
 
-    const onScroll = () => ScrollTrigger.update();
-    lenis.on("scroll", onScroll);
-
-    const tick = (time: number) => lenis.raf(time * 1000);
-    gsap.ticker.add(tick);
-    // Never let GSAP clamp the clock — that is what makes pinned
-    // sequences stutter after a dropped frame.
-    gsap.ticker.lagSmoothing(0);
-
-    ScrollTrigger.refresh();
+    let frame = 0;
+    const tick = (time: number) => {
+      lenis.raf(time);
+      frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
 
     return () => {
       registerSmoothScroll(null);
-      lenis.off("scroll", onScroll);
-      gsap.ticker.remove(tick);
+      cancelAnimationFrame(frame);
       lenis.destroy();
       lenisRef.current = null;
     };
-  }, [reduced]);
+  }, [reduced, finePointer]);
 
   // Every route change starts at the top, instantly — Lenis owns the
   // scroll position, so Next's native reset alone can be ignored.
   useEffect(() => {
     lenisRef.current?.scrollTo(0, { immediate: true });
-    ScrollTrigger.refresh();
   }, [pathname]);
 
   return null;

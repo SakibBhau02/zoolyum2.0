@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useActionState, useState } from "react";
 import { saveSettings } from "./actions";
 import { JsonRows } from "./ui";
+import { BRIEF_DEFAULT, parseBriefScenario } from "@/lib/engagement";
+import type { BriefOption, BriefScenario, BriefStage } from "@/lib/engagement";
 
 type Kind = "text" | "textarea" | "url";
 type F = { key: string; label: string; kind: Kind; max?: number; rows?: number; help?: string };
@@ -228,8 +230,418 @@ function StatEditor({ initial }: { initial: string }) {
   );
 }
 
-function TickerEditor({ initial }: { initial: string }) {
-  const [text, setText] = useState(() => {
+type FilmRow = {
+  youtubeId: string;
+  title: string;
+  client: string;
+  kind: string;
+  duration: string;
+  blurb: string;
+  projectSlug: string;
+};
+
+function FilmEditor({ initial }: { initial: string }) {
+  const [rows, setRows] = useState<FilmRow[]>(() => {
+    const v = parseJson<unknown>(initial, []);
+    if (!Array.isArray(v)) return [];
+    return v.map((r) => {
+      const o = (r ?? {}) as Record<string, unknown>;
+      const s = (key: string) => (typeof o[key] === "string" ? (o[key] as string) : "");
+      return {
+        youtubeId: s("youtubeId"),
+        title: s("title"),
+        client: s("client"),
+        kind: s("kind"),
+        duration: s("duration"),
+        blurb: s("blurb"),
+        projectSlug: s("projectSlug"),
+      };
+    });
+  });
+  const set = (i: number, patch: Partial<FilmRow>) => setRows(rows.map((r, j) => (j === i ? { ...r, ...patch } : r)));
+  const json = JSON.stringify(
+    rows.map((r) => ({
+      youtubeId: r.youtubeId.trim(),
+      title: r.title.trim(),
+      client: r.client.trim(),
+      kind: r.kind.trim(),
+      duration: r.duration.trim(),
+      blurb: r.blurb.trim(),
+      projectSlug: r.projectSlug.trim(),
+    })),
+  );
+  return (
+    <div>
+      <div className="space-y-3">
+        {rows.map((r, i) => (
+          <div key={i} className={rowCls}>
+            <div className="mb-3 flex items-center gap-2">
+              <span className="rounded-md bg-umber px-2 py-0.5 font-mono text-[11px] text-ivory/50">Film {i + 1}</span>
+              <span className="ml-auto flex gap-1.5">
+                <button type="button" disabled={i === 0} onClick={() => setRows(move(rows, i, -1))} className={iconBtnCls}>Up</button>
+                <button type="button" disabled={i === rows.length - 1} onClick={() => setRows(move(rows, i, 1))} className={iconBtnCls}>Down</button>
+                <button type="button" onClick={() => setRows(rows.filter((_, j) => j !== i))} className={iconBtnCls}>Remove</button>
+              </span>
+            </div>
+            <div>
+              <label className={subLabelCls}>YouTube URL or video id</label>
+              <input
+                value={r.youtubeId}
+                onChange={(e) => set(i, { youtubeId: e.target.value })}
+                placeholder="https://youtu.be/…"
+                className={subInputCls + " font-mono !text-[13px]"}
+              />
+              <p className="mt-1 font-body text-[11px] text-ivory/40">Empty is a valid state: the card shows a designed poster instead.</p>
+            </div>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <div>
+                <label className={subLabelCls}>Film title</label>
+                <input value={r.title} onChange={(e) => set(i, { title: e.target.value })} placeholder="The Verandah Season" className={subInputCls} />
+              </div>
+              <div>
+                <label className={subLabelCls}>Client</label>
+                <input value={r.client} onChange={(e) => set(i, { client: e.target.value })} placeholder="Verandah Resorts" className={subInputCls} />
+              </div>
+              <div>
+                <label className={subLabelCls}>Type</label>
+                <input value={r.kind} onChange={(e) => set(i, { kind: e.target.value })} placeholder="Brand film" className={subInputCls} />
+              </div>
+              <div>
+                <label className={subLabelCls}>Duration</label>
+                <input value={r.duration} onChange={(e) => set(i, { duration: e.target.value })} placeholder="2:14" className={subInputCls} />
+              </div>
+              <div>
+                <label className={subLabelCls}>Case slug (optional)</label>
+                <input value={r.projectSlug} onChange={(e) => set(i, { projectSlug: e.target.value })} placeholder="verandah" className={subInputCls} />
+              </div>
+            </div>
+            <div className="mt-3">
+              <label className={subLabelCls}>One-line description</label>
+              <textarea value={r.blurb} onChange={(e) => set(i, { blurb: e.target.value })} rows={2} className={subInputCls} />
+            </div>
+          </div>
+        ))}
+      </div>
+      <button
+        type="button"
+        onClick={() =>
+          setRows([...rows, { youtubeId: "", title: "", client: "", kind: "", duration: "", blurb: "", projectSlug: "" }])
+        }
+        className={addBtnCls + " mt-3"}
+      >
+        + Add film
+      </button>
+      <input type="hidden" name="s:home.work.films" value={json} />
+    </div>
+  );
+}
+
+type BriefProject = { slug: string; client: string };
+
+function BriefScenarioEditor({ initial, projects }: { initial: string; projects: BriefProject[] }) {
+  const [scenario, setScenario] = useState<BriefScenario>(() => {
+    const parsed = parseBriefScenario(parseJson<unknown>(initial, null));
+    return parsed ?? BRIEF_DEFAULT;
+  });
+
+  const patch = (next: Partial<BriefScenario>) => setScenario((current) => ({ ...current, ...next }));
+
+  const updateStage = (index: number, update: (stage: BriefStage) => BriefStage) =>
+    setScenario((current) => ({
+      ...current,
+      stages: current.stages.map((stage, i) => (i === index ? update(stage) : stage)),
+    }));
+
+  const patchStage = (index: number, next: Partial<BriefStage>) =>
+    updateStage(index, (stage) => ({ ...stage, ...next }));
+
+  const patchReveal = (index: number, next: Partial<BriefStage["reveal"]>) =>
+    updateStage(index, (stage) => ({ ...stage, reveal: { ...stage.reveal, ...next } }));
+
+  const patchArtifact = (index: number, next: Partial<BriefStage["reveal"]["artifact"]>) =>
+    updateStage(index, (stage) => ({
+      ...stage,
+      reveal: { ...stage.reveal, artifact: { ...stage.reveal.artifact, ...next } },
+    }));
+
+  const patchOption = (stageIndex: number, optionIndex: number, next: Partial<BriefOption>) =>
+    updateStage(stageIndex, (stage) => ({
+      ...stage,
+      options: stage.options.map((option, i) => (i === optionIndex ? { ...option, ...next } : option)),
+    }));
+
+  const chooseOption = (stageIndex: number, optionIndex: number) =>
+    updateStage(stageIndex, (stage) => ({
+      ...stage,
+      options: stage.options.map((option, i) => ({ ...option, chosen: i === optionIndex })),
+    }));
+
+  const addOption = (stageIndex: number) =>
+    updateStage(stageIndex, (stage) => {
+      if (stage.options.length >= 4) return stage;
+      return {
+        ...stage,
+        options: [
+          ...stage.options,
+          { id: `option-${stage.options.length + 1}`, label: "", hint: "", verdict: "", chosen: false },
+        ],
+      };
+    });
+
+  const removeOption = (stageIndex: number, optionIndex: number) =>
+    updateStage(stageIndex, (stage) => {
+      if (stage.options.length <= 2) return stage;
+      const options = stage.options.filter((_, i) => i !== optionIndex);
+      if (!options.some((option) => option.chosen)) options[0].chosen = true;
+      return { ...stage, options };
+    });
+
+  const projectOptions = projects.some((project) => project.slug === scenario.projectSlug)
+    ? projects
+    : [{ slug: scenario.projectSlug, client: scenario.projectSlug }, ...projects];
+
+  return (
+    <div>
+      <div className="grid gap-3 sm:grid-cols-3">
+        <div>
+          <label className={subLabelCls}>Case study</label>
+          <select
+            value={scenario.projectSlug}
+            onChange={(e) => patch({ projectSlug: e.target.value })}
+            className={subInputCls}
+          >
+            {projectOptions.map((project) => (
+              <option key={project.slug} value={project.slug}>
+                {project.client} ({project.slug})
+              </option>
+            ))}
+          </select>
+          <p className="mt-1 font-body text-[11px] text-ivory/40">
+            Client, numbers and case link are read from this project.
+          </p>
+        </div>
+        <div>
+          <label className={subLabelCls}>Brief number</label>
+          <input value={scenario.briefNo} onChange={(e) => patch({ briefNo: e.target.value })} className={subInputCls} />
+        </div>
+        <div>
+          <label className={subLabelCls}>Brief title</label>
+          <input
+            value={scenario.briefTitle}
+            onChange={(e) => patch({ briefTitle: e.target.value })}
+            className={subInputCls}
+            placeholder="Admission season, eight weeks out."
+          />
+        </div>
+      </div>
+
+      <div className="mt-3">
+        <label className={subLabelCls}>Situation (2-3 lines)</label>
+        <textarea
+          value={scenario.situation}
+          onChange={(e) => patch({ situation: e.target.value })}
+          rows={3}
+          className={subInputCls}
+        />
+      </div>
+
+      <div className="mt-4 space-y-3">
+        {scenario.stages.map((stage, stageIndex) => (
+          <details key={stageIndex} className={rowCls} open={stageIndex === 0}>
+            <summary className="cursor-pointer list-none font-body text-xs font-semibold uppercase tracking-[0.14em] text-ivory/70">
+              {String(stageIndex + 1).padStart(2, "0")} · {stage.stage || "Untitled"} / {stage.verb || "—"}
+            </summary>
+
+            <div className="mt-4 space-y-3">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <label className={subLabelCls}>Stage name</label>
+                  <input value={stage.stage} onChange={(e) => patchStage(stageIndex, { stage: e.target.value })} className={subInputCls} placeholder="Discover" />
+                </div>
+                <div>
+                  <label className={subLabelCls}>Verb</label>
+                  <input value={stage.verb} onChange={(e) => patchStage(stageIndex, { verb: e.target.value })} className={subInputCls} placeholder="Read" />
+                </div>
+              </div>
+
+              <div>
+                <label className={subLabelCls}>Question</label>
+                <textarea value={stage.question} onChange={(e) => patchStage(stageIndex, { question: e.target.value })} rows={2} className={subInputCls} />
+              </div>
+
+              <div>
+                <div className="mb-2 flex items-center justify-between gap-3">
+                  <span className={subLabelCls}>Options</span>
+                  <span className="font-body text-[11px] text-ivory/40">Radio = the call Zoolyum made</span>
+                </div>
+                <div className="space-y-2">
+                  {stage.options.map((option, optionIndex) => (
+                    <div key={optionIndex} className="rounded-lg border border-olive/25 bg-espresso/70 p-3">
+                      <div className="mb-2 flex items-center gap-2">
+                        <label className="flex items-center gap-2 font-body text-[11px] uppercase tracking-[0.1em] text-ivory/50">
+                          <input
+                            type="radio"
+                            name={`brief-chosen-${stageIndex}`}
+                            checked={option.chosen}
+                            onChange={() => chooseOption(stageIndex, optionIndex)}
+                          />
+                          What we did
+                        </label>
+                        <span className="ml-auto">
+                          <button
+                            type="button"
+                            onClick={() => removeOption(stageIndex, optionIndex)}
+                            disabled={stage.options.length <= 2}
+                            className={iconBtnCls}
+                          >
+                            Remove
+                          </button>
+                        </span>
+                      </div>
+                      <input
+                        value={option.label}
+                        onChange={(e) => patchOption(stageIndex, optionIndex, { label: e.target.value })}
+                        className={subInputCls}
+                        placeholder="Option label"
+                      />
+                      <input
+                        value={option.hint}
+                        onChange={(e) => patchOption(stageIndex, optionIndex, { hint: e.target.value })}
+                        className={subInputCls + " mt-2"}
+                        placeholder="One-line hint"
+                      />
+                      <textarea
+                        value={option.verdict}
+                        onChange={(e) => patchOption(stageIndex, optionIndex, { verdict: e.target.value })}
+                        rows={2}
+                        className={subInputCls + " mt-2"}
+                        placeholder="Why we didn't take this path (shown when the visitor picks it)"
+                      />
+                    </div>
+                  ))}
+                </div>
+                <button type="button" onClick={() => addOption(stageIndex)} disabled={stage.options.length >= 4} className={addBtnCls + " mt-2"}>
+                  + Add option
+                </button>
+              </div>
+
+              <div className="rounded-lg border border-olive/25 bg-espresso/70 p-3">
+                <p className={subLabelCls}>Reveal</p>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <input
+                    value={stage.reveal.label}
+                    onChange={(e) => patchReveal(stageIndex, { label: e.target.value })}
+                    className={subInputCls}
+                    placeholder="What we did"
+                  />
+                  <input
+                    value={stage.reveal.title}
+                    onChange={(e) => patchReveal(stageIndex, { title: e.target.value })}
+                    className={subInputCls}
+                    placeholder="Reveal headline"
+                  />
+                </div>
+                <textarea
+                  value={stage.reveal.body}
+                  onChange={(e) => patchReveal(stageIndex, { body: e.target.value })}
+                  rows={3}
+                  className={subInputCls + " mt-2"}
+                  placeholder="Two or three sentences. No invented numbers."
+                />
+                <div className="mt-2 grid gap-3 sm:grid-cols-2">
+                  <input
+                    value={stage.reveal.metric.value}
+                    onChange={(e) => patchReveal(stageIndex, { metric: { ...stage.reveal.metric, value: e.target.value } })}
+                    className={subInputCls}
+                    placeholder="Metric value (optional, e.g. +42%)"
+                  />
+                  <input
+                    value={stage.reveal.metric.label}
+                    onChange={(e) => patchReveal(stageIndex, { metric: { ...stage.reveal.metric, label: e.target.value } })}
+                    className={subInputCls}
+                    placeholder="Metric label"
+                  />
+                </div>
+              </div>
+
+              <div className="rounded-lg border border-olive/25 bg-espresso/70 p-3">
+                <p className={subLabelCls}>Artifact</p>
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <select
+                    value={stage.reveal.artifact.kind}
+                    onChange={(e) => patchArtifact(stageIndex, { kind: e.target.value as BriefStage["reveal"]["artifact"]["kind"] })}
+                    className={subInputCls}
+                  >
+                    {["note", "position", "crest", "flow", "film", "case", "image"].map((kind) => (
+                      <option key={kind} value={kind}>
+                        {kind}
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    value={stage.reveal.artifact.title}
+                    onChange={(e) => patchArtifact(stageIndex, { title: e.target.value })}
+                    className={subInputCls}
+                    placeholder="Artifact title"
+                  />
+                  <input
+                    value={stage.reveal.artifact.caption}
+                    onChange={(e) => patchArtifact(stageIndex, { caption: e.target.value })}
+                    className={subInputCls}
+                    placeholder="Caption"
+                  />
+                </div>
+                <textarea
+                  value={stage.reveal.artifact.items.join("\n")}
+                  onChange={(e) => patchArtifact(stageIndex, { items: toLines(e.target.value) })}
+                  rows={3}
+                  className={subInputCls + " mt-2"}
+                  placeholder="Bullets for note / flow — one per line"
+                />
+                <input
+                  value={stage.reveal.artifact.src}
+                  onChange={(e) => patchArtifact(stageIndex, { src: e.target.value })}
+                  className={subInputCls + " mt-2 font-mono !text-[13px]"}
+                  placeholder="Image URL (only for the image kind)"
+                />
+              </div>
+            </div>
+          </details>
+        ))}
+      </div>
+
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <div>
+          <label className={subLabelCls}>Summary headline</label>
+          <input value={scenario.summary.title} onChange={(e) => patch({ summary: { ...scenario.summary, title: e.target.value } })} className={subInputCls} />
+        </div>
+        <div>
+          <label className={subLabelCls}>Summary line</label>
+          <input value={scenario.summary.body} onChange={(e) => patch({ summary: { ...scenario.summary, body: e.target.value } })} className={subInputCls} />
+        </div>
+      </div>
+
+      <div className="mt-3 flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          onClick={() => {
+            if (window.confirm("Reset the brief to the shipped Apex engagement? Unsaved edits will be lost.")) {
+              setScenario(BRIEF_DEFAULT);
+            }
+          }}
+          className={iconBtnCls}
+        >
+          Reset to default
+        </button>
+        <p className="font-body text-[11px] text-ivory/40">Five calls, one chosen option per call. Invalid saves are rejected.</p>
+      </div>
+
+      <input type="hidden" name="s:home.brief.scenario" value={JSON.stringify(scenario)} />
+    </div>
+  );
+}
+
+function TickerEditor({ initial }: { initial: string }) {  const [text, setText] = useState(() => {
     const v = parseJson<unknown>(initial, []);
     return Array.isArray(v) ? v.map((x) => String(x ?? "")).join("\n") : "";
   });
@@ -247,11 +659,6 @@ function TickerEditor({ initial }: { initial: string }) {
   );
 }
 
-const LOCKUP_FIELDS = [
-  { key: "word", label: "Word" },
-  { key: "stage", label: "Stage" },
-];
-
 const HERO: F[] = [
   { key: "home.hero.eyebrow", label: "Eyebrow", kind: "text", max: 40 },
   { key: "home.hero.titleA", label: "Headline part 1", kind: "text", help: "All three parts together: keep under ~90 characters." },
@@ -263,33 +670,41 @@ const HERO: F[] = [
   { key: "home.hero.ctaSecondary", label: "Secondary button", kind: "text" },
   { key: "home.hero.ctaSecondaryHref", label: "Secondary button link", kind: "url" },
   { key: "home.hero.hint", label: "Scroll hint", kind: "text" },
-  { key: "home.hero.meter", label: "Meter label", kind: "text" },
-  { key: "home.hero.beatB", label: "Beat 2 line (| = line break)", kind: "text" },
-  { key: "home.hero.beatC", label: "Beat 3 line (| = line break)", kind: "text" },
-  { key: "home.hero.beatD", label: "Beat 4 line (| = line break)", kind: "text" },
 ];
 
-const TAGLINE_TOP: F[] = [
-  { key: "home.tagline.eyebrow", label: "Chapter eyebrow", kind: "text" },
-  { key: "home.tagline.openerA", label: "Opener line 1", kind: "text" },
-  { key: "home.tagline.openerB", label: "Opener line 2", kind: "text" },
-  { key: "home.tagline.openerSub", label: "Opener intro", kind: "textarea", rows: 2 },
+const NOTES_TOP: F[] = [
+  { key: "home.notes.eyebrow", label: "Chapter eyebrow", kind: "text" },
+  { key: "home.notes.openerA", label: "Opener line 1", kind: "text" },
+  { key: "home.notes.openerB", label: "Opener line 2", kind: "text" },
+  { key: "home.notes.openerLead", label: "Opener intro", kind: "textarea", rows: 3 },
+  { key: "home.notes.meta", label: "Meta line", kind: "text", help: "Years · engagements · city — small type under the intro." },
+  { key: "home.notes.indexLabel", label: "Index label", kind: "text" },
+  { key: "home.notes.indexNote", label: "Index note", kind: "textarea", rows: 2 },
+  { key: "home.notes.outcomeLabel", label: "Outcome label", kind: "text", help: "Small label above each entry's number." },
 ];
 
-function actFields(n: string): F[] {
+function noteFields(n: string): F[] {
   return [
-    { key: "home.tagline.act" + n + ".step", label: "Act " + n + " step label", kind: "text" },
-    { key: "home.tagline.act" + n + ".title", label: "Act " + n + " title (dot added automatically)", kind: "text" },
-    { key: "home.tagline.act" + n + ".sub", label: "Act " + n + " subtitle", kind: "textarea", rows: 2 },
-    { key: "home.tagline.act" + n + ".body", label: "Act " + n + " paragraph", kind: "textarea", rows: 4 },
+    { key: "home.notes.act" + n + ".kicker", label: "Entry " + n + " kicker", kind: "text" },
+    { key: "home.notes.act" + n + ".word", label: "Entry " + n + " word", kind: "text" },
+    { key: "home.notes.act" + n + ".lead", label: "Entry " + n + " subtitle", kind: "textarea", rows: 2 },
+    { key: "home.notes.act" + n + ".body", label: "Entry " + n + " story", kind: "textarea", rows: 5 },
+    { key: "home.notes.act" + n + ".case", label: "Entry " + n + " case slug", kind: "text", help: "Links to /work/<slug>, e.g. meridian-health. Leave empty to hide the case link." },
+    { key: "home.notes.act" + n + ".proof", label: "Entry " + n + " outcome number", kind: "text" },
+    { key: "home.notes.act" + n + ".proofLabel", label: "Entry " + n + " outcome label", kind: "text" },
+    { key: "home.notes.act" + n + ".deliverables", label: "Entry " + n + " chips", kind: "text", help: "Separate with | e.g. Category audit|Buyer language|Referral map" },
+    { key: "home.notes.act" + n + ".linkLabel", label: "Entry " + n + " case link label", kind: "text" },
   ];
 }
 
-const TAGLINE_END: F[] = [
-  { key: "home.tagline.lockupEyebrow", label: "Lockup eyebrow", kind: "text" },
-  { key: "home.tagline.lockupNote", label: "Closing note", kind: "textarea", rows: 2 },
-  { key: "home.tagline.cta", label: "Closing link label", kind: "text" },
-  { key: "home.tagline.ctaHref", label: "Closing link URL", kind: "url" },
+const NOTES_END: F[] = [
+  { key: "home.notes.closeEyebrow", label: "Closing eyebrow", kind: "text" },
+  { key: "home.notes.closeLine", label: "Closing line (| = accent part)", kind: "text" },
+  { key: "home.notes.closeNote", label: "Closing note", kind: "textarea", rows: 2 },
+  { key: "home.notes.cta", label: "Primary button", kind: "text" },
+  { key: "home.notes.ctaHref", label: "Primary button link", kind: "url" },
+  { key: "home.notes.cta2", label: "Secondary button", kind: "text" },
+  { key: "home.notes.cta2Href", label: "Secondary button link", kind: "url" },
 ];
 
 const METHOD_TOP: F[] = [
@@ -312,10 +727,50 @@ const WORK: F[] = [
   { key: "home.work.lead", label: "Intro", kind: "textarea", rows: 2 },
   { key: "home.work.cta", label: "View-all link label", kind: "text" },
   { key: "home.work.href", label: "View-all link URL", kind: "url" },
-  { key: "home.work.nextTitle", label: "Closing card heading", kind: "text" },
-  { key: "home.work.nextText", label: "Closing card text", kind: "textarea", rows: 2 },
+  { key: "home.work.reelEyebrow", label: "Playlist label", kind: "text" },
+  { key: "home.work.reelNote", label: "Playlist note", kind: "textarea", rows: 2 },
+  { key: "home.work.nowPlaying", label: "Featured film label", kind: "text" },
+  { key: "home.work.channelCta", label: "YouTube link label", kind: "text" },
+  { key: "home.work.channelHref", label: "YouTube channel URL", kind: "url", help: "Falls back to the social YouTube link in Settings/Footer." },
+  { key: "home.work.casesEyebrow", label: "Case files label", kind: "text" },
+  { key: "home.work.casesNote", label: "Case files note", kind: "text" },
+  { key: "home.work.casesCta", label: "Case link label", kind: "text" },
+  { key: "home.work.nextTitle", label: "Closing heading", kind: "text" },
+  { key: "home.work.nextText", label: "Closing text", kind: "textarea", rows: 2 },
   { key: "home.work.nextCta", label: "Closing button label", kind: "text" },
   { key: "home.work.nextHref", label: "Closing button link", kind: "url" },
+];
+
+const BRIEF_HEADER: F[] = [
+  { key: "home.brief.eyebrow", label: "Chapter eyebrow", kind: "text" },
+  { key: "home.brief.title", label: "Heading (| = accent part)", kind: "text" },
+  { key: "home.brief.lead", label: "Intro", kind: "textarea", rows: 2 },
+  { key: "home.brief.meta", label: "Brief tag", kind: "text", help: "Renders before the brief number, e.g. FIELD BRIEF." },
+];
+
+const BRIEF_LABELS: F[] = [
+  { key: "home.brief.callLabel", label: "Call counter label", kind: "text" },
+  { key: "home.brief.yourCall", label: "Visitor's call tag", kind: "text" },
+  { key: "home.brief.whatWeDid", label: "Our call tag", kind: "text" },
+  { key: "home.brief.whyNot", label: "Trade-off label", kind: "text" },
+  { key: "home.brief.next", label: "Next button", kind: "text" },
+  { key: "home.brief.finish", label: "Final button (last call)", kind: "text" },
+  { key: "home.brief.previous", label: "Back button", kind: "text" },
+  { key: "home.brief.seeAll", label: "See-all link", kind: "text" },
+  { key: "home.brief.idleTitle", label: "Idle panel heading", kind: "text" },
+  { key: "home.brief.idleBody", label: "Idle panel copy", kind: "textarea", rows: 2 },
+  { key: "home.brief.stageNote", label: "In-progress note", kind: "text" },
+  { key: "home.brief.reviewing", label: "Reviewing note", kind: "text" },
+  { key: "home.brief.backToCurrent", label: "Return-to-current label", kind: "text" },
+];
+
+const BRIEF_SUMMARY: F[] = [
+  { key: "home.brief.summaryEyebrow", label: "Summary eyebrow", kind: "text" },
+  { key: "home.brief.stamp", label: "Stamp text", kind: "text" },
+  { key: "home.brief.caseCta", label: "Case button", kind: "text" },
+  { key: "home.brief.workCta", label: "Work button", kind: "text" },
+  { key: "home.brief.workHref", label: "Work button link", kind: "url" },
+  { key: "home.brief.replay", label: "Replay label", kind: "text" },
 ];
 
 const VOICES: F[] = [
@@ -438,7 +893,13 @@ const CASE_RAIL: F[] = [
   { key: "work.case.rail.next", label: "Rail: next steps", kind: "text" },
 ];
 
-export function HomeEditor({ initial }: { initial: Record<string, string> }) {
+export function HomeEditor({
+  initial,
+  projects,
+}: {
+  initial: Record<string, string>;
+  projects: { slug: string; client: string }[];
+}) {
   const [vals, setVals] = useState<Record<string, string>>(() => ({ ...initial }));
   const [state, act, pending] = useActionState(saveSettings, { ok: false });
   const set = (k: string, v: string) => setVals((prev) => ({ ...prev, [k]: v }));
@@ -451,14 +912,6 @@ export function HomeEditor({ initial }: { initial: Record<string, string> }) {
   );
   return (
     <form action={act} className="space-y-6">
-      <div className="flex flex-wrap items-center gap-3">
-        <p className="font-body text-sm text-ivory/50">
-          Every label below maps to one live spot on the homepage. Saving publishes immediately.
-        </p>
-        <button type="submit" disabled={pending} className="btn btn-primary ml-auto !px-5 !py-2 !text-sm disabled:opacity-50">
-          {pending ? "Saving..." : "Save homepage"}
-        </button>
-      </div>
       {state.error && (
         <p role="alert" className="rounded-lg border border-red-400/40 bg-red-500/10 px-4 py-3 font-body text-sm text-red-300">
           {state.error}
@@ -472,59 +925,74 @@ export function HomeEditor({ initial }: { initial: Record<string, string> }) {
       <Section title="1 · Hero" note="First screen. The headline renders in three parts with the middle word accented.">
         {fields(HERO)}
       </Section>
-      <Section title="2 · Tagline chapter" note="Opener, three acts, lockup and closing link. Diagram words stay fixed by design.">
-        {fields(TAGLINE_TOP)}
-        {fields(actFields("1"))}
-        {fields(actFields("2"))}
-        {fields(actFields("3"))}
+      <Section title="2 · The Brief" note="Chapter 01's interactive table. The visitor makes five calls on one real engagement; each call reveals the work and the trade-off. Numbers come from the case study, not this copy.">
+        {fields(BRIEF_HEADER)}
         <div>
-          <p className={miniLabelCls}>Lockup words (in order)</p>
-          <JsonRows name="s:home.tagline.lockup" initial={vals["home.tagline.lockup"] ?? ""} fields={LOCKUP_FIELDS} addLabel="Add word" emptyValue="[]" />
+          <p className={miniLabelCls}>Scenario</p>
+          <BriefScenarioEditor initial={vals["home.brief.scenario"] ?? ""} projects={projects} />
         </div>
-        {fields(TAGLINE_END)}
+        <div>
+          <p className={miniLabelCls}>In-call labels</p>
+          {fields(BRIEF_LABELS)}
+        </div>
+        <div>
+          <p className={miniLabelCls}>Summary labels</p>
+          {fields(BRIEF_SUMMARY)}
+        </div>
       </Section>
-      <Section title="3 · Method" note="Five stages. Outputs are one-per-line lists inside each stage.">
+      <Section title="3 · Field notes" note="The Chapter 02 dossier: cover, index, three entries and the closing hand-off. Each entry can point at a case study slug and carry its own outcome number.">
+        {fields(NOTES_TOP)}
+        {fields(noteFields("1"))}
+        {fields(noteFields("2"))}
+        {fields(noteFields("3"))}
+        {fields(NOTES_END)}
+      </Section>
+      <Section title="4 · Method" note="Five stages. Outputs are one-per-line lists inside each stage.">
         {fields(METHOD_TOP)}
         <div>
           <p className={miniLabelCls}>Stages (in order)</p>
           <StageEditor initial={vals["home.method.stages"] ?? ""} />
         </div>
       </Section>
-      <Section title="4 · Results" note="Stat numbers animate count-up, so the value must stay numeric.">
+      <Section title="5 · Results" note="Stat numbers animate count-up, so the value must stay numeric.">
         {fields(RESULTS_TOP)}
         <div>
           <p className={miniLabelCls}>Stat cards (in order)</p>
           <StatEditor initial={vals["home.results.stats"] ?? ""} />
         </div>
       </Section>
-      <Section title="5 · Selected work" note="Cards come from published case studies. Manage them under Content - Work. Only the frame copy lives here.">
+      <Section title="6 · Selected work" note="The screening room. Films are the playlist — add a YouTube URL or id, or leave it empty to show the designed poster. Case cards come from published case studies.">
         {fields(WORK)}
+        <div>
+          <p className={miniLabelCls}>Films (playlist order)</p>
+          <FilmEditor initial={vals["home.work.films"] ?? ""} />
+        </div>
         <p className="font-body text-xs text-ivory/50">
           Cards: <Link href="/admin/projects" className="text-sienna-bright hover:underline">Work / Case Studies</Link>
           {" · "}Testimonials live under <Link href="/admin/testimonials" className="text-sienna-bright hover:underline">Testimonials</Link>.
         </p>
       </Section>
-      <Section title="6 · Voices + newsletter" note="Testimonial rivers pull from Testimonials. The form below is shared with the footer.">
+      <Section title="7 · Voices + newsletter" note="Two testimonial rivers pull from Testimonials. The form below is shared with the footer.">
         {fields(VOICES)}
         {fields(NEWS)}
       </Section>
-      <Section title="7 · Final CTA" note="Closing section before the footer.">
+      <Section title="8 · Final CTA" note="Closing section before the footer.">
         {fields(CTA)}
       </Section>
-      <Section title="8 · Industry ticker" note="One item per line, in display order. Uppercase is applied automatically.">
+      <Section title="9 · Industry ticker" note="One item per line, in display order. Uppercase is applied automatically.">
         <TickerEditor initial={vals["home.ticker"] ?? ""} />
       </Section>
-      <Section title="9 · Skip prompt" note="Small branch link at the end of Chapter 1.">
+      <Section title="10 · Skip prompt" note="Small branch link after Chapter 01.">
         {fields(SKIP)}
       </Section>
-      <Section title="10 · Footer extras" note="Links, contact and socials live in their own admin areas (Navigation Links, Site settings). Only footer-only copy lives here.">
+      <Section title="11 · Footer extras" note="Links, contact and socials live in their own admin areas (Navigation Links, Site settings). Only footer-only copy lives here.">
         {fields(FOOT)}
         <p className="font-body text-xs text-ivory/50">
           Navigation: <Link href="/admin/menulinks" className="text-sienna-bright hover:underline">Navigation Links</Link>
           {" · "}Contact, socials, SEO: <Link href="/admin/settings" className="text-sienna-bright hover:underline">Site settings</Link>.
         </p>
       </Section>
-      <Section title="11 · Work page" note="Gallery hero, trust bar, filter labels and the closing band. Case cards come from published case studies.">
+      <Section title="12 · Work page" note="Gallery hero, trust bar, filter labels and the closing band. Case cards come from published case studies.">
         {fields(WORKPAGE_HERO)}
         <div>
           <p className={miniLabelCls}>Trust bar (in order)</p>
@@ -533,18 +1001,18 @@ export function HomeEditor({ initial }: { initial: Record<string, string> }) {
         {fields(WORKPAGE_UI)}
         {fields(WORKPAGE_CTA)}
       </Section>
-      <Section title="12 · Case page labels" note="Every fixed heading on the case-study page. The rail labels rename the side dots; section ids never change.">
+      <Section title="13 · Case page labels" note="Every fixed heading on the case-study page. The rail labels rename the side dots; section ids never change.">
         {fields(CASE_SECTIONS)}
         <div>
           <p className={miniLabelCls}>Side-rail labels</p>
           {fields(CASE_RAIL)}
         </div>
       </Section>
-      <div className="sticky bottom-4 z-10 flex flex-wrap items-center gap-3 rounded-2xl border border-olive/25 bg-espresso/90 p-4 shadow-[0_16px_40px_-16px_rgba(0,0,0,0.7)] backdrop-blur-md">
-        <button type="submit" disabled={pending} className="btn btn-primary disabled:opacity-50">
+      <div className="sticky bottom-3 z-10 flex flex-wrap items-center gap-2 rounded-[11px] border border-[var(--a-line-strong)] bg-[rgba(34,28,23,0.95)] p-3.5 backdrop-blur-md">
+        <button type="submit" disabled={pending} className="a-btn a-btn-primary">
           {pending ? "Saving..." : "Save homepage"}
         </button>
-        <a href="/" target="_blank" rel="noreferrer" className="btn btn-secondary">
+        <a href="/" target="_blank" rel="noreferrer" className="a-btn">
           View homepage
         </a>
       </div>

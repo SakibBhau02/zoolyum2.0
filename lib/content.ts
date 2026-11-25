@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { prisma } from "./prisma";
 import {
   POSTS,
@@ -10,9 +11,14 @@ import {
   POST_UPDATED,
   PROJECT_META,
   JOB_DETAILS,
+  FILMS,
 } from "./data";
+import type { Film } from "./data";
 import { ARTICLE_BODIES, ARTICLE_SECTIONS } from "./posts-content";
 import { parseYoutubeId } from "./text";
+import { HOME_FALLBACK } from "./home-copy";
+import { BRIEF_DEFAULT, parseBriefScenario } from "./engagement";
+import type { BriefScenario } from "./engagement";
 
 /**
  * DB-first content accessors with TypeScript fallback.
@@ -159,9 +165,18 @@ function normProject(p: {
   };
 }
 
-export async function getPosts(): Promise<ContentPost[]> {
+async function getPostsRaw(): Promise<ContentPost[]> {
   return first(async () => {
-    const rows = await prisma.post.findMany({ where: { published: true }, orderBy: { date: "desc" } });
+    const rows = await prisma.post.findMany({
+      where: { published: true },
+      orderBy: { date: "desc" },
+      // The index only needs card fields; leave the full body to getPostBody.
+      select: {
+        slug: true, title: true, excerpt: true, category: true, date: true,
+        readTime: true, author: true, authorRole: true, cover: true,
+        keywords: true, takeaways: true, quote: true, images: true,
+      },
+    });
     return rows.map((p) => normPost({
       ...p,
       keywords: [...p.keywords],
@@ -171,6 +186,7 @@ export async function getPosts(): Promise<ContentPost[]> {
     }));
   }, () => POSTS.map(normPost), "getPosts");
 }
+export const getPosts = cache(getPostsRaw);
 
 export async function getPostSlugs(): Promise<string[]> {
   return first(
@@ -182,7 +198,14 @@ export async function getPostSlugs(): Promise<string[]> {
 
 export async function getPost(slug: string): Promise<ContentPost | null> {
   return first(async () => {
-    const p = await prisma.post.findFirst({ where: { slug, published: true } });
+    const p = await prisma.post.findFirst({
+      where: { slug, published: true },
+      select: {
+        slug: true, title: true, excerpt: true, category: true, date: true,
+        readTime: true, author: true, authorRole: true, cover: true,
+        keywords: true, takeaways: true, quote: true, images: true,
+      },
+    });
     if (!p) return null;
     return normPost({
       ...p,
@@ -220,7 +243,7 @@ export async function getPostExtras(slug: string): Promise<{
   }), `getPostExtras:${slug}`);
 }
 
-export async function getProjects(): Promise<ContentProject[]> {
+async function getProjectsRaw(): Promise<ContentProject[]> {
   return first(async () => {
     const rows = await prisma.project.findMany({ where: { published: true }, orderBy: [{ sort: "asc" }, { id: "asc" }] });
     return rows.map((p) => normProject({
@@ -235,6 +258,7 @@ export async function getProjects(): Promise<ContentProject[]> {
     }));
   }, () => PROJECTS.map((p) => normProject({ ...p, images: p.images.map((src, i) => ({ src, alt: `${p.client} case image ${i + 1}` })), meta: PROJECT_META[p.slug] })), "getProjects");
 }
+export const getProjects = cache(getProjectsRaw);
 
 export async function getProjectSlugs(): Promise<string[]> {
   return first(
@@ -295,7 +319,7 @@ function normService(s: {
   } as ContentService;
 }
 
-export async function getServices(): Promise<ContentService[]> {
+async function getServicesRaw(): Promise<ContentService[]> {
   return first(async () => {
     const rows = await prisma.service.findMany();
     return rows.map((s) =>
@@ -310,6 +334,7 @@ export async function getServices(): Promise<ContentService[]> {
     );
   }, () => SERVICES.map((s) => normService({ ...s })), "getServices");
 }
+export const getServices = cache(getServicesRaw);
 
 export async function getServiceSlugs(): Promise<string[]> {
   return first(
@@ -388,12 +413,18 @@ export async function getTestimonials(): Promise<{ quote: string; author: string
   );
 }
 
-export async function getSetting(key: string, fallback = "") {
+async function getSettingRaw(key: string, fallback = "") {
   return first(async () => {
     const s = await prisma.siteSetting.findUnique({ where: { key } });
     return s?.value ?? fallback;
   }, () => fallback, `getSetting:${key}`);
 }
+
+/**
+ * Request-level memoisation. A single page render reads the same settings a
+ * dozen times; React's cache collapses those into one query per request.
+ */
+export const getSetting = cache(getSettingRaw);
 
 export async function getJsonSetting<T>(key: string, fallback: T): Promise<T> {
   const raw = await getSetting(key, "");
@@ -414,11 +445,13 @@ export async function getContactInfo() {
   ]);
   return { email, phone, address, mapUrl };
 }import type { Metadata } from "next";
-import { NAV_LINKS, SITE_URL, PROCESS_STAGES, STATS, INDUSTRIES_TICKER } from "./data";
+import { NAV_LINKS, PROCESS_STAGES, STATS, INDUSTRIES_TICKER } from "./data";
+import { OG_IMAGE, indexableRobots, noindexRobots } from "./seo";
 
 /**
  * SEO metadata backed by SiteSetting overrides (seo.{route}.title and
- * seo.{route}.description), falling back to the shipped copy.
+ * seo.{route}.description), with a per-route `SeoMeta` override on top.
+ * Empty SeoMeta fields fall back to the setting, then to the shipped copy.
  */
 export async function pageMeta(
   route: string,
@@ -431,25 +464,36 @@ export async function pageMeta(
     card?: "summary" | "summary_large_image";
   },
 ): Promise<Metadata> {
-  const [title, description] = await Promise.all([
+  const [title, description, override] = await Promise.all([
     getSetting(`seo.${route}.title`, fb.title),
     getSetting(`seo.${route}.description`, fb.description),
+    getSeoOverride(fb.canonical),
   ]);
-  const ogTitle = fb.ogTitle ?? `${title} | Zoolyum`;
-  const ogDescription = fb.ogDescription ?? description;
-  const ogImage = `${SITE_URL}/opengraph-image`;
+  const finalTitle = override?.title ?? title;
+  const finalDescription = override?.description ?? description;
+  const canonical = override?.canonical || fb.canonical;
+  const ogTitle = fb.ogTitle ?? finalTitle;
+  const ogDescription = fb.ogDescription ?? finalDescription;
+  const ogImage = override?.ogImage || OG_IMAGE;
   return {
-    title,
-    description,
-    alternates: { canonical: fb.canonical },
+    title: override?.title ? { absolute: override.title } : title,
+    description: finalDescription,
+    alternates: { canonical },
+    robots: override?.noindex ? noindexRobots : indexableRobots,
+    ...(override?.keywords.length ? { keywords: override.keywords } : {}),
     openGraph: {
+      type: "website",
+      siteName: "Zoolyum",
+      locale: "en_US",
       title: ogTitle,
       description: ogDescription,
-      url: fb.canonical,
+      url: canonical,
       images: [{ url: ogImage, width: 1200, height: 630, alt: ogTitle }],
     },
     twitter: {
-      card: fb.card ?? "summary",
+      // Every route ships a 1200×630 card, so the large variant is always
+      // correct — a "summary" card would crop it to a thumbnail.
+      card: "summary_large_image",
       title: ogTitle,
       description: ogDescription,
       images: [ogImage],
@@ -469,93 +513,20 @@ export async function getMenuLinks(group?: string): Promise<MenuLinkItem[]> {
 }
 
 export async function getSocials(): Promise<Record<string, string>> {
-  const [linkedin, facebook, instagram, youtube] = await Promise.all([
-    getSetting("social.linkedin", "https://linkedin.com"),
-    getSetting("social.facebook", "https://facebook.com"),
-    getSetting("social.instagram", "https://instagram.com"),
-    getSetting("social.youtube", "https://youtube.com"),
+  // Empty fallbacks on purpose: a placeholder root URL (https://facebook.com)
+  // would ship as a sameAs claim and as a footer link that goes nowhere useful.
+  const [linkedin, facebook, instagram, youtube, x] = await Promise.all([
+    getSetting("social.linkedin", ""),
+    getSetting("social.facebook", ""),
+    getSetting("social.instagram", ""),
+    getSetting("social.youtube", ""),
+    getSetting("social.x", ""),
   ]);
-  return { linkedin, facebook, instagram, youtube };
+  return { linkedin, facebook, instagram, youtube, x };
 }
 
 
-const HOME_FALLBACK: Record<string, string> = {
-"home.hero.eyebrow": "Consultancy. Strategy. Solution.",
-"home.hero.titleA": "Every market looks",
-"home.hero.titleAccent": "crowded",
-"home.hero.titleB": "from the outside.",
-"home.hero.sub": "Every market has a pattern. Most brands react to it. We help you read it first - and act while others are still guessing.",
-"home.hero.ctaPrimary": "Start a Conversation",
-"home.hero.ctaSecondary": "See Our Work",
-"home.hero.ctaPrimaryHref": "/contact",
-"home.hero.ctaSecondaryHref": "/work",
-"home.hero.hint": "THE NOISE BEGINS BELOW",
-"home.hero.meter": "MARKET NOISE",
-"home.hero.beatB": "Most brands respond to that by shouting|louder.",
-"home.hero.beatC": "In the fog, most brands start to|look the same.",
-"home.hero.beatD": "In that noise, only one|line|ever cuts through.",
-"home.tagline.eyebrow": "Chapter 02 — The Tagline",
-"home.tagline.openerA": "Three words.",
-"home.tagline.openerB": "The entire method.",
-"home.tagline.openerSub": "Not a slogan - a sequence. Every engagement runs through all three, in order.",
-"home.tagline.act1.step": "01 · The Read",
-"home.tagline.act1.title": "Consultancy.",
-"home.tagline.act1.sub": "The diagnosis comes before the prescription.",
-"home.tagline.act1.body": "We start as the outside eye. Before any deliverable exists, we read your market, competitors, and buyers - until the pattern under the noise is plain. The first deliverable is the advice itself: a read you could act on without us.",
-"home.tagline.act2.step": "02 · The Map",
-"home.tagline.act2.title": "Strategy.",
-"home.tagline.act2.sub": "A position you can defend - chosen, not wished for.",
-"home.tagline.act2.body": "Reading is not enough. Strategy is choosing the one piece of ground your brand can hold and no competitor can copy - then aiming every touchpoint at it. The crowd clusters where it is loud. We position where it is defensible.",
-"home.tagline.act3.step": "03 · The Build",
-"home.tagline.act3.title": "Solution.",
-"home.tagline.act3.sub": "Execution that carries the thinking - all the way out.",
-"home.tagline.act3.body": "Identity, interface, and campaign, built as one system - so the strategy survives contact with the market. This is where the reading and the choosing become something your customers can see, feel, and act on.",
-"home.tagline.lockupEyebrow": "The sequence, locked",
-"home.tagline.lockupNote": "One thread runs through all three - the sequence every Zoolyum engagement is built on.",
-"home.tagline.cta": "See the disciplines behind each word",
-"home.tagline.ctaHref": "/services",
-"home.method.eyebrow": "The Method",
-"home.method.title": "Five stages. |One line of thinking.",
-"home.method.lead": "The same disciplined sequence on every engagement - because method is what turns projects into positions.",
-"home.method.hint": "KEEP SCROLLING",
-"home.results.eyebrow": "The Results",
-"home.results.title": "Proof, stated |plainly.",
-"home.results.lead": "Numbers from engagements we are allowed to name. Precise on purpose - vague claims are just noise.",
-"home.results.closing": "Eight years in the Bangladesh market. One hundred twenty engagements across education, real estate, F&B, and e-commerce. The pattern holds: give a brand a defensible position, and the category takes notice.",
-"home.work.eyebrow": "Selected Work",
-"home.work.title": "Ground our clients |hold.",
-"home.work.lead": "Every engagement is judged the same way: did the position strengthen - and can we prove it.",
-"home.work.cta": "View all work",
-"home.work.href": "/work",
-"home.work.nextTitle": "Your position could be next.",
-"home.work.nextText": "Every case study here started with one conversation about where the market was heading.",
-"home.work.nextCta": "Start a Conversation",
-"home.work.nextHref": "/contact",
-"home.voices.eyebrow": "What Clients Say",
-"home.voices.title": "In their |words.",
-"home.voices.newsEyebrow": "One insight a month",
-"home.voices.newsTitle": "One strategic insight a month. |No noise.",
-"home.voices.newsLead": "The same discipline we bring to client work, in an email. Reading time: four minutes. Everything else: nothing.",
-"home.news.placeholder": "Your email",
-"home.news.button": "Subscribe",
-"home.news.disclaimer": "No spam, no sharing, unsubscribe anytime.",
-"home.news.success": "You're on the list. First insight arrives next month.",
-"home.news.label": "Email address",
-"home.cta.eyebrow": "Let us Read Your Market Together",
-"home.cta.title": "Somewhere in your market, there is a pattern only a strategist would notice. |Let us find it.",
-"home.cta.lead": "One conversation. Thirty minutes. We will show you where your brand blends in - and what it takes to stand apart.",
-"home.cta.primary": "Start a Conversation",
-"home.cta.secondary": "Explore Our Services",
-"home.cta.primaryHref": "/contact",
-"home.cta.secondaryHref": "/services",
-"home.skip.text": "Hooked already?",
-"home.skip.cta": "See how we help brands cut through — skip to our work",
-"home.skip.href": "/work",
-"home.footer.blurb": "The strategic partner that turns market noise into a clear competitive advantage.",
-"home.footer.newsTitle": "One insight a month",
-"home.footer.newsText": "One strategic insight a month. No noise — we dislike noise more than you do.",
-"home.footer.based": "- Based in Dhaka.",
-};
+export { HOME_FALLBACK } from "./home-copy";
 
 export async function getHomeCopy(): Promise<Record<string, string>> {
   return first(async () => {
@@ -671,20 +642,36 @@ export async function getNewsCopy(): Promise<NewsCopy> {
   return { placeholder, button, disclaimer, success, label };
 }
 
-export type LockupItem = { word: string; stage: string };
+/** Chapter 01's interactive scenario. The CMS row is authoritative; an
+ *  invalid or missing row falls back to the shipped engagement. */
+export async function getBriefScenario(): Promise<BriefScenario> {
+  const raw = await getSetting("home.brief.scenario", "");
+  if (!raw) return BRIEF_DEFAULT;
+  try {
+    return parseBriefScenario(JSON.parse(raw)) ?? BRIEF_DEFAULT;
+  } catch {
+    console.warn("[content] home.brief.scenario is not valid JSON — using the shipped brief");
+    return BRIEF_DEFAULT;
+  }
+}
 
-const HOME_LOCKUP: LockupItem[] = [
-  { word: "Consultancy", stage: "The Read" },
-  { word: "Strategy", stage: "The Map" },
-  { word: "Solution", stage: "The Build" },
-];
-
-export async function getHomeLockup(): Promise<LockupItem[]> {
-  const rows = await getJsonSetting("home.tagline.lockup", [...HOME_LOCKUP]);
-  return rows.map((s) => ({
-    word: typeof s.word === "string" ? s.word : "",
-    stage: typeof s.stage === "string" ? s.stage : "",
-  }));
+/** The screening room playlist. `youtubeId` accepts a bare id or any *  watch / youtu.be / shorts URL — it is normalised here so the admin
+ *  can paste whatever the client sends. */
+export async function getHomeFilms(): Promise<Film[]> {
+  const rows = await getJsonSetting<unknown>("home.work.films", [...FILMS]);
+  if (!Array.isArray(rows)) return [];
+  return rows.map((raw) => {
+    const f = (raw ?? {}) as Record<string, unknown>;
+    return {
+      youtubeId: parseYoutubeId(typeof f.youtubeId === "string" ? f.youtubeId : ""),
+      title: str(f.title),
+      client: str(f.client),
+      kind: str(f.kind),
+      duration: str(f.duration),
+      blurb: str(f.blurb),
+      projectSlug: str(f.projectSlug),
+    };
+  }).filter((f) => f.title !== "" || f.client !== "");
 }
 
 export async function getHomeStages(): Promise<{ num: string; title: string; detail: string; outputs: string[] }[]> {
@@ -696,3 +683,45 @@ export async function getHomeStats(): Promise<{ value: number; suffix: string; l
   const rows = await getJsonSetting("home.results.stats", [...STATS]);
   return rows.map((s) => ({ value: s.value, suffix: s.suffix, label: s.label }));
 }
+
+/* --------------------------------------------------------------------------
+ * Per-route SEO overrides.
+ *
+ * Pages keep their built-in defaults; a row in `SeoMeta` only overrides the
+ * fields that were explicitly filled in the admin. This is what makes the
+ * "SEO & AEO" workspace affect real <head> output.
+ * ------------------------------------------------------------------------ */
+
+export type SeoOverride = {
+  title: string | null;
+  description: string | null;
+  ogImage: string | null;
+  canonical: string | null;
+  noindex: boolean;
+  keywords: string[];
+  schemaType: string | null;
+  schemaJson: unknown;
+};
+
+async function getSeoOverrideRaw(path: string): Promise<SeoOverride | null> {
+  const clean = path.split("?")[0].replace(/\/+$/, "") || "/";
+  try {
+    const row = await prisma.seoMeta.findUnique({ where: { path: clean } });
+    if (!row) return null;
+    return {
+      title: row.title,
+      description: row.description,
+      ogImage: row.ogImage,
+      canonical: row.canonical,
+      noindex: row.noindex,
+      keywords: [...row.keywords],
+      schemaType: row.schemaType,
+      schemaJson: row.schemaJson,
+    };
+  } catch {
+    return null;
+  }
+}
+
+export const getSeoOverride = cache(getSeoOverrideRaw);
+

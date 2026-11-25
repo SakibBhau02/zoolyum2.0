@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { createContext, useContext, useState, type FormEvent, type ReactNode } from "react";
 import { useSound } from "@/components/layout/SoundProvider";
 import { createLead } from "@/app/admin/actions";
 import { fireBrowserLead, newLeadContext } from "@/lib/tracking-client";
@@ -36,12 +36,12 @@ export function Field({
     "peer w-full rounded-lg border border-olive/35 bg-espresso px-4 pt-6 pb-2.5 font-body text-[15px] text-ivory placeholder:text-transparent transition-colors duration-300 focus:border-sienna-bright/70 focus:outline-none";
 
   const labelClasses =
-    "pointer-events-none absolute left-4 top-2 font-body text-[11px] font-semibold uppercase tracking-[0.14em] text-ivory/50 transition-all duration-300 peer-placeholder-shown:top-4.5 peer-placeholder-shown:text-sm peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-placeholder-shown:text-ivory/50 peer-focus:top-2 peer-focus:text-[11px] peer-focus:uppercase peer-focus:tracking-[0.14em] peer-focus:text-sienna-bright";
+    "pointer-events-none absolute left-4 top-2 font-body text-[11px] font-semibold uppercase tracking-[0.14em] text-ivory/66 transition-all duration-300 peer-placeholder-shown:top-4.5 peer-placeholder-shown:text-sm peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-placeholder-shown:text-ivory/66 peer-focus:top-2 peer-focus:text-[11px] peer-focus:uppercase peer-focus:tracking-[0.14em] peer-focus:text-sienna-bright";
 
   return (
     <div className="relative">
       {options ? (
-        <select name={name} required={required} defaultValue={defaultValue ?? ""} className={`${sharedClasses} appearance-none`}>
+        <select id={name} name={name} required={required} defaultValue={defaultValue ?? ""} className={`${sharedClasses} appearance-none`}>
           <option value="" disabled>
             Select…
           </option>
@@ -53,6 +53,7 @@ export function Field({
         </select>
       ) : textarea ? (
         <textarea
+          id={name}
           name={name}
           required={required}
           rows={5}
@@ -62,6 +63,7 @@ export function Field({
         />
       ) : file ? (
         <input
+          id={name}
           type="file"
           name={name}
           accept={accept}
@@ -70,6 +72,7 @@ export function Field({
         />
       ) : (
         <input
+          id={name}
           type={type}
           name={name}
           required={required}
@@ -86,7 +89,7 @@ export function Field({
         <svg
           viewBox="0 0 20 20"
           aria-hidden="true"
-          className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ivory/50"
+          className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ivory/66"
           fill="none"
           stroke="currentColor"
           strokeWidth="1.8"
@@ -102,40 +105,39 @@ export function Field({
  * SubmitButton — fades to a checkmark morph on submit (300ms).
  * Plays the opt-in micro-click.
  */
-export function SubmitButton({ label }: { label: string }) {
-  const [done, setDone] = useState(false);
+type FormState = "idle" | "sending" | "done" | "error";
+
+/**
+ * The form owns its state. The button reads it instead of guessing from the
+ * native submit event — that guess used to show “Received” before the server
+ * had answered, and left the button disabled after a failure.
+ */
+const FormStateContext = createContext<FormState>("idle");
+
+export function SubmitButton({ label, doneLabel }: { label: string; doneLabel?: string }) {
+  const status = useContext(FormStateContext);
   const { click } = useSound();
-  const buttonRef = useRef<HTMLButtonElement>(null);
-
-  // Morph to the checkmark only when the form actually submits
-  // (validation passed) — listen on the form, not the click.
-  useEffect(() => {
-    const form = buttonRef.current?.closest("form");
-    if (!form) return;
-    const onSubmit = () => setDone(true);
-    form.addEventListener("submit", onSubmit);
-    return () => form.removeEventListener("submit", onSubmit);
-  }, []);
-
+  const done = status === "done";
+  const sending = status === "sending";
 
   return (
     <button
-      ref={buttonRef}
       type="submit"
       onClick={click}
-      disabled={done}
-      className={`btn ${done ? "btn-secondary" : "btn-primary"} relative min-w-[220px]`}
+      disabled={sending || done}
+      aria-busy={sending}
+      className={`btn ${done ? "btn-secondary" : "btn-primary"} relative min-w-[220px] disabled:opacity-70`}
     >
       {done ? (
         <>
           <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden="true">
             <path d="m3.5 10.5 4 4 9-9" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-          Received. We reply within a day.
+          {doneLabel ?? "Received. We reply within a day."}
         </>
       ) : (
         <>
-          {label}
+          {sending ? "Sending…" : label}
           <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
             <path d="M4 10h12m0 0-5-5m5 5-5 5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
@@ -153,38 +155,76 @@ export function FormShell({
   onSubmitted,
   className = "",
   leadKind,
+  errorLabel,
 }: {
   children: ReactNode;
   onSubmitted?: () => void;
   className?: string;
   leadKind?: string;
+  errorLabel?: string;
 }) {
-  const [submitted, setSubmitted] = useState(false);
+  const [state, setState] = useState<FormState>("idle");
+  const [message, setMessage] = useState("");
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (submitted) return;
-    setSubmitted(true);
-    if (leadKind) {
-      const fd = new FormData(e.currentTarget);
-      const fields: Record<string, string | File> = {};
-      fd.forEach((v, k) => {
-        if (v instanceof File && v.size === 0) return;
-        fields[k] = v instanceof File ? v : String(v);
-      });
-      const ctx = newLeadContext();
-      createLead(leadKind, fields, ctx)
-        .then((r) => {
-          if (r.ok) fireBrowserLead(leadKind, ctx);
-        })
-        .catch(() => {});
+    if (state === "sending" || state === "done") return;
+    const form = e.currentTarget;
+    const fd = new FormData(form);
+    // Honeypot: filled only by bots. Pretend success, store nothing.
+    if (String(fd.get("_hp") ?? "").trim() !== "") {
+      setState("done");
+      onSubmitted?.();
+      return;
     }
-    onSubmitted?.();
+    if (!leadKind) {
+      setState("done");
+      onSubmitted?.();
+      return;
+    }
+    const fields: Record<string, string | File> = {};
+    fd.forEach((v, k) => {
+      if (k === "_hp") return;
+      if (v instanceof File && v.size === 0) return;
+      fields[k] = v instanceof File ? v : String(v);
+    });
+    const ctx = newLeadContext();
+    setMessage("");
+    setState("sending");
+    try {
+      const r = await createLead(leadKind, fields, ctx);
+      if (r.ok) {
+        fireBrowserLead(leadKind, ctx);
+        setState("done");
+        onSubmitted?.();
+      } else {
+        setMessage(r.error ?? "");
+        setState("error");
+      }
+    } catch {
+      setState("error");
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className={className}>
-      {children}
-    </form>
+    <FormStateContext.Provider value={state}>
+      <form onSubmit={handleSubmit} className={className} aria-busy={state === "sending"}>
+        {children}
+        <input
+          type="text"
+          name="_hp"
+          tabIndex={-1}
+          autoComplete="off"
+          aria-hidden="true"
+          style={{ position: "absolute", left: "-9999px", width: 1, height: 1, opacity: 0 }}
+        />
+        {state === "error" && (
+          <p role="alert" className="mt-3 font-body text-sm text-sienna-bright">
+            {message || errorLabel || "Something went wrong. Please try again, or email hello@zoolyum.com."}
+          </p>
+        )}
+      </form>
+    </FormStateContext.Provider>
   );
 }
+

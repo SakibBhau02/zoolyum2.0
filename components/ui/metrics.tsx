@@ -87,7 +87,7 @@ export function ConfidenceIndicator({
       <span className="font-display text-2xl font-semibold tracking-tight text-sienna tabular-nums">
         {value}
       </span>
-      <span className="font-body text-sm text-ivory/55">{label}</span>
+      <span className="font-body text-sm text-ivory/70">{label}</span>
     </p>
   );
 }

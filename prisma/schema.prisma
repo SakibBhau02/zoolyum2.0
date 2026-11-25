@@ -23,6 +23,9 @@ model Post {
   authorRole String
   cover     String
   published Boolean   @default(true)
+  /// draft | review | published — kept in sync with `published` so old
+  /// queries keep working while the editor gains a review step.
+  status    String    @default("published")
   keywords  String[]
   takeaways String[]
   quote     String?
@@ -32,6 +35,10 @@ model Post {
   faqs      Json?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([published, date])
+  @@index([status, updatedAt])
+  @@index([updatedAt])
 }
 
 model Project {
@@ -54,8 +61,13 @@ model Project {
   gradient  String
   meta      Json?
   sort      Int      @default(0)
+  /// draft | review | published — see Post.status.
+  status    String   @default("published")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([published, sort])
+  @@index([status, updatedAt])
 }
 
 model Service {
@@ -86,6 +98,8 @@ model TeamMember {
   expertise String
   initials  String
   sort      Int      @default(0)
+
+  @@index([sort])
 }
 
 model Job {
@@ -96,6 +110,8 @@ model Job {
   dept     String
   detail   Json?
   active   Boolean @default(true)
+
+  @@index([active, dept])
 }
 
 model Lead {
@@ -106,6 +122,11 @@ model Lead {
   payload   Json?
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
+
+  @@index([read, createdAt])
+  @@index([kind, createdAt])
+  @@index([createdAt])
+  @@index([email])
 }
 
 model Media {
@@ -118,6 +139,8 @@ model Media {
   width     Int?
   height    Int?
   createdAt DateTime @default(now())
+
+  @@index([createdAt])
 }
 model Testimonial {
   id        Int      @id @default(autoincrement())
@@ -126,6 +149,8 @@ model Testimonial {
   company   String   @unique
   industry  String
   sort      Int      @default(0)
+
+  @@index([sort])
 }
 
 model MenuLink {
@@ -135,10 +160,162 @@ model MenuLink {
   group   String
   sort    Int     @default(0)
   visible Boolean @default(true)
+
+  @@index([visible, group, sort])
 }
 
 model SiteSetting {
   key       String   @id
   value     String
   updatedAt DateTime @updatedAt
+}
+
+/* ------------------------------------------------------------------
+ * Admin identity, audit trail and content workflow.
+ * ------------------------------------------------------------------ */
+
+model AdminUser {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String
+  passwordHash String
+  /// owner | admin | editor | viewer
+  role         String    @default("editor")
+  active       Boolean   @default(true)
+  failedLogins Int       @default(0)
+  lockedUntil  DateTime?
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  sessions  AdminSession[]
+  auditLogs AuditLog[]
+  revisions Revision[]
+}
+
+model AdminSession {
+  id        String    @id @default(cuid())
+  userId    String
+  user      AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  ip        String?
+  userAgent String?
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model AuditLog {
+  id        Int        @id @default(autoincrement())
+  userId    String?
+  user      AdminUser? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    String
+  entity    String?
+  entityId  String?
+  summary   String?
+  diff      Json?
+  ip        String?
+  createdAt DateTime   @default(now())
+
+  @@index([createdAt])
+  @@index([entity, entityId])
+  @@index([userId, createdAt])
+}
+
+model Revision {
+  id         Int        @id @default(autoincrement())
+  collection String
+  recordId   Int
+  snapshot   Json
+  label      String?
+  userId     String?
+  user       AdminUser? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt  DateTime   @default(now())
+
+  @@index([collection, recordId, createdAt])
+}
+
+/* ------------------------------------------------------------------
+ * SEO / AEO / GEO workspace.
+ * ------------------------------------------------------------------ */
+
+model SeoMeta {
+  id          Int      @id @default(autoincrement())
+  /// Canonical site path, e.g. /services/brand-strategy.
+  path        String   @unique
+  title       String?
+  description String?
+  ogImage     String?
+  canonical   String?
+  noindex     Boolean  @default(false)
+  keywords    String[]
+  /// Optional schema.org type override, e.g. Service, FAQPage.
+  schemaType  String?
+  schemaJson  Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([updatedAt])
+}
+
+model Redirect {
+  id          Int      @id @default(autoincrement())
+  source      String   @unique
+  destination String
+  statusCode  Int      @default(301)
+  hits        Int      @default(0)
+  active      Boolean  @default(true)
+  note        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([active])
+}
+
+model NotFoundLog {
+  id          Int      @id @default(autoincrement())
+  path        String   @unique
+  hits        Int      @default(1)
+  firstSeenAt DateTime @default(now())
+  lastSeenAt  DateTime @updatedAt
+
+  @@index([hits])
+}
+
+/* ------------------------------------------------------------------
+ * Shared rate limiting. One row per IP+scope, reset by a window.
+ * In-process limits are per serverless instance; this table is what makes
+ * form/login throttling survive across instances.
+ * ------------------------------------------------------------------ */
+
+model RateLimit {
+  key     String   @id
+  count   Int      @default(1)
+  resetAt DateTime
+
+  @@index([resetAt])
+}
+
+/* ------------------------------------------------------------------
+ * Measurement log — one row per server-side send attempt.
+ * ------------------------------------------------------------------ */
+
+model TrackingEvent {
+  id        Int      @id @default(autoincrement())
+  /// lead | test
+  kind      String
+  /// meta | ga4
+  provider  String
+  eventName String
+  /// ok | error | skipped
+  status    String
+  detail    String?
+  leadId    Int?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([provider, createdAt])
+  @@index([status, createdAt])
 }

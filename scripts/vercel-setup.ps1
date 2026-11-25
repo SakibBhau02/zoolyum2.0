@@ -1,8 +1,8 @@
 # One-shot Vercel setup + deploy for Zoolyum.
 # Prereq (one time only): npx -y vercel@latest login
 # Usage: powershell -ExecutionPolicy Bypass -File scripts/vercel-setup.ps1
-# Reads secrets from local .env (never committed), generates a FRESH production
-# ADMIN_SECRET, sets all env vars on Vercel (production + preview), deploys --prod.
+# Reads secrets from local .env (never committed), sets env vars on Vercel
+# (production + preview), applies pending migrations, then deploys --prod.
 
 $ErrorActionPreference = "Continue"
 Set-Location (Join-Path $PSScriptRoot "..")
@@ -14,21 +14,23 @@ Get-Content ".env" | ForEach-Object {
   if ($_ -match '^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*"([^"]*)"\s*$') { $envMap[$matches[1]] = $matches[2] }
 }
 
-$ADMIN_SECRET_PROD = (node -e "console.log(require('crypto').randomBytes(32).toString('base64'))").Trim()
-
 $vars = [ordered]@{
   DATABASE_URL           = $envMap["DATABASE_URL"]
   ADMIN_PASSWORD         = $envMap["ADMIN_PASSWORD"]
-  ADMIN_SECRET           = $ADMIN_SECRET_PROD
   STORAGE_DRIVER         = "r2"
   R2_ACCOUNT_ID          = $envMap["R2_ACCOUNT_ID"]
   R2_BUCKET              = $envMap["R2_BUCKET"]
   R2_ACCESS_KEY_ID       = $envMap["R2_ACCESS_KEY_ID"]
   R2_SECRET_ACCESS_KEY   = $envMap["R2_SECRET_ACCESS_KEY"]
   R2_PUBLIC_URL          = $envMap["R2_PUBLIC_URL"]
+  R2_PRIVATE_BUCKET      = $envMap["R2_PRIVATE_BUCKET"]
+  RESEND_API_KEY         = $envMap["RESEND_API_KEY"]
+  EMAIL_FROM             = $envMap["EMAIL_FROM"]
+  LEAD_NOTIFY_EMAIL      = $envMap["LEAD_NOTIFY_EMAIL"]
+  CRON_SECRET            = $envMap["CRON_SECRET"]
 }
 
-foreach ($k in $vars.Keys) {
+foreach ($k in @("DATABASE_URL","ADMIN_PASSWORD","R2_ACCOUNT_ID","R2_BUCKET","R2_ACCESS_KEY_ID","R2_SECRET_ACCESS_KEY","R2_PUBLIC_URL","R2_PRIVATE_BUCKET")) {
   if (-not $vars[$k]) { Write-Output "ERROR: $k missing in .env"; exit 1 }
 }
 
@@ -37,11 +39,15 @@ npx -y vercel@latest link --yes
 
 foreach ($target in @("production", "preview")) {
   foreach ($k in $vars.Keys) {
+    if (-not $vars[$k]) { continue }  # optional integrations stay unset
     npx -y vercel@latest env rm $k $target --yes 2>$null | Out-Null
     $vars[$k] | npx -y vercel@latest env add $k $target
   }
   Write-Output "env vars set for $target."
 }
+
+Write-Output "Applying pending database migrations..."
+npx -y --package prisma@7 -- prisma migrate deploy
 
 Write-Output "Deploying to production..."
 npx -y vercel@latest --prod --yes

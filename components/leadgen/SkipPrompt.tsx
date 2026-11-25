@@ -14,7 +14,7 @@ export async function SkipPrompt() {
   ]);
   return (
     <div className="relative bg-espresso py-12 text-center" data-lead-inline>
-      <p className="font-body text-sm text-ivory/50">{text}</p>
+      <p className="font-body text-sm text-ivory/66">{text}</p>
       <Link
         href={href}
         className="btn-ghost mt-3 inline-flex font-display text-sm font-semibold text-sienna-bright"

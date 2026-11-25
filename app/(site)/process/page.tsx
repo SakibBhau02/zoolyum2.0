@@ -3,7 +3,23 @@ import { pageMeta } from "@/lib/content";
 import Link from "next/link";
 import { PageHero } from "@/components/pages/PageHero";
 import { Reveal, HorizonRule } from "@/components/ui/Reveal";
-import { PROCESS_STAGES } from "@/lib/data";
+import { PROCESS_STAGES, SITE_URL } from "@/lib/data";
+import { PageSchema } from "@/components/seo/PageSchema";
+
+const howToLd = {
+  "@type": "HowTo",
+  "@id": `${SITE_URL}/process#howto`,
+  name: "The Zoolyum method",
+  description:
+    "The five stages every Zoolyum engagement runs through, in order: Discover, Strategize, Design, Launch, Grow.",
+  step: PROCESS_STAGES.map((stage) => ({
+    "@type": "HowToStep",
+    position: Number(stage.num),
+    name: stage.title,
+    text: stage.detail,
+    itemListElement: stage.outputs.map((output) => ({ "@type": "HowToDirection", text: output })),
+  })),
+};
 
 export async function generateMetadata(): Promise<Metadata> {
   return pageMeta("process", {
@@ -46,7 +62,7 @@ export default function ProcessPage() {
                     <span className="relative h-1 w-1 rounded-full bg-sienna transition-colors duration-300 group-hover:bg-espresso md:h-1.5 md:w-1.5" />
                   </span>
                   <div className="flex flex-wrap items-baseline gap-x-5 gap-y-2">
-                    <span className="font-display text-4xl font-semibold text-sienna/25 transition-colors duration-300 group-hover:text-sienna/60 md:text-5xl">
+                    <span className="font-display text-4xl font-semibold text-sienna-bright/75 transition-colors duration-300 group-hover:text-sienna-bright md:text-5xl">
                       {stage.num}
                     </span>
                     <h2 className="font-display text-display-3 font-semibold text-ivory">
@@ -89,6 +105,7 @@ export default function ProcessPage() {
           </Reveal>
         </div>
       </section>
+      <PageSchema route="process" path="/process" label="Process" extra={[howToLd]} />
     </>
   );
 }

@@ -53,7 +53,7 @@ export function JourneyRail({
               className={`shrink-0 rounded-full px-3.5 py-1.5 font-body text-xs font-medium tracking-wide transition-colors ${
                 active === c.id
                   ? "bg-sienna/15 text-sienna-bright"
-                  : "text-ivory/50 hover:text-ivory/80"
+                  : "text-ivory/66 hover:text-ivory/80"
               }`}
             >
               {c.label}

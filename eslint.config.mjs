@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Local QA scratch files (screenshots, one-off .cjs scripts). They are not
+    // part of the app and previously made `npm run lint` fail.
+    "artifacts/**",
   ]),
 ]);
 

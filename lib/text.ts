@@ -20,3 +20,16 @@ export function splitAccent(text: string): [string, string, string] {
   const parts = text.split("|");
   return [parts[0] ?? "", parts[1] ?? "", parts.slice(2).join("|")];
 }
+
+/**
+ * Clamp a string to a SERP-safe length at a word boundary, without cutting a
+ * word in half. Used for meta descriptions built from long CMS copy.
+ */
+export function clampMeta(input: string, max = 156): string {
+  const s = (input ?? "").replace(/\s+/g, " ").trim();
+  if (s.length <= max) return s;
+  const cut = s.slice(0, max - 1);
+  const at = cut.lastIndexOf(" ");
+  const body = (at > max * 0.6 ? cut.slice(0, at) : cut).replace(/[,;:.\-–—]+$/, "");
+  return `${body}…`;
+}

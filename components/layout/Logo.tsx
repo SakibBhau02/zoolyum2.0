@@ -47,6 +47,7 @@ export function Logo({ withTagline = false }: { withTagline?: boolean }) {
   return (
     <Link
       href="/"
+      prefetch={false}
       onClick={handleClick}
       aria-label="Zoolyum, Consultancy. Strategy. Solution. Home"
       className="group flex items-center gap-3"

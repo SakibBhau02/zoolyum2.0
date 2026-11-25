@@ -7,7 +7,9 @@ import { FaqAccordion } from "@/components/ui/FaqAccordion";
 import { ConfidenceIndicator } from "@/components/ui/metrics";
 import { JourneyRail } from "@/components/pages/JourneyRail";
 import { SITE_URL } from "@/lib/data";
-import { getServiceSlugs, getService, getServices, getProjects } from "@/lib/content";
+import { indexableRobots, jsonLdHtml, noindexRobots } from "@/lib/seo";
+import { clampMeta } from "@/lib/text";
+import { getServiceSlugs, getService, getServices, getProjects, getSeoOverride } from "@/lib/content";
 
 export async function generateStaticParams() {
   return (await getServiceSlugs()).map((slug) => ({ slug }));
@@ -21,21 +23,34 @@ export async function generateMetadata({
   const { slug } = await params;
   const service = await getService(slug);
   if (!service) return {};
+  const override = await getSeoOverride(`/services/${service.slug}`);
+  const description = override?.description || clampMeta(service.oneParagraph);
   return {
-    title: `${service.name} - ${service.tagline}`,
-    description: service.oneParagraph,
-    alternates: { canonical: `/services/${service.slug}` },
+    title: override?.title ? { absolute: override.title } : `${service.name} - ${service.tagline}`,
+    description,
+    keywords: override?.keywords.length ? override.keywords : undefined,
+    robots: override?.noindex ? noindexRobots : indexableRobots,
+    alternates: { canonical: override?.canonical || `/services/${service.slug}` },
+    // The route's opengraph-image.tsx is injected by Next with its build-hashed
+    // URL; the default card is the fallback when no override is set.
     openGraph: {
       title: `${service.name} - Zoolyum`,
-      description: service.oneParagraph,
+      description,
       url: `/services/${service.slug}`,
-      images: [{ url: `${SITE_URL}/services/${service.slug}/opengraph-image`, width: 1200, height: 630, alt: `${service.name} - Zoolyum` }],
+      siteName: "Zoolyum",
+      locale: "en_US",
+      type: "article",
+      // Leave `images` unset unless the admin picked one: Next then injects
+      // this route's file-convention opengraph-image (a service-specific card)
+      // instead of the generic site card.
+      ...(override?.ogImage
+        ? { images: [{ url: override.ogImage, width: 1200, height: 630, alt: service.name }] }
+        : {}),
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title: `${service.name} - Zoolyum`,
-      description: service.oneParagraph,
-      images: [`${SITE_URL}/services/${service.slug}/opengraph-image`],
+      description,
     },
   };
 }
@@ -68,12 +83,13 @@ export default async function ServiceDetailPage({
   const allServices = await getServices();
   const serviceIndex = allServices.findIndex((s) => s.slug === slug);
   const next = allServices[(serviceIndex + 1) % allServices.length];
+  const seo = await getSeoOverride(`/services/${service.slug}`);
 
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
       {
-        "@type": "Service",
+        "@type": seo?.schemaType || "Service",
         name: service.name,
         description: service.oneParagraph,
         url: `${SITE_URL}/services/${service.slug}`,
@@ -99,6 +115,7 @@ export default async function ServiceDetailPage({
           acceptedAnswer: { "@type": "Answer", text: f.a },
         })),
       },
+      ...(seo?.schemaJson && typeof seo.schemaJson === "object" ? [seo.schemaJson] : []),
     ],
   };
 
@@ -133,6 +150,34 @@ export default async function ServiceDetailPage({
               <p className="body-copy mt-5 max-w-4xl font-display text-xl font-medium leading-relaxed text-ivory/90 md:text-2xl">
                 {service.oneParagraph}
               </p>
+              {/* Key facts, as a definition list: the shape answer engines
+                  extract most reliably when they quote a service page. */}
+              <dl className="mt-8 grid gap-6 border-t border-olive/15 pt-6 sm:grid-cols-3">
+                <div>
+                  <dt className="font-body text-[10.5px] font-semibold uppercase tracking-[0.2em] text-ivory/55">
+                    What you get
+                  </dt>
+                  <dd className="mt-1.5 font-display text-lg font-medium text-ivory">
+                    {Array.isArray(service.deliverables) ? service.deliverables.length : 0} deliverables
+                  </dd>
+                </div>
+                <div>
+                  <dt className="font-body text-[10.5px] font-semibold uppercase tracking-[0.2em] text-ivory/55">
+                    Proof
+                  </dt>
+                  <dd className="mt-1.5 font-display text-lg font-medium text-ivory">
+                    {service.proofStat?.value ? `${service.proofStat.value} ${service.proofStat.label ?? ""}`.trim() : "Measured per engagement"}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="font-body text-[10.5px] font-semibold uppercase tracking-[0.2em] text-ivory/55">
+                    How it runs
+                  </dt>
+                  <dd className="mt-1.5 font-display text-lg font-medium text-ivory">
+                    {Array.isArray(service.process) ? service.process.length : 0}-stage sequence
+                  </dd>
+                </div>
+              </dl>
             </div>
           </Reveal>
         </div>
@@ -150,7 +195,7 @@ export default async function ServiceDetailPage({
             <p className="eyebrow">The story</p>
             <h2 className="mt-4 max-w-3xl font-display text-display-2 font-semibold text-ivory">
               Every engagement starts here -{" "}
-              <span className="text-ivory/55">and ends somewhere better.</span>
+              <span className="text-ivory/70">and ends somewhere better.</span>
             </h2>
           </Reveal>
 
@@ -262,7 +307,7 @@ export default async function ServiceDetailPage({
           <Reveal>
             <p className="eyebrow">The sequence</p>
             <h2 className="mt-4 font-display text-display-2 font-semibold text-ivory">
-              The sequence, <span className="text-ivory/55">step by step.</span>
+              The sequence, <span className="text-ivory/70">step by step.</span>
             </h2>
           </Reveal>
 
@@ -323,7 +368,7 @@ export default async function ServiceDetailPage({
                       <h3 className="font-display text-xl font-semibold text-ivory transition-colors duration-300 group-hover:text-sienna-bright">
                         {project.client}
                       </h3>
-                      <p className="body-copy mt-2 font-body text-sm leading-relaxed text-ivory/55">
+                      <p className="body-copy mt-2 font-body text-sm leading-relaxed text-ivory/70">
                         {project.title}
                       </p>
                       <div className="mt-5 border-t border-olive/20 pt-5">
@@ -352,7 +397,7 @@ export default async function ServiceDetailPage({
             <Reveal>
               <p className="eyebrow">Questions</p>
               <h2 className="mt-4 font-display text-display-2 font-semibold text-ivory">
-                Asked before <span className="text-ivory/55">every engagement.</span>
+                Asked before <span className="text-ivory/70">every engagement.</span>
               </h2>
             </Reveal>
           </div>
@@ -365,7 +410,7 @@ export default async function ServiceDetailPage({
       {/* ---- Next service ---- */}
       <section className="relative overflow-hidden border-t border-olive/15 py-14" aria-label="Next service">
         <div className="section-shell flex flex-wrap items-center justify-between gap-6">
-          <p className="font-body text-sm text-ivory/50">Next service</p>
+          <p className="font-body text-sm text-ivory/66">Next service</p>
           <Link href={`/services/${next.slug}`} className="group flex items-center gap-4 text-right">
             <span className="font-display text-2xl font-semibold text-ivory transition-colors duration-300 group-hover:text-sienna-bright md:text-3xl">
               {next.name}
@@ -379,7 +424,7 @@ export default async function ServiceDetailPage({
 
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(jsonLd) }}
       />
     </>
   );
